@@ -2,26 +2,23 @@ package com.antware.joggerlogger
 
 import android.annotation.SuppressLint
 import android.location.Location
-import androidx.fragment.app.Fragment
-
 import android.os.Bundle
-import android.os.Debug
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
+import androidx.fragment.app.Fragment
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import java.io.Console
 
 @Suppress("PrivatePropertyName")
 class MapsFragment : Fragment() {
 
     private val INITIAL_ZOOM_LEVEL = 16.0f
+    private val DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_HYBRID
 
     private var map : GoogleMap? = null
     var currLocation : Location? = null
@@ -57,6 +54,7 @@ class MapsFragment : Fragment() {
 
         map!!.isMyLocationEnabled = true // TODO Add permission check?
         map!!.uiSettings.isMyLocationButtonEnabled = true
+        map!!.mapType = DEFAULT_MAP_TYPE
 
         moveCameraToCurrentLoc(currLocation)
 

@@ -8,4 +8,5 @@
     <color name="color_background">#FAFAFA</color>
 
     <color name="navigationBarColor">#003C33</color>
+    <color name="grey">#646464</color>
 </resources>
