@@ -11,4 +11,8 @@
         <item name="fontFamily">@font/shrikhand</item>
     </style>
 
+    <style name="startButton" parent="Widget.MaterialComponents.Button">
+        <item name="background">@color/colorAccent</item>
+    </style>
+
 </resources>

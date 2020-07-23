@@ -32,11 +32,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <fragment
-            android:id="@+id/fragment"
-            android:name="com.antware.joggerlogger.MapsFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            <fragment
+                android:id="@+id/mapFragment"
+                android:name="com.antware.joggerlogger.MapsFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:layout="@layout/fragment_maps"
+                />
 
     </FrameLayout>
 
@@ -50,10 +52,11 @@
         app:layout_constraintTop_toBottomOf="@id/upperFrame">
 
         <fragment
-            android:id="@+id/fragment2"
+            android:id="@+id/controlFragment"
             android:name="com.antware.joggerlogger.ControlFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_control"/>
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
