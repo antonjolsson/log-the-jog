@@ -32,13 +32,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-            <fragment
-                android:id="@+id/mapFragment"
-                android:name="com.antware.joggerlogger.MapsFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout="@layout/fragment_maps"
-                />
+        <fragment
+            android:id="@+id/mapFragment"
+            android:name="com.antware.joggerlogger.MapsFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_maps" />
 
     </FrameLayout>
 
@@ -49,14 +48,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/upperFrame">
+        app:layout_constraintTop_toTopOf="@+id/guideline">
 
         <fragment
             android:id="@+id/controlFragment"
             android:name="com.antware.joggerlogger.ControlFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:layout="@layout/fragment_control"/>
+            tools:layout="@layout/fragment_control" />
     </FrameLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="443dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

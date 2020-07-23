@@ -6,4 +6,6 @@
     <color name="colorBlack">#000000</color>
 
     <color name="color_background">#FAFAFA</color>
+
+    <color name="navigationBarColor">#003C33</color>
 </resources>

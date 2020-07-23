@@ -1,8 +1,12 @@
 package com.antware.joggerlogger
 
+import android.annotation.SuppressLint
+import android.location.Location
 import androidx.fragment.app.Fragment
 
 import android.os.Bundle
+import android.os.Debug
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,10 +16,31 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import java.io.Console
 
+@Suppress("PrivatePropertyName")
 class MapsFragment : Fragment() {
 
+    private val INITIAL_ZOOM_LEVEL = 16.0f
+
+    private var map : GoogleMap? = null
+    var currLocation : Location? = null
+
+    private val locationResult = object : MyLocation.LocationResult() {
+
+        override fun gotLocation(location: Location?) {
+            currLocation = location
+            moveCameraToCurrentLoc(location)
+        }
+    }
+
+    private fun moveCameraToCurrentLoc(location: Location?) {
+        val here = location?.latitude?.let { LatLng(it, location.longitude) }
+        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
+        Log.d(here?.latitude.toString() + ", " + here?.longitude.toString(), "No location data")
+    }
+
+    @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
         /**
          * Manipulates the map once available.
@@ -26,16 +51,22 @@ class MapsFragment : Fragment() {
          * install it inside the SupportMapFragment. This method will only be triggered once the
          * user has installed Google Play services and returned to the app.
          */
-        val sydney = LatLng(-34.0, 151.0)
-        googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        map = googleMap
+
+        currLocation?.latitude?.let { currLocation?.longitude?.let { it1 -> LatLng(it, it1) } }
+
+        map!!.isMyLocationEnabled = true // TODO Add permission check?
+        map!!.uiSettings.isMyLocationButtonEnabled = true
+
+        moveCameraToCurrentLoc(currLocation)
+
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        val myLocation = MyLocation()
+        myLocation.getLocation(inflater.context, locationResult)
+
         return inflater.inflate(R.layout.fragment_maps, container, false)
     }
 
