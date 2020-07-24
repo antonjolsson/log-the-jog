@@ -1,59 +1,55 @@
 package com.antware.joggerlogger
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
+import com.antware.joggerlogger.databinding.FragmentControlBinding
+import com.antware.joggerlogger.databinding.FragmentStatsBinding
+import java.util.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [StatsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+@SuppressLint("SetTextI18n")
 class StatsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private val model: LogViewModel by activityViewModels()
+    private var _binding: FragmentStatsBinding? = null
+    // This property is only valid between onCreateView and
+// onDestroyView.
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_stats, container, false)
+        _binding = FragmentStatsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment StatsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            StatsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        /*model.duration.observe(viewLifecycleOwner, androidx.lifecycle.Observer { duration ->
+            setDurationView(duration)
+        })*/
+        model.distance.observe(viewLifecycleOwner, androidx.lifecycle.Observer { distance ->
+            binding.distanceView.text = (distance / 1000).toString() + "." + ((distance % 1000).toString() + 0).take(2) + " km"
+        })
+        model.speed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { speed ->
+            binding.speedView.text = (speed.toString() + "0").take(4)
+        })
+        model.startEndTimes.observe(viewLifecycleOwner, androidx.lifecycle.Observer { startEndTimes ->
+
+        })
     }
+
+    /*private fun setDurationView(duration: LogViewModel.Duration) {
+        val hours = "0" + duration.hours.toString()
+        val minutes = "0" + duration.minutes.toString()
+        val seconds = "0" + duration.seconds.toString()
+        binding.durationView.text = """${hours.takeLast(2)}:${minutes.takeLast(2)}:${seconds.takeLast(2)}"""
+    }*/
+
 }

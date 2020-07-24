@@ -4,9 +4,7 @@
     <color name="colorPrimaryDark">#6AA69D</color>
     <color name="colorAccent">#FF8182</color>
     <color name="colorBlack">#000000</color>
-
-    <color name="color_background">#FAFAFA</color>
-
+    <color name="colorBackground">#FFFFFF</color>
     <color name="navigationBarColor">#003C33</color>
-    <color name="grey">#646464</color>
+    <color name="colorDisabled">#A6A6A6</color>
 </resources>

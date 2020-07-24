@@ -63,8 +63,6 @@
         android:text="0:27:46"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="@color/colorBlack"
-        android:includeFontPadding="false"
-        android:lineSpacingExtra="0dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline3" />
