@@ -31,25 +31,22 @@ class StatsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        /*model.duration.observe(viewLifecycleOwner, androidx.lifecycle.Observer { duration ->
+        model.duration.observe(viewLifecycleOwner, androidx.lifecycle.Observer { duration ->
             setDurationView(duration)
-        })*/
+        })
         model.distance.observe(viewLifecycleOwner, androidx.lifecycle.Observer { distance ->
             binding.distanceView.text = (distance / 1000).toString() + "." + ((distance % 1000).toString() + 0).take(2) + " km"
         })
         model.speed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { speed ->
-            binding.speedView.text = (speed.toString() + "0").take(4)
-        })
-        model.startEndTimes.observe(viewLifecycleOwner, androidx.lifecycle.Observer { startEndTimes ->
-
+            binding.speedView.text = (speed.toString() + "0").take(4) + " km/h"
         })
     }
 
-    /*private fun setDurationView(duration: LogViewModel.Duration) {
+    private fun setDurationView(duration: LogViewModel.Duration) {
         val hours = "0" + duration.hours.toString()
         val minutes = "0" + duration.minutes.toString()
         val seconds = "0" + duration.seconds.toString()
         binding.durationView.text = """${hours.takeLast(2)}:${minutes.takeLast(2)}:${seconds.takeLast(2)}"""
-    }*/
+    }
 
 }
