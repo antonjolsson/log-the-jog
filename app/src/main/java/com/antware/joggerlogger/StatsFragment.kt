@@ -24,7 +24,6 @@ class StatsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         _binding = FragmentStatsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -47,6 +46,11 @@ class StatsFragment : Fragment() {
         val minutes = "0" + duration.minutes.toString()
         val seconds = "0" + duration.seconds.toString()
         binding.durationView.text = """${hours.takeLast(2)}:${minutes.takeLast(2)}:${seconds.takeLast(2)}"""
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }
