@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -25,11 +26,8 @@ class MapsFragment : Fragment() {
 
     private val CIRCLE_Z_INDEX = 1F
     private val STATUS_CHANGED_CIRCLE_RADIUS = 10.0
-    private val POLYLINE_WIDTH = 25F
-    private val STOP_EXERCISE_MARKER_COLOR = 0F
     private val INITIAL_ZOOM_LEVEL = 16.0f
     private val DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_HYBRID
-    private val START_EXERCISE_MARKER_COLOR = 171F
 
     private var map : GoogleMap? = null
     var currLocation : Location? = null
@@ -47,18 +45,16 @@ class MapsFragment : Fragment() {
         requireActivity().runOnUiThread {
             map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
             if (model.exerciseStatus == STARTED) {
-                model.addWaypoint(Waypoint(location, model.exerciseStatus))
+                model.addWaypoint(Waypoint(location, model.exerciseStatus, SystemClock.elapsedRealtime()))
                 addPolyline(here)
             }
         }
-        //Log.d(here?.latitude.toString() + ", " + here?.longitude.toString(), "No location data")
     }
 
     private fun addPolyline(startPoint: LatLng?) {
         val numWaypoints = model.waypoints.size
         val endPoint = if (numWaypoints > 1) getLatLng(model.waypoints[numWaypoints - 2].location) else startPoint
         val options = PolylineOptions().color(ContextCompat.getColor(requireActivity(), R.color.colorPrimary))
-           // .pattern(listOf(Dot())).width(POLYLINE_WIDTH)
         map?.addPolyline(options.add(startPoint, endPoint))
     }
 
@@ -109,10 +105,9 @@ class MapsFragment : Fragment() {
             }
             else -> {
                 addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, R.color.colorAccent, CIRCLE_Z_INDEX)
-                model.addWaypoint(Waypoint(currLocation, status))
             }
         }
-        model.addWaypoint(Waypoint(currLocation, status))
+        model.addWaypoint(Waypoint(currLocation, status, SystemClock.elapsedRealtime()))
     }
 
     private fun addCircle(radius: Double, strokeColor: Int, fillColorId: Int, zIndex: Float) {

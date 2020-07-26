@@ -19,23 +19,27 @@ import static java.lang.Math.*;
 public class LogViewModel extends ViewModel {
 
     private static final double EARTH_RADIUS = 6371;
+    private static final int SECONDS_IN_SPEED_CALC = 5;
 
     public static class Waypoint {
         Location location;
         ExerciseStatus status;
+        long timeStamp;
         boolean accountedFor = true;
 
         public boolean isAccountedFor() {
             return accountedFor;
         }
 
-        Waypoint(Location location, ExerciseStatus status) {
+        Waypoint(Location location, ExerciseStatus status, long timeStamp) {
             this.location = location;
             this.status = status;
+            this.timeStamp = timeStamp;
         }
 
         Location getLocation() {return location;}
         ExerciseStatus getStatus() {return status;}
+        long getTimeStamp() {return timeStamp;}
         void setAccountedFor(boolean accountedFor) {
             this.accountedFor = accountedFor;
         }
@@ -43,8 +47,8 @@ public class LogViewModel extends ViewModel {
 
     private List<Waypoint> waypoints = new ArrayList<>();
 
-    public void addWaypoint(Waypoint location) {
-        waypoints.add(location);
+    public void addWaypoint(Waypoint waypoint) {
+        waypoints.add(waypoint);
         setDuration();
         setDistance();
         setSpeed();
@@ -92,7 +96,26 @@ public class LogViewModel extends ViewModel {
     }
 
     private void setSpeed() {
+        if (waypoints.size() < 2) return;
+        double speedCalcDistance = 0;
+        for (int i = 0; i < SECONDS_IN_SPEED_CALC; i++) {
+            Waypoint w1 = waypoints.get(waypoints.size() - 2 - i);
+            if (w1.status != STARTED) return;
+            Waypoint w2 = waypoints.get(waypoints.size() - 1 - i);
+            double distanceW1W2 = getDistanceBetweenCords(w2, w1);
+            speedCalcDistance += Double.isNaN(distanceW1W2) ? 0 : distanceW1W2;
+        }
+        Log.d("VM", "speed: " + (speedCalcDistance / SECONDS_IN_SPEED_CALC));
+        speed.setValue(speedCalcDistance / (SECONDS_IN_SPEED_CALC / (60.0 * 60)));
+    }
 
+    private double getDistanceBetweenCords(Waypoint w2, Waypoint w1) {
+        double latW1 = toRadians(w1.getLocation().getLatitude());
+        double longW1 = toRadians(w1.getLocation().getLongitude());
+        double latW2 = toRadians(w2.getLocation().getLatitude());
+        double longW2 = toRadians(w2.getLocation().getLongitude());
+        double centralAngle = acos(sin(latW1) * sin(latW2) + cos(latW1) * cos(latW2) * cos(abs(longW1 - longW2)));
+        return EARTH_RADIUS * centralAngle;
     }
 
     private void setDistance() {
@@ -100,16 +123,9 @@ public class LogViewModel extends ViewModel {
         Waypoint w1 = waypoints.get(waypoints.size() - 2);
         if (w1.status != STARTED) return;
         Waypoint w2 = waypoints.get(waypoints.size() - 1);
-        double latW1 = toRadians(w1.getLocation().getLatitude());
-        double longW1 = toRadians(w1.getLocation().getLongitude());
-        double latW2 = toRadians(w2.getLocation().getLatitude());
-        double longW2 = toRadians(w2.getLocation().getLongitude());
-        double centralAngle = acos(sin(latW1) * sin(latW2) + cos(latW1) * cos(latW2) * cos(abs(longW1 - longW2)));
-        if (Double.isNaN(centralAngle))
-            return;
-        double newDistance = EARTH_RADIUS * centralAngle;
+        double newDistance = getDistanceBetweenCords(w2, w1);
+        if (Double.isNaN(newDistance)) return;
         double oldDistance = distanceKm.getValue() != null ? distanceKm.getValue() : 0;
-        Log.d("VM", "central angle: " + centralAngle);
         Log.d("VM", "distance: " + (newDistance + oldDistance));
         distanceKm.setValue(newDistance + oldDistance);
     }
@@ -122,6 +138,8 @@ public class LogViewModel extends ViewModel {
         }
         if (status == STARTED && startEndTimes.size() > 0)
             durationMs += SystemClock.elapsedRealtime() - startEndTimes.get(startEndTimes.size() - 1);
+        if (waypoints.size() < 2 || waypoints.get(waypoints.size() - 2).status == PAUSED)
+            return;
         duration.postValue(new Duration((int) (durationMs / 1000 / 60 / 60),(int) (durationMs / 1000 / 60 % 60),
                 (int) (durationMs / 1000 % 60 % 60)));
     }

@@ -74,7 +74,6 @@ class MyLocation {
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), 111)
         }
 
-
         if (gpsEnabled)
             lm!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, locationListenerGps)
         if (networkEnabled)
@@ -86,8 +85,8 @@ class MyLocation {
 
     internal inner class GetLastLocation(var context: Context) : TimerTask() {
         override fun run() {
-            //lm!!.removeUpdates(locationListenerGps)
-            //lm!!.removeUpdates(locationListenerNetwork)
+            lm!!.removeUpdates(locationListenerGps)
+            lm!!.removeUpdates(locationListenerNetwork)
 
             var netLoc: Location? = null
             var gpsLoc: Location? = null
