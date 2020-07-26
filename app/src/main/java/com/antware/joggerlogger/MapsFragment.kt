@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import com.antware.joggerlogger.LogViewModel.ExerciseLocation
+import com.antware.joggerlogger.LogViewModel.Waypoint
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -47,7 +47,7 @@ class MapsFragment : Fragment() {
         requireActivity().runOnUiThread {
             map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
             if (model.exerciseStatus == STARTED) {
-                model.addWaypoint(ExerciseLocation(location, model.exerciseStatus))
+                model.addWaypoint(Waypoint(location, model.exerciseStatus))
                 addPolyline(here)
             }
         }
@@ -109,10 +109,10 @@ class MapsFragment : Fragment() {
             }
             else -> {
                 addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, R.color.colorAccent, CIRCLE_Z_INDEX)
-                model.addWaypoint(ExerciseLocation(currLocation, status))
+                model.addWaypoint(Waypoint(currLocation, status))
             }
         }
-        model.addWaypoint(ExerciseLocation(currLocation, status))
+        model.addWaypoint(Waypoint(currLocation, status))
     }
 
     private fun addCircle(radius: Double, strokeColor: Int, fillColorId: Int, zIndex: Float) {

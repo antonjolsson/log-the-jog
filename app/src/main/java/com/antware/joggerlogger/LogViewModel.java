@@ -9,8 +9,6 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.PAUSED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STARTED;
@@ -18,25 +16,34 @@ import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STOPPED;
 
 public class LogViewModel extends ViewModel {
 
-    public static class ExerciseLocation {
+    public static class Waypoint {
         Location location;
         ExerciseStatus status;
+        boolean accountedFor = true;
 
-        ExerciseLocation(Location location, ExerciseStatus status) {
+        public boolean isAccountedFor() {
+            return accountedFor;
+        }
+
+        Waypoint(Location location, ExerciseStatus status) {
             this.location = location;
             this.status = status;
         }
 
         Location getLocation() {return location;}
         ExerciseStatus getStatus() {return status;}
+        void setAccountedFor(boolean accountedFor) {
+            this.accountedFor = accountedFor;
+        }
     }
 
-    Timer timer;
-    private List<ExerciseLocation> waypoints = new ArrayList<>();
+    private List<Waypoint> waypoints = new ArrayList<>();
 
-    public void addWaypoint(ExerciseLocation location) {
+    public void addWaypoint(Waypoint location) {
         waypoints.add(location);
-
+        setDuration();
+        setDistance();
+        setSpeed();
     }
 
     enum ExerciseStatus {STARTED, STOPPED, PAUSED}
@@ -68,30 +75,16 @@ public class LogViewModel extends ViewModel {
             startMeasuring();
         }
         else {
+            startEndTimes.add(SystemClock.elapsedRealtime());
             status = ExerciseStatus.STOPPED;
             statusLiveData.setValue(status);
-            stopMeasuring();
         }
     }
 
-    private void stopMeasuring() {
-        startEndTimes.add(SystemClock.elapsedRealtime());
-        timer.cancel();
-    }
-
     private void startMeasuring() {
+        startEndTimes.add(SystemClock.elapsedRealtime());
         status = STARTED;
         statusLiveData.setValue(status);
-        startEndTimes.add(SystemClock.elapsedRealtime());
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                setDuration();
-                setDistance();
-                setSpeed();
-            }
-        }, 0, 100);
     }
 
     private void setSpeed() {
@@ -99,6 +92,8 @@ public class LogViewModel extends ViewModel {
     }
 
     private void setDistance() {
+        double distance; int i;
+        //while (!waypoints.get(i).isAccountedFor() && waypoints.get(i))
     }
 
     private void setDuration() {
@@ -107,7 +102,7 @@ public class LogViewModel extends ViewModel {
             if (i % 2 == 1)
                 durationMs += startEndTimes.get(i) - startEndTimes.get(i - 1);
         }
-        if (status == STARTED)
+        if (status == STARTED && startEndTimes.size() > 0)
             durationMs += SystemClock.elapsedRealtime() - startEndTimes.get(startEndTimes.size() - 1);
         duration.postValue(new Duration((int) (durationMs / 1000 / 60 / 60),(int) (durationMs / 1000 / 60 % 60),
                 (int) (durationMs / 1000 % 60 % 60)));
@@ -115,14 +110,11 @@ public class LogViewModel extends ViewModel {
 
     public void pauseButtonPressed() {
         if (status == STARTED) {
+            startEndTimes.add(SystemClock.elapsedRealtime());
             status = PAUSED;
             statusLiveData.setValue(status);
-            stopMeasuring();
         }
-        else {
-            status = STARTED;
-            startMeasuring();
-        }
+        else startMeasuring();
     }
 
     public MutableLiveData<Double> getSpeed() {
@@ -141,7 +133,7 @@ public class LogViewModel extends ViewModel {
         return statusLiveData;
     }
 
-    public List<ExerciseLocation> getWaypoints() {
+    public List<Waypoint> getWaypoints() {
         return waypoints;
     }
 }
