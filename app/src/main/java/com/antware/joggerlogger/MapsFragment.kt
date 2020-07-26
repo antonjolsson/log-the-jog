@@ -51,7 +51,7 @@ class MapsFragment : Fragment() {
                 addPolyline(here)
             }
         }
-        Log.d(here?.latitude.toString() + ", " + here?.longitude.toString(), "No location data")
+        //Log.d(here?.latitude.toString() + ", " + here?.longitude.toString(), "No location data")
     }
 
     private fun addPolyline(startPoint: LatLng?) {

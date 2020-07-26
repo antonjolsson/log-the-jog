@@ -34,7 +34,8 @@ class StatsFragment : Fragment() {
             setDurationView(duration)
         })
         model.distance.observe(viewLifecycleOwner, androidx.lifecycle.Observer { distance ->
-            binding.distanceView.text = (distance / 1000).toString() + "." + ((distance % 1000).toString() + 0).take(2) + " km"
+            //binding.distanceView.text = (distance.toInt()).toString() + "." + (distance.rem(1000).toString()).take(3) + " km"
+            binding.distanceView.text = distance.toString().take(4) + " km"
         })
         model.speed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { speed ->
             binding.speedView.text = (speed.toString() + "0").take(4) + " km/h"

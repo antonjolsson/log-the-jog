@@ -2,6 +2,7 @@ package com.antware.joggerlogger;
 
 import android.location.Location;
 import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -13,8 +14,11 @@ import java.util.List;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.PAUSED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STARTED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STOPPED;
+import static java.lang.Math.*;
 
 public class LogViewModel extends ViewModel {
+
+    private static final double EARTH_RADIUS = 6371;
 
     public static class Waypoint {
         Location location;
@@ -65,7 +69,7 @@ public class LogViewModel extends ViewModel {
     private MutableLiveData<Duration> duration = new MutableLiveData<>(new Duration(0,
             0, 0));
     private List<Long> startEndTimes = new ArrayList<>();
-    private MutableLiveData<Integer> distanceMeters = new MutableLiveData<>(0);
+    private MutableLiveData<Double> distanceKm = new MutableLiveData<>(0.0);
     private MutableLiveData<Double> speed = new MutableLiveData<>(0.0);
     private MutableLiveData<ExerciseStatus> statusLiveData = new MutableLiveData<>(status);
 
@@ -92,8 +96,22 @@ public class LogViewModel extends ViewModel {
     }
 
     private void setDistance() {
-        double distance; int i;
-        //while (!waypoints.get(i).isAccountedFor() && waypoints.get(i))
+        if (waypoints.size() < 2) return;
+        Waypoint w1 = waypoints.get(waypoints.size() - 2);
+        if (w1.status != STARTED) return;
+        Waypoint w2 = waypoints.get(waypoints.size() - 1);
+        double latW1 = toRadians(w1.getLocation().getLatitude());
+        double longW1 = toRadians(w1.getLocation().getLongitude());
+        double latW2 = toRadians(w2.getLocation().getLatitude());
+        double longW2 = toRadians(w2.getLocation().getLongitude());
+        double centralAngle = acos(sin(latW1) * sin(latW2) + cos(latW1) * cos(latW2) * cos(abs(longW1 - longW2)));
+        if (Double.isNaN(centralAngle))
+            return;
+        double newDistance = EARTH_RADIUS * centralAngle;
+        double oldDistance = distanceKm.getValue() != null ? distanceKm.getValue() : 0;
+        Log.d("VM", "central angle: " + centralAngle);
+        Log.d("VM", "distance: " + (newDistance + oldDistance));
+        distanceKm.setValue(newDistance + oldDistance);
     }
 
     private void setDuration() {
@@ -125,8 +143,8 @@ public class LogViewModel extends ViewModel {
         return duration;
     }
 
-    public LiveData<Integer> getDistance() {
-        return distanceMeters;
+    public LiveData<Double> getDistance() {
+        return distanceKm;
     }
 
     public LiveData<ExerciseStatus> getStatus() {
