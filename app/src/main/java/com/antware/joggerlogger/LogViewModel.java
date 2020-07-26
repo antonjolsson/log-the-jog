@@ -14,6 +14,7 @@ import java.util.List;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.PAUSED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STARTED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STOPPED;
+import static com.antware.joggerlogger.MyLocationKt.*;
 import static java.lang.Math.*;
 
 public class LogViewModel extends ViewModel {
@@ -80,6 +81,12 @@ public class LogViewModel extends ViewModel {
     public void startButtonPressed() {
         if (status == ExerciseStatus.STOPPED) {
             startEndTimes = new ArrayList<>();
+            if (waypoints.size() > 1) {
+                waypoints = new ArrayList<>();
+                duration.setValue(new Duration(0, 0, 0));
+                distanceKm.setValue(0.0);
+                speed.setValue(0.0);
+            }
             startMeasuring();
         }
         else {
@@ -98,18 +105,20 @@ public class LogViewModel extends ViewModel {
     private void setSpeed() {
         if (waypoints.size() < 2) return;
         double speedCalcDistance = 0;
-        for (int i = 0; i < SECONDS_IN_SPEED_CALC; i++) {
+        long speedCalcDuration = 0;
+        for (int i = 0; i < SECONDS_IN_SPEED_CALC && i < waypoints.size() - 1; i++) {
             Waypoint w1 = waypoints.get(waypoints.size() - 2 - i);
-            if (w1.status != STARTED) return;
+            if (w1.status == PAUSED) continue;
             Waypoint w2 = waypoints.get(waypoints.size() - 1 - i);
-            double distanceW1W2 = getDistanceBetweenCords(w2, w1);
+            double distanceW1W2 = getDistanceBetweenCoords(w2, w1);
+            speedCalcDuration += w2.getTimeStamp() - w1.getTimeStamp();
             speedCalcDistance += Double.isNaN(distanceW1W2) ? 0 : distanceW1W2;
         }
-        Log.d("VM", "speed: " + (speedCalcDistance / SECONDS_IN_SPEED_CALC));
-        speed.setValue(speedCalcDistance / (SECONDS_IN_SPEED_CALC / (60.0 * 60)));
+        speed.setValue(speedCalcDistance / (speedCalcDuration / (LOCATION_UPDATE_FREQ * 60.0 * 60)));
     }
 
-    private double getDistanceBetweenCords(Waypoint w2, Waypoint w1) {
+    private double getDistanceBetweenCoords(Waypoint w2, Waypoint w1) {
+        if (w1.location == null) return Double.NaN;
         double latW1 = toRadians(w1.getLocation().getLatitude());
         double longW1 = toRadians(w1.getLocation().getLongitude());
         double latW2 = toRadians(w2.getLocation().getLatitude());
@@ -123,10 +132,10 @@ public class LogViewModel extends ViewModel {
         Waypoint w1 = waypoints.get(waypoints.size() - 2);
         if (w1.status != STARTED) return;
         Waypoint w2 = waypoints.get(waypoints.size() - 1);
-        double newDistance = getDistanceBetweenCords(w2, w1);
+        double newDistance = getDistanceBetweenCoords(w2, w1);
         if (Double.isNaN(newDistance)) return;
         double oldDistance = distanceKm.getValue() != null ? distanceKm.getValue() : 0;
-        Log.d("VM", "distance: " + (newDistance + oldDistance));
+        Log.d("VM", "Leg distance, m: " + newDistance * 1000);
         distanceKm.setValue(newDistance + oldDistance);
     }
 

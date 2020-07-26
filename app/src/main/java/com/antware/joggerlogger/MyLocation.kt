@@ -11,7 +11,10 @@ import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import java.util.*
 
+const val LOCATION_UPDATE_FREQ = 1000L
+
 class MyLocation {
+
     private lateinit var timer1: Timer
     internal var lm: LocationManager? = null
     internal lateinit var locationResult: LocationResult
@@ -21,7 +24,7 @@ class MyLocation {
     private var locationListenerGps: LocationListener = object : LocationListener {
 
         override fun onLocationChanged(location: Location) {
-            //timer1.cancel()
+            timer1.cancel()
             locationResult.gotLocation(location)
             //lm!!.removeUpdates(this)
             //lm!!.removeUpdates(locationListenerNetwork)
@@ -34,7 +37,7 @@ class MyLocation {
 
     private var locationListenerNetwork: LocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
-            //timer1.cancel()
+            timer1.cancel()
             locationResult.gotLocation(location)
             //lm!!.removeUpdates(this)
             //lm!!.removeUpdates(locationListenerGps)
@@ -75,11 +78,11 @@ class MyLocation {
         }
 
         if (gpsEnabled)
-            lm!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, locationListenerGps)
+            lm!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_UPDATE_FREQ, 0f, locationListenerGps)
         if (networkEnabled)
-            lm!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0f, locationListenerNetwork)
+            lm!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_UPDATE_FREQ, 0f, locationListenerNetwork)
         timer1 = Timer()
-        timer1.schedule(GetLastLocation(context), 20000, 1000)
+        timer1.schedule(GetLastLocation(context), 20000, LOCATION_UPDATE_FREQ)
         return true
     }
 
