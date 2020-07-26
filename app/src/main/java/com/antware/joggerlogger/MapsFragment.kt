@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.os.SystemClock
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import com.antware.joggerlogger.LogViewModel.Waypoint
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -45,7 +43,13 @@ class MapsFragment : Fragment() {
         requireActivity().runOnUiThread {
             map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
             if (model.exerciseStatus == STARTED) {
-                model.addWaypoint(Waypoint(location, model.exerciseStatus, SystemClock.elapsedRealtime()))
+                model.addWaypoint(
+                    Waypoint(
+                        location,
+                        model.exerciseStatus,
+                        SystemClock.elapsedRealtime()
+                    )
+                )
                 addPolyline(here)
             }
         }
@@ -101,17 +105,34 @@ class MapsFragment : Fragment() {
     private fun onStatusChanged(status: LogViewModel.ExerciseStatus?) {
         when (status) {
             STARTED -> {
-                addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, R.color.colorPrimary, CIRCLE_Z_INDEX)
+                if (model.waypoints.isEmpty())
+                    map?.clear()
+                addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, R.color.colorPrimary, CIRCLE_Z_INDEX, currLocation)
+                model.addWaypoint(
+                    Waypoint(
+                        currLocation,
+                        status,
+                        SystemClock.elapsedRealtime()
+                    )
+                )
             }
             else -> {
-                addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, R.color.colorAccent, CIRCLE_Z_INDEX)
+                if (model.waypoints.isEmpty()) return
+                val lastWp = model.waypoints.last()
+                val location = if (lastWp.status == STOPPED) lastWp.location else currLocation
+                addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, R.color.colorAccent, CIRCLE_Z_INDEX, location)
             }
         }
-        model.addWaypoint(Waypoint(currLocation, status, SystemClock.elapsedRealtime()))
     }
 
-    private fun addCircle(radius: Double, strokeColor: Int, fillColorId: Int, zIndex: Float) {
-        map?.addCircle(getLatLng(this.currLocation)?.let {
+    private fun addCircle(
+        radius: Double,
+        strokeColor: Int,
+        fillColorId: Int,
+        zIndex: Float,
+        location: Location?
+    ) {
+        map?.addCircle(getLatLng(location)?.let {
             CircleOptions().center(it).radius(radius).strokeColor(strokeColor).fillColor(ContextCompat.getColor(requireActivity(),
                 fillColorId)).zIndex(zIndex)
         })
