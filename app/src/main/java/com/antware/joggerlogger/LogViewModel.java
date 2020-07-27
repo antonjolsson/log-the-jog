@@ -66,8 +66,13 @@ public class LogViewModel extends ViewModel {
     }
 
     public void startButtonPressed() {
-        if (status == STOPPED || status == STOPPED_AFTER_PAUSED) {
-            if (waypoints.size() > 1) {
+        if (status == STARTED || status == RESUMED) {
+            status = PAUSED;
+            waypoints.getLast().setStatus(status);
+            statusLiveData.setValue(status);
+        }
+        else {
+            if ((status == STOPPED || status == STOPPED_AFTER_PAUSED) && waypoints.size() > 1) {
                 waypoints = new WaypointList();
                 duration.setValue(new Duration(0, 0, 0));
                 distanceKm.setValue(0.0);
@@ -75,11 +80,12 @@ public class LogViewModel extends ViewModel {
             }
             startMeasuring();
         }
-        else {
-            status = status == PAUSED ? STOPPED_AFTER_PAUSED : STOPPED;
-            waypoints.getLast().setStatus(status);
-            statusLiveData.setValue(status);
-        }
+    }
+
+    public void stopButtonPressed() {
+        status = STOPPED_AFTER_PAUSED;
+        waypoints.getLast().setStatus(status);
+        statusLiveData.setValue(status);
     }
 
     private void startMeasuring() {
