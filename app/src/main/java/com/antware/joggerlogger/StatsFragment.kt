@@ -7,9 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import com.antware.joggerlogger.databinding.FragmentControlBinding
 import com.antware.joggerlogger.databinding.FragmentStatsBinding
-import java.util.*
 
 @SuppressLint("SetTextI18n")
 class StatsFragment : Fragment() {
@@ -34,10 +32,13 @@ class StatsFragment : Fragment() {
             setDurationView(duration)
         })
         model.distance.observe(viewLifecycleOwner, androidx.lifecycle.Observer { distance ->
-            binding.distanceView.text = distance.toString().take(4) + " km"
+            binding.distanceView.text = distance.toString().take(4)
         })
-        model.speed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { speed ->
-            binding.speedView.text = (speed.toString() + "0").take(4) + " km/h"
+        model.currSpeed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { currSpeed ->
+            binding.currSpeedView.text = (currSpeed.toString() + "0").take(4)
+        })
+        model.avgSpeed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { avgSpeed ->
+            binding.avgSpeedView.text = (avgSpeed.toString() + "0").take(4)
         })
     }
 

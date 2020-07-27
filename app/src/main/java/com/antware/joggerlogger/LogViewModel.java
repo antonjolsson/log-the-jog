@@ -40,7 +40,8 @@ public class LogViewModel extends ViewModel {
     private MutableLiveData<Duration> duration = new MutableLiveData<>(new Duration(0,
             0, 0));
     private MutableLiveData<Double> distanceKm = new MutableLiveData<>(0.0);
-    private MutableLiveData<Double> speed = new MutableLiveData<>(0.0);
+    private MutableLiveData<Double> currSpeed = new MutableLiveData<>(0.0);
+    private MutableLiveData<Double> avgSpeed = new MutableLiveData<>(0.0);
     private MutableLiveData<ExerciseStatus> statusLiveData = new MutableLiveData<>(status);
 
     public ExerciseStatus getExerciseStatus() {
@@ -55,7 +56,8 @@ public class LogViewModel extends ViewModel {
         }
         setDuration();
         setDistance();
-        setSpeed();
+        setCurrSpeed();
+        setAvgSpeed();
     }
 
     public boolean exerciseJustStarted() {
@@ -69,7 +71,7 @@ public class LogViewModel extends ViewModel {
                 waypoints = new WaypointList();
                 duration.setValue(new Duration(0, 0, 0));
                 distanceKm.setValue(0.0);
-                speed.setValue(0.0);
+                currSpeed.setValue(0.0);
             }
             startMeasuring();
         }
@@ -81,15 +83,14 @@ public class LogViewModel extends ViewModel {
     }
 
     private void startMeasuring() {
-        //status = STARTED;
         status = status == PAUSED ? RESUMED : STARTED;
         statusLiveData.setValue(status);
     }
 
-    private void setSpeed() {
+    private double getSpeed(int numWaypoints) {
         double speedCalcDistance = 0;
         long speedCalcDuration = 0;
-        for (int i = 0; i < SECONDS_IN_SPEED_CALC && i < waypoints.size() - 1; i++) {
+        for (int i = 0; i < numWaypoints && i < waypoints.size() - 1; i++) {
             Waypoint w1 = waypoints.get(waypoints.size() - 2 - i);
             if (w1.getStatus() != STARTED && w1.getStatus() != RESUMED) continue;
             Waypoint w2 = waypoints.get(waypoints.size() - 1 - i);
@@ -97,7 +98,15 @@ public class LogViewModel extends ViewModel {
             speedCalcDuration += w2.getTimeStamp() - w1.getTimeStamp();
             speedCalcDistance += Double.isNaN(distanceW1W2) ? 0 : distanceW1W2;
         }
-        speed.setValue(speedCalcDistance / (speedCalcDuration / (LOCATION_UPDATE_FREQ * 60.0 * 60)));
+        return speedCalcDistance / (speedCalcDuration / (LOCATION_UPDATE_FREQ * 60.0 * 60));
+    }
+
+    private void setCurrSpeed() {
+        currSpeed.setValue(getSpeed(SECONDS_IN_SPEED_CALC));
+    }
+
+    private void setAvgSpeed() {
+        avgSpeed.setValue(getSpeed(waypoints.size()));
     }
 
     private double getDistanceBetweenCoords(Waypoint w2, Waypoint w1) {
@@ -136,9 +145,11 @@ public class LogViewModel extends ViewModel {
         else startMeasuring();
     }
 
-    public MutableLiveData<Double> getSpeed() {
-        return speed;
+    public MutableLiveData<Double> getCurrSpeed() {
+        return currSpeed;
     }
+
+    public LiveData<Double> getAvgSpeed() { return avgSpeed; }
 
     public LiveData<Duration> getDuration() {
         return duration;

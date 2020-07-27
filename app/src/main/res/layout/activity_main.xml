@@ -67,7 +67,7 @@
     <FrameLayout
         android:id="@+id/midFrame"
         android:layout_width="409dp"
-        android:layout_height="209dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/lowerFrame"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -78,7 +78,7 @@
             android:name="com.antware.joggerlogger.StatsFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:layout="@layout/fragment_stats"/>
+            tools:layout="@layout/fragment_stats" />
     </FrameLayout>
 
     <androidx.constraintlayout.widget.Guideline
@@ -86,14 +86,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.37" />
+        app:layout_constraintGuide_percent="0.31" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.69" />
+        app:layout_constraintGuide_percent="0.76" />
 
     <View
         android:id="@+id/divider2"

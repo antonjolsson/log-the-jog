@@ -4,9 +4,10 @@
     <string name="start">Start</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="speed">Speed</string>
+    <string name="avg_speed">Average speed</string>
+    <string name="current_speed">Current speed</string>
     <string name="duration">Duration</string>
-    <string name="distance">Distance</string>
+    <string name="distance">Kilometers</string>
     <string name="stop">Stop</string>
     <string name="resume">Resume</string>
 </resources>

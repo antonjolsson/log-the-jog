@@ -9,93 +9,76 @@
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
-        android:id="@+id/speedLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="-10dp"
-        android:fontFamily="@font/rubik_medium"
-        android:gravity="bottom"
-        android:text="@string/speed"
-        android:textAllCaps="true"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textColor="@color/colorPrimaryDark"
-        app:layout_constraintBottom_toTopOf="@+id/speedView"
-        app:layout_constraintEnd_toEndOf="@+id/speedView"
-        app:layout_constraintStart_toStartOf="@+id/speedView"
-        app:layout_constraintTop_toTopOf="@+id/guideline4" />
-
-    <TextView
-        android:id="@+id/durationLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/rubik_medium"
-        android:gravity="bottom"
-        android:text="@string/duration"
-        android:textAllCaps="true"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textColor="@color/colorPrimaryDark"
-        app:layout_constraintBottom_toTopOf="@+id/durationView"
-        app:layout_constraintEnd_toEndOf="@+id/durationView"
-        app:layout_constraintStart_toStartOf="@+id/durationView" />
-
-    <TextView
         android:id="@+id/distanceLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/rubik_medium"
         android:gravity="bottom"
+        android:singleLine="true"
         android:text="@string/distance"
         android:textAllCaps="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textColor="@color/colorPrimaryDark"
         app:layout_constraintBottom_toTopOf="@+id/distanceView"
         app:layout_constraintEnd_toEndOf="@+id/distanceView"
-        app:layout_constraintStart_toStartOf="@+id/distanceView"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintStart_toStartOf="@+id/distanceView" />
 
     <TextView
-        android:id="@+id/durationView"
+        android:id="@+id/avgSpeedLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/rubik_medium"
+        android:gravity="bottom"
+        android:text="@string/avg_speed"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/colorPrimaryDark"
+        app:layout_constraintBottom_toBottomOf="@+id/currSpeedLabel"
+        app:layout_constraintEnd_toEndOf="@+id/avgSpeedView"
+        app:layout_constraintStart_toStartOf="@+id/avgSpeedView" />
+
+    <TextView
+        android:id="@+id/currSpeedLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/rubik_medium"
+        android:gravity="bottom"
+        android:text="@string/current_speed"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/colorPrimaryDark"
+        app:layout_constraintEnd_toEndOf="@+id/currSpeedView"
+        app:layout_constraintStart_toStartOf="@+id/currSpeedView"
+        app:layout_constraintTop_toBottomOf="@+id/distanceView" />
+
+    <TextView
+        android:id="@+id/avgSpeedView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:fontFamily="@font/shrikhand"
-        android:text="0:27:46"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:includeFontPadding="false"
+        android:text="12.80"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display2"
         android:textColor="@color/colorBlack"
-        app:layout_constraintBottom_toTopOf="@+id/guideline4"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline3" />
+        app:layout_constraintStart_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toBottomOf="@+id/avgSpeedLabel" />
 
     <TextView
         android:id="@+id/distanceView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:fontFamily="@font/shrikhand"
-        android:text="3.64 km"
-        android:includeFontPadding="false"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:textColor="@color/colorBlack"
-        android:lineSpacingExtra="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline4"
-        app:layout_constraintEnd_toStartOf="@+id/guideline3"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/speedView"
-        android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginTop="-20dp"
         android:fontFamily="@font/shrikhand"
         android:gravity="top"
         android:includeFontPadding="false"
-        android:text="14.3 km/h"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display3"
+        android:text="3.64"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display4"
         android:textColor="@color/colorBlack"
+        android:textSize="70sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/speedLabel" />
+        app:layout_constraintTop_toTopOf="@+id/guideline4" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline3"
@@ -109,6 +92,44 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.44" />
+        app:layout_constraintGuide_percent="0.39" />
+
+    <TextView
+        android:id="@+id/durationView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/shrikhand"
+        android:includeFontPadding="false"
+        android:text="0:27:46"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+        android:textColor="@color/colorBlack"
+        app:layout_constraintBottom_toTopOf="@+id/distanceLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/durationLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/duration"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="@color/colorPrimaryDark"
+        app:layout_constraintBottom_toTopOf="@+id/durationView"
+        app:layout_constraintEnd_toEndOf="@+id/durationView"
+        app:layout_constraintStart_toStartOf="@+id/durationView" />
+
+    <TextView
+        android:id="@+id/currSpeedView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/shrikhand"
+        android:includeFontPadding="false"
+        android:text="14.23"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+        android:textColor="@color/colorBlack"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/currSpeedLabel" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
