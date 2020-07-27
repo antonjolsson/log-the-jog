@@ -42,7 +42,7 @@ class MapsFragment : Fragment() {
         val here = location?.latitude?.let { LatLng(it, location.longitude) }
         requireActivity().runOnUiThread {
             map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
-            if (model.exerciseStatus == STARTED) {
+            if (model.exerciseStatus == STARTED || model.exerciseStatus == RESUMED) {
                 model.addWaypoint(
                     Waypoint(
                         location,
@@ -50,14 +50,14 @@ class MapsFragment : Fragment() {
                         SystemClock.elapsedRealtime()
                     )
                 )
-                addPolyline(here)
+                if (!model.exerciseJustStarted()) addPolyline(here)
             }
         }
     }
 
     private fun addPolyline(startPoint: LatLng?) {
         val numWaypoints = model.waypoints.size
-        val endPoint = if (numWaypoints > 1) getLatLng(model.waypoints[numWaypoints - 2].location) else startPoint
+        val endPoint = getLatLng(model.waypoints[numWaypoints - 2].location)
         val options = PolylineOptions().color(ContextCompat.getColor(requireActivity(), R.color.colorPrimary))
         map?.addPolyline(options.add(startPoint, endPoint))
     }
@@ -104,22 +104,17 @@ class MapsFragment : Fragment() {
 
     private fun onStatusChanged(status: LogViewModel.ExerciseStatus?) {
         when (status) {
-            STARTED -> {
+            STARTED, RESUMED -> {
                 if (model.waypoints.isEmpty())
                     map?.clear()
-                addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, R.color.colorPrimary, CIRCLE_Z_INDEX, currLocation)
-                model.addWaypoint(
-                    Waypoint(
-                        currLocation,
-                        status,
-                        SystemClock.elapsedRealtime()
-                    )
-                )
+                val color = if (status == STARTED) R.color.colorPrimary else R.color.colorDisabled
+                addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, color, CIRCLE_Z_INDEX, currLocation)
+                model.addWaypoint(Waypoint(currLocation, status, SystemClock.elapsedRealtime()))
             }
+            PAUSED -> addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, R.color.colorDisabled, CIRCLE_Z_INDEX, currLocation)
             else -> {
                 if (model.waypoints.isEmpty()) return
-                val lastWp = model.waypoints.last()
-                val location = if (lastWp.status == STOPPED) lastWp.location else currLocation
+                val location : Location? = if (model.status == STOPPED) currLocation else model.waypoints.last().location
                 addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, R.color.colorAccent, CIRCLE_Z_INDEX, location)
             }
         }

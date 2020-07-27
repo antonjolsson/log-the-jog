@@ -9,8 +9,10 @@ import androidx.lifecycle.ViewModel;
 import java.util.List;
 
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.PAUSED;
+import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.RESUMED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STARTED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STOPPED;
+import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STOPPED_AFTER_PAUSED;
 import static com.antware.joggerlogger.MyLocationKt.*;
 import static java.lang.Math.*;
 
@@ -21,7 +23,7 @@ public class LogViewModel extends ViewModel {
 
     private WaypointList waypoints = new WaypointList();
 
-    enum ExerciseStatus {STARTED, STOPPED, PAUSED}
+    enum ExerciseStatus {STARTED, STOPPED, PAUSED, RESUMED, STOPPED_AFTER_PAUSED}
     ExerciseStatus status = STOPPED;
 
     public static class Duration {
@@ -56,12 +58,13 @@ public class LogViewModel extends ViewModel {
         setSpeed();
     }
 
-    private boolean exerciseJustStarted() {
-        return waypoints.size() == 1 || waypoints.getSecondLast().getStatus() != STARTED;
+    public boolean exerciseJustStarted() {
+        return waypoints.size() == 1 || (waypoints.getSecondLast().getStatus() != STARTED &&
+                waypoints.getSecondLast().getStatus() != RESUMED);
     }
 
     public void startButtonPressed() {
-        if (status == ExerciseStatus.STOPPED) {
+        if (status == STOPPED || status == STOPPED_AFTER_PAUSED) {
             if (waypoints.size() > 1) {
                 waypoints = new WaypointList();
                 duration.setValue(new Duration(0, 0, 0));
@@ -71,14 +74,15 @@ public class LogViewModel extends ViewModel {
             startMeasuring();
         }
         else {
-            waypoints.getLast().setStatus(STOPPED);
-            status = ExerciseStatus.STOPPED;
+            status = status == PAUSED ? STOPPED_AFTER_PAUSED : STOPPED;
+            waypoints.getLast().setStatus(status);
             statusLiveData.setValue(status);
         }
     }
 
     private void startMeasuring() {
-        status = STARTED;
+        //status = STARTED;
+        status = status == PAUSED ? RESUMED : STARTED;
         statusLiveData.setValue(status);
     }
 
@@ -87,7 +91,7 @@ public class LogViewModel extends ViewModel {
         long speedCalcDuration = 0;
         for (int i = 0; i < SECONDS_IN_SPEED_CALC && i < waypoints.size() - 1; i++) {
             Waypoint w1 = waypoints.get(waypoints.size() - 2 - i);
-            if (w1.getStatus() != STARTED) continue;
+            if (w1.getStatus() != STARTED && w1.getStatus() != RESUMED) continue;
             Waypoint w2 = waypoints.get(waypoints.size() - 1 - i);
             double distanceW1W2 = getDistanceBetweenCoords(w2, w1);
             speedCalcDuration += w2.getTimeStamp() - w1.getTimeStamp();
@@ -121,13 +125,13 @@ public class LogViewModel extends ViewModel {
     }
 
     public void pauseButtonPressed() {
-        if (status == STARTED) {
+        if (status == STARTED || status == RESUMED) {
             Waypoint pausePoint = waypoints.getLast();
             //pausePoint.setTimestamp(SystemClock.elapsedRealtime());
             pausePoint.setStatus(PAUSED);
 
             status = PAUSED;
-            statusLiveData.setValue(status);
+            statusLiveData.setValue(PAUSED);
         }
         else startMeasuring();
     }

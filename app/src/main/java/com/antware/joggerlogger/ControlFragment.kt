@@ -10,8 +10,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import com.antware.joggerlogger.LogViewModel.ExerciseStatus.PAUSED
-import com.antware.joggerlogger.LogViewModel.ExerciseStatus.STOPPED
+import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.antware.joggerlogger.databinding.FragmentControlBinding
 import kotlinx.android.synthetic.main.fragment_control.*
 
@@ -64,25 +63,27 @@ class ControlFragment : Fragment(R.layout.fragment_control) {
     private fun resetPauseButton(view: View?) {
         if (view is Button) {
             view.text = getText(R.string.pause)
-            view.setTextColor(ContextCompat.getColor(requireActivity(), if(model.exerciseStatus == STOPPED)
-                R.color.colorDisabled else R.color.colorPrimaryDark))
+            view.setTextColor(ContextCompat.getColor(requireActivity(), if(model.exerciseStatus == STOPPED ||
+                model.exerciseStatus == STOPPED_AFTER_PAUSED) R.color.colorDisabled
+            else R.color.colorPrimaryDark))
         }
         view?.setBackgroundColor(ContextCompat.getColor(requireActivity(), R.color.colorBackground))
     }
 
     private fun startButtonPressed(view: View?) {
         binding.startButton.setBackgroundColor(
-            ContextCompat.getColor(requireActivity(), if (model.exerciseStatus == STOPPED)
-                    R.color.colorAccent else R.color.colorPrimaryDark)
+            ContextCompat.getColor(requireActivity(), if (model.exerciseStatus == STOPPED ||
+                model.exerciseStatus == STOPPED_AFTER_PAUSED) R.color.colorAccent
+            else R.color.colorPrimaryDark)
         )
         if (view is Button) {
-            val text: String = if (model.exerciseStatus == STOPPED) getText(R.string.stop) as String
+            val text: String = if (model.exerciseStatus == STOPPED || model.exerciseStatus == STOPPED_AFTER_PAUSED) getText(R.string.stop) as String
             else getText(R.string.start) as String
             view.text = text
         }
         model.startButtonPressed()
         resetPauseButton(binding.pauseButton)
-        if (model.exerciseStatus == STOPPED) {
+        if (model.exerciseStatus == STOPPED || model.exerciseStatus == STOPPED_AFTER_PAUSED) {
             binding.pauseButton.isEnabled = false
             binding.pauseButton.elevation = 0F
         }
@@ -90,7 +91,7 @@ class ControlFragment : Fragment(R.layout.fragment_control) {
             binding.pauseButton.isEnabled = true
             binding.pauseButton.elevation = 4F
         }
-        binding.pauseButton.isEnabled = model.exerciseStatus != STOPPED
+        binding.pauseButton.isEnabled = model.exerciseStatus != STOPPED && model.exerciseStatus != STOPPED_AFTER_PAUSED
 
     }
 
