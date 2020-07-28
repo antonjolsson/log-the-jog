@@ -3,11 +3,17 @@
     <string name="pause">Pause</string>
     <string name="start">Start</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="avg_speed">Average speed</string>
     <string name="current_speed">Current speed</string>
     <string name="duration">Duration</string>
     <string name="distance">Kilometers</string>
     <string name="stop">Stop</string>
     <string name="resume">Resume</string>
+    <string name="exercise_complete">Exercise Complete</string>
+    <string name="avgSpeedExample">12.80</string>
+    <string name="distanceExample">3.64</string>
+    <string name="durationExample">0:27:46</string>
+    <string name="currSpeedExample">14.23</string>
+    <string name="pace">Pace</string>
+    <string name="caloriesLabel">Cal burned</string>
 </resources>

@@ -1,108 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/constraintLayout"
+    android:id="@+id/frameLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent" >
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <fragment
+        android:id="@+id/exerciseCompleteFragment"
+        android:name="com.antware.joggerlogger.ExerciseCompleteFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorBackground"
-        android:elevation="4dp"
-        android:minHeight="?attr/actionBarSize"
-        android:outlineProvider="bounds"
-        android:theme="@style/AppTheme"
-        android:clipChildren="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_menu_24px"
-        app:title="@string/app_name"
-        app:titleTextAppearance="@style/appbarTitleTheme"
-        app:titleTextColor="@color/colorBlack" />
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_exercise_complete"
+        tools:visibility="visible" />
 
-    <FrameLayout
-        android:id="@+id/upperFrame"
+    <include
+        android:id="@+id/exerciseOngoingLayout"
+        layout="@layout/exercise_ongoing"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar">
-
-        <fragment
-            android:id="@+id/mapFragment"
-            android:name="com.antware.joggerlogger.MapsFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout="@layout/fragment_maps" />
-
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/lowerFrame"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline2">
-
-        <fragment
-            android:id="@+id/controlFragment"
-            android:name="com.antware.joggerlogger.ControlFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout="@layout/fragment_control" />
-
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?android:attr/listDivider" />
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/midFrame"
-        android:layout_width="409dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/lowerFrame"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/upperFrame">
-
-        <fragment
-            android:id="@+id/fragment3"
-            android:name="com.antware.joggerlogger.StatsFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout="@layout/fragment_stats" />
-    </FrameLayout>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.31" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.76" />
-
-    <View
-        android:id="@+id/divider2"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        app:layout_constraintBottom_toTopOf="@+id/lowerFrame"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="match_parent"
+        tools:visibility="gone" />
+</FrameLayout>

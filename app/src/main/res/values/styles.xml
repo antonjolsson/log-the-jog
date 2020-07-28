@@ -16,4 +16,22 @@
         <item name="background">@color/colorAccent</item>
     </style>
 
+    <style name="statLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Body2</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="fontFamily">@font/rubik_medium</item>
+    </style>
+
+    <style name="statView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">@font/shrikhand</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Display2</item>
+        <item name="android:textColor">@color/colorBlack</item>
+    </style>
+
 </resources>
