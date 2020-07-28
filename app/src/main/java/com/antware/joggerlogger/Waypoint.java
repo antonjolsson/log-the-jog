@@ -11,7 +11,8 @@ public class Waypoint {
     Waypoint(Location location, LogViewModel.ExerciseStatus status, long timeStamp) {
         this.location = location;
         this.status = status;
-        this.timeStamp = timeStamp;
+        //this.timeStamp = timeStamp;
+        this.timeStamp = location.getTime();
     }
 
     public Location getLocation() {
@@ -23,7 +24,9 @@ public class Waypoint {
     }
 
     public long getTimeStamp() {
-        return timeStamp;
+
+        //return timeStamp;
+        return location.getTime();
     }
 
     public void setAccountedFor(boolean accountedFor) {

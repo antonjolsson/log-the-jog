@@ -100,7 +100,8 @@ public class LogViewModel extends ViewModel {
             Waypoint w1 = waypoints.get(waypoints.size() - 2 - i);
             if (w1.getStatus() != STARTED && w1.getStatus() != RESUMED) continue;
             Waypoint w2 = waypoints.get(waypoints.size() - 1 - i);
-            double distanceW1W2 = getDistanceBetweenCoords(w2, w1);
+            //double distanceW1W2 = getDistanceBetweenCoords(w2, w1);
+            double distanceW1W2 = w2.getLocation().distanceTo(w1.getLocation()) / 1000.0f;
             speedCalcDuration += w2.getTimeStamp() - w1.getTimeStamp();
             speedCalcDistance += Double.isNaN(distanceW1W2) ? 0 : distanceW1W2;
         }
@@ -126,7 +127,9 @@ public class LogViewModel extends ViewModel {
     }
 
     private void setDistance() {
-        double newDistance = getDistanceBetweenCoords(waypoints.getLast(), waypoints.getSecondLast());
+        //double newDistance = getDistanceBetweenCoords(waypoints.getLast(), waypoints.getSecondLast());
+        double newDistance = waypoints.getLast().getLocation().distanceTo(waypoints.getSecondLast().
+                getLocation()) / 1000.0;
         if (Double.isNaN(newDistance)) return;
         double oldDistance = distanceKm.getValue() != null ? distanceKm.getValue() : 0;
         Log.d("VM", "Leg distance, m: " + newDistance * 1000);
@@ -137,18 +140,6 @@ public class LogViewModel extends ViewModel {
         totalDuration += waypoints.getLast().getTimeStamp() - waypoints.getSecondLast().getTimeStamp();
         duration.postValue(new Duration((int) (totalDuration / 1000 / 60 / 60),(int) (totalDuration / 1000 / 60 % 60),
                 (int) (totalDuration / 1000 % 60 % 60)));
-    }
-
-    public void pauseButtonPressed() {
-        if (status == STARTED || status == RESUMED) {
-            Waypoint pausePoint = waypoints.getLast();
-            //pausePoint.setTimestamp(SystemClock.elapsedRealtime());
-            pausePoint.setStatus(PAUSED);
-
-            status = PAUSED;
-            statusLiveData.setValue(PAUSED);
-        }
-        else startMeasuring();
     }
 
     public MutableLiveData<Double> getCurrSpeed() {

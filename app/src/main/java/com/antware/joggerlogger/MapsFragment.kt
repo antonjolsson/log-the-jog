@@ -44,11 +44,14 @@ class MapsFragment : Fragment() {
             map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
             if (model.exerciseStatus == STARTED || model.exerciseStatus == RESUMED) {
                 model.addWaypoint(
-                    Waypoint(
-                        location,
-                        model.exerciseStatus,
-                        SystemClock.elapsedRealtime()
-                    )
+                    location?.time?.let {
+                        Waypoint(
+                            location,
+                            model.exerciseStatus,
+                            //SystemClock.elapsedRealtime()
+                            it
+                        )
+                    }
                 )
                 if (!model.exerciseJustStarted()) addPolyline(here)
             }
