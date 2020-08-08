@@ -49,11 +49,6 @@ class ControlFragment : Fragment(R.layout.fragment_control) {
     }
 
     private fun startButtonPressed() {
-        binding.startButton.setBackgroundColor(
-            ContextCompat.getColor(requireActivity(), if (model.exerciseStatus == STARTED || model.exerciseStatus == RESUMED)
-                R.color.colorPrimaryDark
-            else R.color.colorAccent)
-        )
         if (model.exerciseStatus == STARTED || model.exerciseStatus == RESUMED){
             binding.stopButton.visibility = View.VISIBLE
             binding.startButton.text = getText(R.string.resume)
