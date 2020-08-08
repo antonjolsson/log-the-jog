@@ -34,7 +34,7 @@ class MapsFragment : Fragment() {
 
         override fun gotLocation(location: Location?) {
             currLocation = location
-            moveCameraToCurrentLoc(location)
+            if (location != null) moveCameraToCurrentLoc(location)
         }
     }
 
@@ -48,7 +48,6 @@ class MapsFragment : Fragment() {
                         Waypoint(
                             location,
                             model.exerciseStatus,
-                            //SystemClock.elapsedRealtime()
                             it
                         )
                     }
@@ -84,7 +83,7 @@ class MapsFragment : Fragment() {
         map!!.uiSettings.isMyLocationButtonEnabled = true
         map!!.mapType = DEFAULT_MAP_TYPE
 
-        moveCameraToCurrentLoc(currLocation)
+        if (currLocation != null) moveCameraToCurrentLoc(currLocation)
 
     }
 

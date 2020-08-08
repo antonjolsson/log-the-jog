@@ -7,36 +7,39 @@
     android:layout_height="match_parent">
 
     <FrameLayout
-        android:id="@+id/upperFrame"
+        android:id="@+id/exerciseOngoingTop"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/midFrame"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+        app:layout_constraintBottom_toTopOf="@+id/exerciseOngoingCenter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        tools:layout="@layout/fragment_maps">
 
-        <fragment
+        <!--<fragment
             android:id="@+id/mapFragment"
             android:name="com.antware.joggerlogger.MapsFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:layout="@layout/fragment_maps" />
+            tools:layout="@layout/fragment_maps" />-->
 
     </FrameLayout>
 
     <FrameLayout
-        android:id="@+id/midFrame"
+        android:id="@+id/exerciseOngoingCenter"
         android:layout_width="409dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/divider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline">
+        app:layout_constraintTop_toTopOf="@+id/guideline"
+        tools:layout="@layout/fragment_stats">
 
-        <fragment
+        <!--<fragment
             android:id="@+id/fragment3"
             android:name="com.antware.joggerlogger.StatsFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:layout="@layout/fragment_stats" />
+            tools:layout="@layout/fragment_stats" />-->
     </FrameLayout>
 
     <androidx.constraintlayout.widget.Guideline
@@ -73,20 +76,21 @@
         tools:visibility="gone" />
 
     <FrameLayout
-        android:id="@+id/lowerFrame"
+        android:id="@+id/exerciseOngoingBottom"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/divider">
+        app:layout_constraintTop_toBottomOf="@id/divider"
+        tools:layout="@layout/fragment_control">
 
-        <fragment
+        <!--<fragment
             android:id="@+id/controlFragment"
             android:name="com.antware.joggerlogger.ControlFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:layout="@layout/fragment_control" />
+            tools:layout="@layout/fragment_control" />-->
 
     </FrameLayout>
 

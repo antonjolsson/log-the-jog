@@ -13,12 +13,10 @@ import com.antware.joggerlogger.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ActivityMainBinding binding;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
 
@@ -27,23 +25,27 @@ public class MainActivity extends AppCompatActivity {
         ControlFragment controlFragment = new ControlFragment();
         MapsFragment mapsFragment = new MapsFragment();
         StatsFragment statsFragment = new StatsFragment();
-        transaction.add(R.id.controlFragment, controlFragment).add(R.id.mapFragment, mapsFragment)
-                .add(R.id.fragment3, statsFragment).commit();
-
+        transaction.add(R.id.exerciseOngoingBottom, controlFragment).add(R.id.exerciseOngoingTop, mapsFragment)
+                .add(R.id.exerciseOngoingCenter, statsFragment).commit();
 
         LogViewModel model = new ViewModelProvider(this).get(LogViewModel.class);
         model.getStatus().observe(this, status -> {
             if (status == LogViewModel.ExerciseStatus.STOPPED_AFTER_PAUSED)
-                onExerciseStopped(transaction);
+                onExerciseStopped(fragmentManager, controlFragment, mapsFragment, statsFragment);
         });
-
     }
 
-    private void onExerciseStopped(FragmentTransaction fragmentTransaction) {
+    private void onExerciseStopped(FragmentManager fragmentManager, ControlFragment controlFragment,
+                                   MapsFragment mapsFragment, StatsFragment statsFragment) {
 
-        ExerciseCompleteFragment fragment = new ExerciseCompleteFragment();
-        fragmentTransaction.replace(R.id.controlLayout, fragment);
-        fragmentTransaction.commit();
-
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        ExerciseCompleteFragment fragment = (ExerciseCompleteFragment)
+                fragmentManager.findFragmentById(R.id.exerciseCompleteFragment);
+        transaction.replace(R.id.controlLayout, fragment);
+        transaction.hide(controlFragment).hide(mapsFragment)
+                .hide(statsFragment);
+        transaction.addToBackStack(null);
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+        transaction.commit();
     }
 }

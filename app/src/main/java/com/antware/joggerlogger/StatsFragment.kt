@@ -29,7 +29,7 @@ class StatsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         model.duration.observe(viewLifecycleOwner, androidx.lifecycle.Observer { duration ->
-            setDurationView(duration)
+            binding.durationView.text = getDurationText(duration)
         })
         model.distance.observe(viewLifecycleOwner, androidx.lifecycle.Observer { distance ->
             binding.distanceView.text = distance.toString().take(4)
@@ -42,11 +42,13 @@ class StatsFragment : Fragment() {
         })
     }
 
-    private fun setDurationView(duration: LogViewModel.Duration) {
-        val hours = "0" + duration.hours.toString()
-        val minutes = "0" + duration.minutes.toString()
-        val seconds = "0" + duration.seconds.toString()
-        binding.durationView.text = """${hours.takeLast(2)}:${minutes.takeLast(2)}:${seconds.takeLast(2)}"""
+    companion object {
+        fun getDurationText(duration: LogViewModel.Duration): String {
+            val hours = "0" + duration.hours.toString()
+            val minutes = "0" + duration.minutes.toString()
+            val seconds = "0" + duration.seconds.toString()
+            return """${hours.takeLast(2)}:${minutes.takeLast(2)}:${seconds.takeLast(2)}"""
+        }
     }
 
     override fun onDestroyView() {

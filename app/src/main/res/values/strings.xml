@@ -16,4 +16,5 @@
     <string name="currSpeedExample">14.23</string>
     <string name="pace">Pace</string>
     <string name="caloriesLabel">Cal burned</string>
+    <string name="n_a">N/A</string>
 </resources>
