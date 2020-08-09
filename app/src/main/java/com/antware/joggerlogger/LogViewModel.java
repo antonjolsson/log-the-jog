@@ -6,7 +6,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
+
+import javax.net.ssl.SSLSession;
 
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.PAUSED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.RESUMED;
@@ -42,6 +46,8 @@ public class LogViewModel extends ViewModel {
     private MutableLiveData<Double> distanceKm = new MutableLiveData<>(0.0);
     private MutableLiveData<Double> currSpeed = new MutableLiveData<>(0.0);
     private MutableLiveData<Double> avgSpeed = new MutableLiveData<>(0.0);
+    private MutableLiveData<Duration> pace = new MutableLiveData<>(new Duration(0, 0,
+            0));
     private MutableLiveData<ExerciseStatus> statusLiveData = new MutableLiveData<>(status);
 
     public ExerciseStatus getExerciseStatus() {
@@ -58,6 +64,14 @@ public class LogViewModel extends ViewModel {
         setDistance();
         setCurrSpeed();
         setAvgSpeed();
+        setPace();
+    }
+
+    private void setPace() {
+        if (distanceKm.getValue() == null) return;
+        long msPerKm = (long) (totalDuration / distanceKm.getValue() + 0.5);
+        Duration paceDuration = getDurationFromMs(msPerKm);
+        pace.setValue(paceDuration);
     }
 
     public boolean exerciseJustStarted() {
@@ -138,8 +152,13 @@ public class LogViewModel extends ViewModel {
 
     private void setDuration() {
         totalDuration += waypoints.getLast().getTimeStamp() - waypoints.getSecondLast().getTimeStamp();
-        duration.postValue(new Duration((int) (totalDuration / 1000 / 60 / 60),(int) (totalDuration / 1000 / 60 % 60),
-                (int) (totalDuration / 1000 % 60 % 60)));
+        duration.postValue(getDurationFromMs(totalDuration));
+    }
+
+    @NotNull
+    private Duration getDurationFromMs(long duration) {
+        return new Duration((int) (duration / 1000 / 60 / 60),(int) (duration / 1000 / 60 % 60),
+                (int) (duration / 1000 % 60 % 60));
     }
 
     public MutableLiveData<Double> getCurrSpeed() {
@@ -158,6 +177,10 @@ public class LogViewModel extends ViewModel {
 
     public LiveData<ExerciseStatus> getStatus() {
         return statusLiveData;
+    }
+
+    public LiveData<Duration> getPace() {
+        return pace;
     }
 
     public List<Waypoint> getWaypoints() {

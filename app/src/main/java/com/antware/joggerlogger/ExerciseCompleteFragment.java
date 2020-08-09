@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.antware.joggerlogger.databinding.FragmentExerciseCompleteBinding;
 
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Objects;
 
 public class ExerciseCompleteFragment extends Fragment {
@@ -24,14 +23,13 @@ public class ExerciseCompleteFragment extends Fragment {
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentExerciseCompleteBinding.inflate(inflater, container, false);
-        return inflater.inflate(R.layout.fragment_exercise_complete, container, false);
-
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        LogViewModel model = new ViewModelProvider(this).get(LogViewModel.class);
+        LogViewModel model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
         setStatistics(model);
     }
 
@@ -39,6 +37,11 @@ public class ExerciseCompleteFragment extends Fragment {
         String durationText = StatsFragment.
                 Companion.getDurationText(Objects.requireNonNull(model.getDuration().getValue()));
         binding.durationLabelView.setText(durationText);
-        binding.distanceView.setText("0");
+        binding.distanceView.setText(String.valueOf(model.getDistance().getValue()).substring(0, 4));
+        binding.completeAvgSpdView.setText(String.valueOf(model.getAvgSpeed().getValue()).substring(0, 4));
+        LogViewModel.Duration pace = model.getPace().getValue();
+        assert pace != null;
+        String paceText = getResources().getString(R.string.paceData, pace.minutes, pace.seconds);
+        binding.completePaceView.setText(paceText);
     }
 }

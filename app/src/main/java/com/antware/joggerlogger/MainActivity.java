@@ -39,9 +39,8 @@ public class MainActivity extends AppCompatActivity {
                                    MapsFragment mapsFragment, StatsFragment statsFragment) {
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        ExerciseCompleteFragment fragment = (ExerciseCompleteFragment)
-                fragmentManager.findFragmentById(R.id.exerciseCompleteFragment);
-        transaction.replace(R.id.controlLayout, fragment);
+        ExerciseCompleteFragment fragment = new ExerciseCompleteFragment();
+        transaction.replace(R.id.mainFrameLayout, fragment);
         transaction.hide(controlFragment).hide(mapsFragment)
                 .hide(statsFragment);
         transaction.addToBackStack(null);
