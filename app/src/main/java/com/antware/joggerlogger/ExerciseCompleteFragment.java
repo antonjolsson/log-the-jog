@@ -18,6 +18,7 @@ import java.util.Objects;
 public class ExerciseCompleteFragment extends Fragment {
 
     private FragmentExerciseCompleteBinding binding;
+    private final static int NUM_DECIMALS_IN_DISTANCES = 2;
 
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
@@ -30,18 +31,37 @@ public class ExerciseCompleteFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         LogViewModel model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
-        setStatistics(model);
+        showNumericStats(model);
+        drawSpeedCurve(model);
+        drawElevationCurve(model);
     }
 
-    private void setStatistics(LogViewModel model) {
+    private void drawElevationCurve(LogViewModel model) {
+        binding.speedChart.speedChart.initModel(model);
+    }
+
+    private void drawSpeedCurve(LogViewModel model) {
+
+    }
+
+    private void showNumericStats(LogViewModel model) {
         String durationText = StatsFragment.
                 Companion.getDurationText(Objects.requireNonNull(model.getDuration().getValue()));
         binding.durationLabelView.setText(durationText);
-        binding.distanceView.setText(String.valueOf(model.getDistance().getValue()).substring(0, 4));
-        binding.completeAvgSpdView.setText(String.valueOf(model.getAvgSpeed().getValue()).substring(0, 4));
+        String distanceText = String.valueOf(model.getDistance().getValue());
+        binding.distanceView.setText(truncateDecimals(distanceText));
+        String avgSpeedText = String.valueOf(model.getAvgSpeed().getValue());
+        binding.completeAvgSpdView.setText(truncateDecimals(avgSpeedText));
         LogViewModel.Duration pace = model.getPace().getValue();
         assert pace != null;
         String paceText = getResources().getString(R.string.paceData, pace.minutes, pace.seconds);
         binding.completePaceView.setText(paceText);
+    }
+
+    // TODO: Round decimals
+    @NotNull
+    private String truncateDecimals(String distanceText) {
+        return distanceText.substring(0, distanceText.length() >= NUM_DECIMALS_IN_DISTANCES + 3 ?
+                NUM_DECIMALS_IN_DISTANCES + 2 : distanceText.length());
     }
 }

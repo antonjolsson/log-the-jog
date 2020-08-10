@@ -13,10 +13,12 @@ import com.antware.joggerlogger.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ActivityMainBinding binding;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
 
@@ -41,10 +43,16 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         ExerciseCompleteFragment fragment = new ExerciseCompleteFragment();
         transaction.replace(R.id.mainFrameLayout, fragment);
-        transaction.hide(controlFragment).hide(mapsFragment)
-                .hide(statsFragment);
+        transaction.hide(controlFragment).hide(statsFragment);
+        transaction.remove(mapsFragment).commit();
+        fragmentManager.executePendingTransactions();
+        transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.mapFrame, mapsFragment);
         transaction.addToBackStack(null);
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
         transaction.commit();
+
+        binding.exerciseOngoingLayout.divider.setVisibility(View.GONE);
     }
+
 }

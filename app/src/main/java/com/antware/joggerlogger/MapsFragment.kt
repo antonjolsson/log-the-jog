@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
-import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,8 +46,7 @@ class MapsFragment : Fragment() {
                     location?.time?.let {
                         Waypoint(
                             location,
-                            model.exerciseStatus,
-                            it
+                            model.exerciseStatus
                         )
                     }
                 )
@@ -111,7 +109,7 @@ class MapsFragment : Fragment() {
                     map?.clear()
                 val color = if (status == STARTED) R.color.colorPrimary else R.color.colorDisabled
                 addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, color, CIRCLE_Z_INDEX, currLocation)
-                model.addWaypoint(Waypoint(currLocation, status, SystemClock.elapsedRealtime()))
+                model.addWaypoint(Waypoint(currLocation, status))
             }
             PAUSED -> addCircle(STATUS_CHANGED_CIRCLE_RADIUS, Color.WHITE, R.color.colorDisabled, CIRCLE_Z_INDEX, currLocation)
             else -> {

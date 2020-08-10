@@ -62,7 +62,7 @@ public class LogViewModel extends ViewModel {
         }
         setDuration();
         setDistance();
-        setCurrSpeed();
+        setCurrSpeed(waypoint);
         setAvgSpeed();
         setPace();
     }
@@ -122,22 +122,14 @@ public class LogViewModel extends ViewModel {
         return speedCalcDistance / (speedCalcDuration / (LOCATION_UPDATE_FREQ * 60.0 * 60));
     }
 
-    private void setCurrSpeed() {
-        currSpeed.setValue(getSpeed(SECONDS_IN_SPEED_CALC));
+    private void setCurrSpeed(Waypoint waypoint) {
+        double speed = getSpeed(SECONDS_IN_SPEED_CALC);
+        currSpeed.setValue(speed);
+        waypoint.setCurrentSpeed(speed);
     }
 
     private void setAvgSpeed() {
         avgSpeed.setValue(getSpeed(waypoints.size()));
-    }
-
-    private double getDistanceBetweenCoords(Waypoint w2, Waypoint w1) {
-        if (w1.getLocation() == null) return Double.NaN;
-        double latW1 = toRadians(w1.getLocation().getLatitude());
-        double longW1 = toRadians(w1.getLocation().getLongitude());
-        double latW2 = toRadians(w2.getLocation().getLatitude());
-        double longW2 = toRadians(w2.getLocation().getLongitude());
-        double centralAngle = acos(sin(latW1) * sin(latW2) + cos(latW1) * cos(latW2) * cos(abs(longW1 - longW2)));
-        return EARTH_RADIUS * centralAngle;
     }
 
     private void setDistance() {
@@ -186,4 +178,15 @@ public class LogViewModel extends ViewModel {
     public List<Waypoint> getWaypoints() {
         return waypoints;
     }
+
+    private double getDistanceBetweenCoords(Waypoint w2, Waypoint w1) {
+        if (w1.getLocation() == null) return Double.NaN;
+        double latW1 = toRadians(w1.getLocation().getLatitude());
+        double longW1 = toRadians(w1.getLocation().getLongitude());
+        double latW2 = toRadians(w2.getLocation().getLatitude());
+        double longW2 = toRadians(w2.getLocation().getLongitude());
+        double centralAngle = acos(sin(latW1) * sin(latW2) + cos(latW1) * cos(latW2) * cos(abs(longW1 - longW2)));
+        return EARTH_RADIUS * centralAngle;
+    }
+
 }

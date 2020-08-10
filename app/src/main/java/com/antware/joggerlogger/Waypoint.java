@@ -5,14 +5,11 @@ import android.location.Location;
 public class Waypoint {
     private Location location;
     private LogViewModel.ExerciseStatus status;
-    private long timeStamp;
-    private boolean accountedFor = true;
+    private double currentSpeed;
 
-    Waypoint(Location location, LogViewModel.ExerciseStatus status, long timeStamp) {
+    Waypoint(Location location, LogViewModel.ExerciseStatus status) {
         this.location = location;
         this.status = status;
-        //this.timeStamp = timeStamp;
-        this.timeStamp = location.getTime();
     }
 
     public Location getLocation() {
@@ -24,25 +21,18 @@ public class Waypoint {
     }
 
     public long getTimeStamp() {
-
-        //return timeStamp;
         return location.getTime();
-    }
-
-    public void setAccountedFor(boolean accountedFor) {
-        this.accountedFor = accountedFor;
-    }
-
-    public boolean isAccountedFor() {
-        return accountedFor;
     }
 
     public void setStatus(LogViewModel.ExerciseStatus status) {
         this.status = status;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timeStamp = timestamp;
+    public double getCurrentSpeed() {
+        return currentSpeed;
     }
 
+    public void setCurrentSpeed(double currentSpeed) {
+        this.currentSpeed = currentSpeed;
+    }
 }
