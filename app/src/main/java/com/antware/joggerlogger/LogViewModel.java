@@ -148,7 +148,7 @@ public class LogViewModel extends ViewModel {
     }
 
     @NotNull
-    private Duration getDurationFromMs(long duration) {
+    public Duration getDurationFromMs(long duration) {
         return new Duration((int) (duration / 1000 / 60 / 60),(int) (duration / 1000 / 60 % 60),
                 (int) (duration / 1000 % 60 % 60));
     }

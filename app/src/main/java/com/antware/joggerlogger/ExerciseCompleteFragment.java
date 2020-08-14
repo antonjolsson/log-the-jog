@@ -37,11 +37,11 @@ public class ExerciseCompleteFragment extends Fragment {
     }
 
     private void drawElevationCurve(LogViewModel model) {
-        binding.speedChart.speedChart.initModel(model);
+
     }
 
     private void drawSpeedCurve(LogViewModel model) {
-
+        binding.speedChart.speedChart.initModel(model);
     }
 
     private void showNumericStats(LogViewModel model) {

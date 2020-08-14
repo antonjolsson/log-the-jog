@@ -2,6 +2,7 @@
   <dictionary name="Anton">
     <words>
       <w>coords</w>
+      <w>horiz</w>
       <w>waypoint</w>
       <w>waypoints</w>
     </words>
