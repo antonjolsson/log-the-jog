@@ -35,11 +35,11 @@ class StatsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.durationView.text = getDurationText(LogViewModel.Duration(0, 0, 0))
-        /*model.duration.observe(viewLifecycleOwner, androidx.lifecycle.Observer { duration ->
+        //binding.durationView.text = getDurationText(LogViewModel.Duration(0, 0, 0))
+        model.duration.observe(viewLifecycleOwner, androidx.lifecycle.Observer { duration ->
             binding.durationView.text = getDurationText(duration)
-        })*/
-        model.getStatus().observe(viewLifecycleOwner, onStatusChanged())
+        })
+        //model.getStatus().observe(viewLifecycleOwner, onStatusChanged())
         model.distance.observe(viewLifecycleOwner, androidx.lifecycle.Observer { distance ->
             binding.distanceView.text = distance.toString().take(4)
         })

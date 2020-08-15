@@ -59,11 +59,6 @@ public class LogViewModel extends ViewModel {
 
     public void addWaypoint(Waypoint waypoint) {
         waypoints.add(waypoint);
-        if (waypoints.size() == 1) return;
-        setDistance();
-        setCurrSpeed(waypoint);
-        setAvgSpeed();
-        setPace();
     }
 
     private void startTimeTaking() {
@@ -71,19 +66,28 @@ public class LogViewModel extends ViewModel {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                totalDuration = System.currentTimeMillis() - timerStartTime + durationBeforePause;
-                duration.postValue(getDurationFromMs(totalDuration));
+                update();
             }
         };
         timer = new Timer();
         timer.scheduleAtFixedRate(timerTask, durationBeforePause % 1000, 1000);
     }
 
+    private void update() {
+        totalDuration = System.currentTimeMillis() - timerStartTime + durationBeforePause;
+        duration.postValue(getDurationFromMs(totalDuration));
+        if (waypoints.size() < 2) return;
+        setDistance();
+        setCurrSpeed(waypoints.getLast());
+        setAvgSpeed();
+        setPace();
+    }
+
     private void setPace() {
         if (distanceKm.getValue() == null) return;
         long msPerKm = (long) (totalDuration / distanceKm.getValue() + 0.5);
         Duration paceDuration = getDurationFromMs(msPerKm);
-        pace.setValue(paceDuration);
+        pace.postValue(paceDuration);
     }
 
     public boolean exerciseJustStarted() {
@@ -109,6 +113,8 @@ public class LogViewModel extends ViewModel {
             }
             startMeasuring();
         }
+        Log.d("LogViewModel", "Status = " + status.toString() + ", totalDuration = " +
+                totalDuration + ", durationBeforePause = " + durationBeforePause);
     }
 
     private void pauseTimeTaking() {
@@ -140,32 +146,30 @@ public class LogViewModel extends ViewModel {
             speedCalcDuration += w2.getTimeStamp() - w1.getTimeStamp();
             speedCalcDistance += Double.isNaN(distanceW1W2) ? 0 : distanceW1W2;
         }
-        return speedCalcDistance / (speedCalcDuration / (LOCATION_UPDATE_FREQ * 60.0 * 60));
+        double speed = speedCalcDistance / (speedCalcDuration / (LOCATION_UPDATE_FREQ * 60.0 * 60));
+        return speed >= 0 ? speed : 0;
     }
 
     private void setCurrSpeed(Waypoint waypoint) {
         double speed = getSpeed(SECONDS_IN_SPEED_CALC);
-        currSpeed.setValue(speed);
+        currSpeed.postValue(speed);
         waypoint.setCurrentSpeed(speed);
     }
 
     private void setAvgSpeed() {
-        avgSpeed.setValue(getSpeed(waypoints.size()));
+        avgSpeed.postValue(getSpeed(waypoints.size()));
     }
 
     private void setDistance() {
+        if (waypoints.getLast().getLocation() == null || waypoints.getSecondLast().getLocation() == null)
+            return;
         //double newDistance = getDistanceBetweenCoords(waypoints.getLast(), waypoints.getSecondLast());
         double newDistance = waypoints.getLast().getLocation().distanceTo(waypoints.getSecondLast().
                 getLocation()) / 1000.0;
         if (Double.isNaN(newDistance)) return;
         double oldDistance = distanceKm.getValue() != null ? distanceKm.getValue() : 0;
         Log.d("VM", "Leg distance, m: " + newDistance * 1000);
-        distanceKm.setValue(newDistance + oldDistance);
-    }
-
-    private void setDuration() {
-        totalDuration += waypoints.getLast().getTimeStamp() - waypoints.getSecondLast().getTimeStamp();
-        duration.postValue(getDurationFromMs(totalDuration));
+        distanceKm.postValue(newDistance + oldDistance);
     }
 
     @NotNull
