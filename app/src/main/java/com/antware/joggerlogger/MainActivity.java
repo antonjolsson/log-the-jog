@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
         transaction.commit();
 
+        //mapsFragment.redrawRoute();
         binding.exerciseOngoingLayout.divider.setVisibility(View.GONE);
     }
 
