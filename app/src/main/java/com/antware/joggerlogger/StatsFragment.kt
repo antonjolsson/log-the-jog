@@ -2,21 +2,29 @@ package com.antware.joggerlogger
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
+import com.antware.joggerlogger.LogViewModel.ExerciseStatus
+import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.antware.joggerlogger.databinding.FragmentStatsBinding
+import java.util.*
+
 
 @SuppressLint("SetTextI18n")
 class StatsFragment : Fragment() {
 
+    private var timerStartTime: Long = 0
+    private var elapsedTimeOnPause : Long = 0
     private val model: LogViewModel by activityViewModels()
     private var _binding: FragmentStatsBinding? = null
     // This property is only valid between onCreateView and
 // onDestroyView.
     private val binding get() = _binding!!
+    private var timer = Timer()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,9 +36,11 @@ class StatsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        model.duration.observe(viewLifecycleOwner, androidx.lifecycle.Observer { duration ->
+        binding.durationView.text = getDurationText(LogViewModel.Duration(0, 0, 0))
+        /*model.duration.observe(viewLifecycleOwner, androidx.lifecycle.Observer { duration ->
             binding.durationView.text = getDurationText(duration)
-        })
+        })*/
+        model.getStatus().observe(viewLifecycleOwner, onStatusChanged())
         model.distance.observe(viewLifecycleOwner, androidx.lifecycle.Observer { distance ->
             binding.distanceView.text = distance.toString().take(4)
         })
@@ -40,6 +50,24 @@ class StatsFragment : Fragment() {
         model.avgSpeed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { avgSpeed ->
             binding.avgSpeedView.text = (avgSpeed.toString() + "0").take(4)
         })
+    }
+
+    private fun onStatusChanged(): Observer<ExerciseStatus> {
+        return Observer { status ->
+            when (status) {
+                STARTED, RESUMED -> {
+                    timer = Timer()
+                    timerStartTime = System.currentTimeMillis()
+                    val timerTask = createTimerTask()
+                    timer.scheduleAtFixedRate(timerTask, elapsedTimeOnPause % 1000, 1000)
+                }
+                STOPPED, STOPPED_AFTER_PAUSED -> timer.cancel()
+                else -> {
+                    elapsedTimeOnPause = System.currentTimeMillis() - timerStartTime
+                    timer.cancel()
+                }
+            }
+        }
     }
 
     companion object {
@@ -54,6 +82,18 @@ class StatsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun createTimerTask(): TimerTask {
+        return object : TimerTask() {
+            override fun run() {
+                val duration: LogViewModel.Duration = model.getDurationFromMs(System.currentTimeMillis() -
+                        timerStartTime + elapsedTimeOnPause)
+                requireActivity().runOnUiThread {
+                    binding.durationView.text = getDurationText(duration)
+                }
+            }
+        }
     }
 
 }
