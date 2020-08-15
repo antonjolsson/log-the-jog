@@ -13,7 +13,6 @@ import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.antware.joggerlogger.databinding.FragmentStatsBinding
 import java.util.*
 
-
 @SuppressLint("SetTextI18n")
 class StatsFragment : Fragment() {
 

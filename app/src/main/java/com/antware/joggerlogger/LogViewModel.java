@@ -9,8 +9,8 @@ import androidx.lifecycle.ViewModel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-
-import javax.net.ssl.SSLSession;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.PAUSED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.RESUMED;
@@ -39,7 +39,10 @@ public class LogViewModel extends ViewModel {
         }
     }
 
-    private long totalDuration = 0;
+    private long totalDuration;
+    private long durationBeforePause;
+    private Timer timer;
+    private long timerStartTime;
 
     private MutableLiveData<Duration> duration = new MutableLiveData<>(new Duration(0,
             0, 0));
@@ -56,15 +59,24 @@ public class LogViewModel extends ViewModel {
 
     public void addWaypoint(Waypoint waypoint) {
         waypoints.add(waypoint);
-        if (exerciseJustStarted()){
-            if (waypoints.size() == 1) totalDuration = 0;
-            return;
-        }
-        setDuration();
+        if (waypoints.size() == 1) return;
         setDistance();
         setCurrSpeed(waypoint);
         setAvgSpeed();
         setPace();
+    }
+
+    private void startTimeTaking() {
+        timerStartTime = System.currentTimeMillis();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                totalDuration = System.currentTimeMillis() - timerStartTime + durationBeforePause;
+                duration.postValue(getDurationFromMs(totalDuration));
+            }
+        };
+        timer = new Timer();
+        timer.scheduleAtFixedRate(timerTask, durationBeforePause % 1000, 1000);
     }
 
     private void setPace() {
@@ -82,11 +94,14 @@ public class LogViewModel extends ViewModel {
     public void startButtonPressed() {
         if (status == STARTED || status == RESUMED) {
             status = PAUSED;
+            pauseTimeTaking();
             waypoints.getLast().setStatus(status);
             statusLiveData.setValue(status);
         }
         else {
-            if ((status == STOPPED || status == STOPPED_AFTER_PAUSED) && waypoints.size() > 1) {
+            if (status == STOPPED || status == STOPPED_AFTER_PAUSED) {
+                totalDuration = 0;
+                durationBeforePause = 0;
                 waypoints = new WaypointList();
                 duration.setValue(new Duration(0, 0, 0));
                 distanceKm.setValue(0.0);
@@ -94,6 +109,11 @@ public class LogViewModel extends ViewModel {
             }
             startMeasuring();
         }
+    }
+
+    private void pauseTimeTaking() {
+        durationBeforePause += System.currentTimeMillis() - timerStartTime;
+        timer.cancel();
     }
 
     public void stopButtonPressed() {
@@ -105,6 +125,7 @@ public class LogViewModel extends ViewModel {
     private void startMeasuring() {
         status = status == PAUSED ? RESUMED : STARTED;
         statusLiveData.setValue(status);
+        startTimeTaking();
     }
 
     private double getSpeed(int numWaypoints) {
