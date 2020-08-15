@@ -29,7 +29,7 @@ class MapsFragment : Fragment() {
     private var map : GoogleMap? = null
     var currLocation : Location? = null
     private val model: LogViewModel by activityViewModels()
-    private val locationResult = object : MyLocation.LocationResult() {
+    private val locationResult = object : MyLocation2.BestLocationResult() {
 
         override fun gotLocation(location: Location?) {
             currLocation = location
@@ -87,7 +87,7 @@ class MapsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val myLocation = MyLocation()
+        val myLocation = MyLocation2(requireActivity())
         myLocation.getLocation(inflater.context, locationResult)
 
         return inflater.inflate(R.layout.fragment_maps, container, false)
@@ -127,6 +127,7 @@ class MapsFragment : Fragment() {
         zIndex: Float,
         location: Location?
     ) {
+        if (location == null) return
         map?.addCircle(getLatLng(location)?.let {
             CircleOptions().center(it).radius(radius).strokeColor(strokeColor).fillColor(ContextCompat.getColor(requireActivity(),
                 fillColorId)).zIndex(zIndex)
