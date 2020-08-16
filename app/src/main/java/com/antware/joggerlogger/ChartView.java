@@ -12,25 +12,30 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.antware.joggerlogger.LogViewModel.Duration;
 
+import java.util.Objects;
+
 public class ChartView extends View {
 
     private static final int VERT_GRID_LINES = 9;
     private static final int CHART_AXIS_WIDTH = 10;
     private static final float PATH_WIDTH = 10;
-    private static final float PATH_TOP_PADDING = 30;
+    private static final float PATH_TOP_PADDING = 50;
     private static final int CHART_AXIS_COLOR = Color.BLACK;
-    private static final int CHART_TIMESTAMP_LABELS = 2;
+    private static final int CHART_DURATION_LABELS = 2;
+    private static final int CHART_DISTANCE_LABELS = 4;
     private static final float LEGEND_TEXT_SIZE = 35;
     private static final int CHART_BOTTOM_PADDING = 35;
     private static final int CHART_HORIZ_PADDING = 5;
+    private static final boolean HORIZ_DURATION_LEGEND = true;
+
     Paint gridPaint = new Paint();
     Paint pathPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     LogViewModel model = null;
 
-    public ChartView(Context context) {
+    /*public ChartView(Context context) {
         super(context);
-    }
+    }*/
 
     public ChartView(Context context, AttributeSet attrs) {
         super(context);
@@ -51,29 +56,59 @@ public class ChartView extends View {
         if (model == null) return;
         drawPath(canvas);
         drawGrid(canvas);
-        drawLegend(canvas);
+        if (HORIZ_DURATION_LEGEND) drawDurLegend(canvas);
+        else drawDistanceLegend(canvas);
+    }
+
+    private void drawDistanceLegend(Canvas canvas) {
+        double totalDistance = Objects.requireNonNull(model.getDistance().getValue());
+        // int legDistance =
+        for (int i = 1; i <= CHART_DISTANCE_LABELS; i++) {
+
+        }
+
+    }
+
+    private void drawDurLegend(Canvas canvas) {
+        Duration duration = model.getDuration().getValue();
+        assert duration != null;
+        int seconds = duration.hours * 3600 + duration.minutes * 60 + duration.seconds;
+        for (int i = 1; i <= CHART_DURATION_LABELS; i++) {
+            Duration interval = model.getDurationFromMs((long) (1000 * seconds *
+                    (float) i / (CHART_DURATION_LABELS + 1)));
+            String intervalText = StatsFragment.Companion.getDurationText(interval);
+            drawHorizLegendText(canvas, i, intervalText, CHART_DURATION_LABELS);
+        }
+    }
+
+    private void drawHorizLegendText(Canvas canvas, float index, String text, int numLabels) {
+        canvas.drawText(text, index * getChartWidth()  / (numLabels + 1)
+                + CHART_HORIZ_PADDING, getHeight(), textPaint);
     }
 
     private void drawPath(Canvas canvas) {
         double maxSpeed = getMaxSpeed();
-        int waypoints = model.getWaypoints().size();
+        int numWaypoints = model.getWaypoints().size();
         for (int i = 1; i < model.getWaypoints().size(); i++) {
-            float startX = getPathX(waypoints, i - 1);
+            float startX = getPathX(numWaypoints, i - 1);
             float startY = getPathY(maxSpeed, i - 1);
-            float stopX = getPathX(waypoints, i);
+            float stopX = getPathX(numWaypoints, i);
             float stopY = getPathY(maxSpeed, i);
             canvas.drawLine(startX, startY, stopX, stopY, pathPaint);
         }
     }
 
     private float getPathY(double maxSpeed, int i) {
-        return (float) ((maxSpeed - model.getWaypoints().get(i).getCurrentSpeed())
-                / maxSpeed * (getHeight() - PATH_TOP_PADDING)) + PATH_TOP_PADDING -
-                CHART_BOTTOM_PADDING;
+        return (float) (((maxSpeed - model.getWaypoints().get(i).getCurrentSpeed()) / maxSpeed) *
+                getChartHeight()) + PATH_TOP_PADDING - CHART_BOTTOM_PADDING;
+    }
+
+    private float getChartHeight() {
+        return getHeight() - PATH_TOP_PADDING - CHART_BOTTOM_PADDING;
     }
 
     private float getPathX(int waypoints, float i) {
-        return i / waypoints * getChartWidth() + CHART_HORIZ_PADDING;
+        return i / --waypoints * getChartWidth() + CHART_HORIZ_PADDING;
     }
 
     private double getMaxSpeed() {
@@ -85,21 +120,10 @@ public class ChartView extends View {
         return max;
     }
 
-    private void drawLegend(Canvas canvas) {
-        Duration duration = model.getDuration().getValue();
-        assert duration != null;
-        int seconds = duration.hours * 3600 + duration.minutes * 60 + duration.seconds;
-        for (int i = 1; i <= CHART_TIMESTAMP_LABELS; i++) {
-            Duration interval = model.getDurationFromMs((long) (1000 * seconds *
-                    (float) i / (CHART_TIMESTAMP_LABELS + 1)));
-            String intervalText = StatsFragment.Companion.getDurationText(interval);
-            canvas.drawText(intervalText, (float) i * getChartWidth()  / (CHART_TIMESTAMP_LABELS + 1)
-                            + CHART_HORIZ_PADDING, getHeight(), textPaint);
-        }
-    }
+
 
     private float getChartWidth() {
-        return getWidth() - 2 * CHART_HORIZ_PADDING;
+        return getWidth();
     }
 
     private void drawGrid(Canvas canvas) {
