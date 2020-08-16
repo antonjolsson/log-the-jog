@@ -99,7 +99,7 @@ public class LogViewModel extends ViewModel {
         if (status == STARTED || status == RESUMED) {
             status = PAUSED;
             pauseTimeTaking();
-            waypoints.getLast().setStatus(status);
+            if (!waypoints.isEmpty()) waypoints.getLast().setStatus(status);
             statusLiveData.setValue(status);
         }
         else {

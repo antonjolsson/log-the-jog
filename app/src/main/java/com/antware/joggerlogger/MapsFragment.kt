@@ -1,7 +1,6 @@
 package com.antware.joggerlogger
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -24,7 +23,12 @@ class MapsFragment : Fragment() {
 
     private val COMPLETE_ROUTE_PADDING: Int = 50
     private val CIRCLE_Z_INDEX = 1F
-    private val CIRCLE_RADIUS_METERS = 10.0
+    private val POLYLINE_Z_INDEX = 0F
+    private val CIRCLE_RADIUS_METERS = 8.0
+    private val POLYLINE_OUTER_STROKE_WIDTH = 20F
+    private val POLYLINE_INNER_STROKE_WIDTH = 10F
+    private val OUTLINE_COLOR = R.color.colorBackground
+    private val SHAPE_COLOR = R.color.colorPrimaryDark
     private val INITIAL_ZOOM_LEVEL = 16.0f
     private val DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_HYBRID
 
@@ -45,18 +49,22 @@ class MapsFragment : Fragment() {
         requireActivity().runOnUiThread {
             if (centerCurrLocation) map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
             if (model.exerciseStatus == STARTED || model.exerciseStatus == RESUMED) {
-                model.addWaypoint(location?.time?.let {
-                        Waypoint(location, model.exerciseStatus) })
+                model.addWaypoint(location?.time?.let { Waypoint(location, model.exerciseStatus) })
                 if (!model.exerciseJustStarted()) {
                     val numWaypoints = model.waypoints.size
                     val lastLocation = getLatLng(model.waypoints[numWaypoints - 2].location)
-                    addPolyline(here, lastLocation)}
+                    addPolyline(here, lastLocation)
+                }
             }
         }
     }
 
+    @Suppress("ConstantConditionIf")
     private fun addPolyline(startPoint: LatLng?, endPoint: LatLng?) {
-        val options = PolylineOptions().color(ContextCompat.getColor(requireActivity(), R.color.colorPrimary))
+        var options: PolylineOptions? = PolylineOptions().color(getColor(OUTLINE_COLOR)).width(POLYLINE_OUTER_STROKE_WIDTH)
+            .zIndex(POLYLINE_Z_INDEX)
+        map?.addPolyline(options?.add(startPoint, endPoint))
+        options = PolylineOptions().color(getColor(SHAPE_COLOR)).width(POLYLINE_INNER_STROKE_WIDTH).zIndex(POLYLINE_Z_INDEX)
         map?.addPolyline(options.add(startPoint, endPoint))
     }
 
@@ -103,33 +111,30 @@ class MapsFragment : Fragment() {
         })
     }
 
-    private fun onStatusChanged(
-        status: ExerciseStatus?,
-        addWaypoints: Boolean,
-        location: Location,
-        circleRadius: Double
-    ) {
+    private fun onStatusChanged(status: ExerciseStatus?, addWaypoints: Boolean, location: Location, circleRadius: Double) {
         when (status) {
             STARTED, RESUMED -> {
                 if (model.waypoints.isEmpty())
                     map?.clear()
-                val color = if (status == STARTED) R.color.colorPrimary else R.color.colorDisabled
-                addCircle(circleRadius, Color.WHITE, color, CIRCLE_Z_INDEX, location)
+                val color = if (status == STARTED) SHAPE_COLOR else R.color.colorDisabled
+                addCircle(circleRadius, OUTLINE_COLOR, color, CIRCLE_Z_INDEX, location)
                 if (addWaypoints) model.addWaypoint(Waypoint(location, status))
             }
-            PAUSED -> addCircle(circleRadius, Color.WHITE, R.color.colorDisabled, CIRCLE_Z_INDEX, location)
+            PAUSED -> addCircle(circleRadius, OUTLINE_COLOR, R.color.colorDisabled, CIRCLE_Z_INDEX, location)
             else -> {
                 if (model.waypoints.isEmpty()) return
-                addCircle(circleRadius, Color.WHITE, R.color.colorAccent, CIRCLE_Z_INDEX, location)
+                addCircle(circleRadius, OUTLINE_COLOR, R.color.colorAccent, CIRCLE_Z_INDEX, location)
             }
         }
     }
 
-    private fun addCircle(radius: Double, strokeColor: Int, fillColorId: Int, zIndex: Float, location: Location?) {
+    private fun getColor(color: Int): Int { return ContextCompat.getColor(requireContext(), color) }
+
+    private fun addCircle(radius: Double, strokeColorId: Int, fillColorId: Int, zIndex: Float, location: Location?) {
         if (location == null) return
         map?.addCircle(getLatLng(location)?.let {
-            CircleOptions().center(it).radius(radius).strokeColor(strokeColor).fillColor(ContextCompat.getColor(requireActivity(),
-                fillColorId)).zIndex(zIndex)
+            CircleOptions().center(it).radius(radius).strokeColor(getColor(strokeColorId)).fillColor(getColor(fillColorId))
+                .zIndex(zIndex).strokeWidth((POLYLINE_OUTER_STROKE_WIDTH - POLYLINE_INNER_STROKE_WIDTH) / 2)
         })
     }
 
@@ -140,7 +145,8 @@ class MapsFragment : Fragment() {
     private fun drawCompletedRoute() {
         val prevMapSize = getMapDiagonalMeters(map)
         map?.moveCamera(CameraUpdateFactory.newLatLngBounds(getLatLngBounds(), COMPLETE_ROUTE_PADDING))
-        val circleRadius = CIRCLE_RADIUS_METERS * getMapDiagonalMeters(map) / prevMapSize
+        val mapSizeCoefficient = getMapDiagonalMeters(map) / prevMapSize
+        val circleRadius = CIRCLE_RADIUS_METERS * mapSizeCoefficient
         var currStatus: ExerciseStatus? = null
         for ((i, wayPoint) in model.waypoints.withIndex()) {
             val currLatLng = getLatLng(wayPoint.location)
