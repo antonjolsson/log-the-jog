@@ -16,14 +16,11 @@ import java.util.*
 @SuppressLint("SetTextI18n")
 class StatsFragment : Fragment() {
 
-    private var timerStartTime: Long = 0
-    private var elapsedTimeOnPause : Long = 0
     private val model: LogViewModel by activityViewModels()
     private var _binding: FragmentStatsBinding? = null
     // This property is only valid between onCreateView and
 // onDestroyView.
     private val binding get() = _binding!!
-    private var timer = Timer()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,24 +48,6 @@ class StatsFragment : Fragment() {
         })
     }
 
-    private fun onStatusChanged(): Observer<ExerciseStatus> {
-        return Observer { status ->
-            when (status) {
-                STARTED, RESUMED -> {
-                    timer = Timer()
-                    timerStartTime = System.currentTimeMillis()
-                    val timerTask = createTimerTask()
-                    timer.scheduleAtFixedRate(timerTask, elapsedTimeOnPause % 1000, 1000)
-                }
-                STOPPED, STOPPED_AFTER_PAUSED -> timer.cancel()
-                else -> {
-                    elapsedTimeOnPause = System.currentTimeMillis() - timerStartTime
-                    timer.cancel()
-                }
-            }
-        }
-    }
-
     companion object {
         fun getDurationText(duration: LogViewModel.Duration): String {
             val hours = "0" + duration.hours.toString()
@@ -81,18 +60,6 @@ class StatsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun createTimerTask(): TimerTask {
-        return object : TimerTask() {
-            override fun run() {
-                val duration: LogViewModel.Duration = model.getDurationFromMs(System.currentTimeMillis() -
-                        timerStartTime + elapsedTimeOnPause)
-                requireActivity().runOnUiThread {
-                    binding.durationView.text = getDurationText(duration)
-                }
-            }
-        }
     }
 
 }
