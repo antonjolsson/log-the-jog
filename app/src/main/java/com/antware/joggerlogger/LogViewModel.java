@@ -124,7 +124,8 @@ public class LogViewModel extends ViewModel {
 
     public void stopButtonPressed() {
         status = STOPPED_AFTER_PAUSED;
-        waypoints.getLast().setStatus(status);
+        if (!waypoints.isEmpty())
+            waypoints.getLast().setStatus(status);
         statusLiveData.setValue(status);
     }
 

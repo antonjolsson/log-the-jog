@@ -38,7 +38,7 @@ public class ExerciseCompleteFragment extends Fragment {
     }
 
     private void drawElevationCurve(LogViewModel model) {
-
+        binding.elevationChart.elevationChart.initModel(model);
     }
 
     private void drawSpeedCurve(LogViewModel model) {

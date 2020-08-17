@@ -17,6 +17,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.JointType.ROUND
 
 @Suppress("PrivatePropertyName", "SameParameterValue")
 class MapsFragment : Fragment() {
@@ -62,9 +63,10 @@ class MapsFragment : Fragment() {
     @Suppress("ConstantConditionIf")
     private fun addPolyline(startPoint: LatLng?, endPoint: LatLng?) {
         var options: PolylineOptions? = PolylineOptions().color(getColor(OUTLINE_COLOR)).width(POLYLINE_OUTER_STROKE_WIDTH)
-            .zIndex(POLYLINE_Z_INDEX)
+            .zIndex(POLYLINE_Z_INDEX).jointType(ROUND)
         map?.addPolyline(options?.add(startPoint, endPoint))
         options = PolylineOptions().color(getColor(SHAPE_COLOR)).width(POLYLINE_INNER_STROKE_WIDTH).zIndex(POLYLINE_Z_INDEX)
+            .jointType(ROUND)
         map?.addPolyline(options.add(startPoint, endPoint))
     }
 
@@ -114,6 +116,7 @@ class MapsFragment : Fragment() {
     private fun onStatusChanged(status: ExerciseStatus?, addWaypoints: Boolean, location: Location, circleRadius: Double) {
         when (status) {
             STARTED, RESUMED -> {
+                if (currLocation == null)
                 if (model.waypoints.isEmpty())
                     map?.clear()
                 val color = if (status == STARTED) SHAPE_COLOR else R.color.colorDisabled

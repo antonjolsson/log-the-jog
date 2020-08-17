@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ChartView">
+        <attr name="horizontalData" format="enum">
+            <enum name="duration" value="0"/>
+            <enum name="distance" value="1"/>
+        </attr>
+        <attr name="verticalData" format="enum">
+            <enum name="speed" value="0"/>
+            <enum name="elevation" value="1"/>
+        </attr>
+    </declare-styleable>
+</resources>

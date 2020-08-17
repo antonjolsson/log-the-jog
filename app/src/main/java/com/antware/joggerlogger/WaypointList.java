@@ -5,10 +5,12 @@ import java.util.ArrayList;
 public class WaypointList extends ArrayList<Waypoint> {
 
     public Waypoint getLast() {
+        if (this.isEmpty()) return null;
         return this.get(this.size() - 1);
     }
 
     public Waypoint getSecondLast() {
+        if (this.size() < 2) return null;
         return this.get(this.size() - 2);
     }
 
