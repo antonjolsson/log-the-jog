@@ -341,6 +341,7 @@
         app:layout_constraintTop_toBottomOf="@id/constraintLayout5" />
 
     <FrameLayout
+        android:id="@+id/speedLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -351,9 +352,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView">
 
-        <include
+        <!--<include
             android:id="@+id/speedChart"
-            layout="@layout/speed_chart" />
+            layout="@layout/fragment_chart" />-->
 
     </FrameLayout>
 
@@ -370,6 +371,7 @@
         app:layout_constraintTop_toBottomOf="@+id/mapFrame" />
 
     <FrameLayout
+        android:id="@+id/elevationLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -380,9 +382,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2">
 
-        <include
-            android:id="@+id/elevationChart"
-            layout="@layout/elevation_chart" />
+        <!--<include
+            android:id="@+id/elevation_chart"
+            layout="@layout/elevation_chart" />-->
 
     </FrameLayout>
 

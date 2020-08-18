@@ -4,28 +4,42 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.antware.joggerlogger.databinding.FragmentExerciseCompleteBinding;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 import java.util.Objects;
+
+import static com.antware.joggerlogger.ExerciseCompleteFragment.HorizontalData.DURATION;
+import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.*;
 
 public class ExerciseCompleteFragment extends Fragment {
 
-    private FragmentExerciseCompleteBinding binding;
     private final static int NUM_DECIMALS_IN_DISTANCES = 2;
+
+    enum HorizontalData {DURATION, DISTANCE}
+    enum VerticalData {SPEED, ELEVATION}
+    HorizontalData horizData = DURATION;
+
+    private FragmentExerciseCompleteBinding mainBinding;
 
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentExerciseCompleteBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+        mainBinding = FragmentExerciseCompleteBinding.inflate(inflater, container, false);
+
+        return mainBinding.getRoot();
     }
 
     @Override
@@ -33,30 +47,38 @@ public class ExerciseCompleteFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         LogViewModel model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
         showNumericStats(model);
-        drawSpeedCurve(model);
-        drawElevationCurve(model);
+
+        FragmentManager fragmentManager = getChildFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        Fragment speedFragment = getChartFragment(SPEED, DURATION);
+        Fragment elevFragment = getChartFragment(ELEVATION, DURATION);
+        transaction.add(R.id.speedLayout, speedFragment).add(R.id.elevationLayout, elevFragment);
+        transaction.commit();
     }
 
-    private void drawElevationCurve(LogViewModel model) {
-        binding.elevationChart.elevationChart.initModel(model);
-    }
+    private ChartFragment getChartFragment(VerticalData vertData, HorizontalData horizData) {
+        ChartFragment fragment = new ChartFragment();
 
-    private void drawSpeedCurve(LogViewModel model) {
-        binding.speedChart.speedChart.initModel(model);
+        Bundle args = new Bundle();
+        args.putSerializable("verticalData", vertData);
+        args.putSerializable("horizData", horizData);
+        fragment.setArguments(args);
+
+        return fragment;
     }
 
     private void showNumericStats(LogViewModel model) {
         String durationText = StatsFragment.
                 Companion.getDurationText(Objects.requireNonNull(model.getDuration().getValue()));
-        binding.durationLabelView.setText(durationText);
+        mainBinding.durationLabelView.setText(durationText);
         String distanceText = String.valueOf(model.getDistance().getValue());
-        binding.distanceView.setText(truncateDecimals(distanceText));
+        mainBinding.distanceView.setText(truncateDecimals(distanceText));
         String avgSpeedText = String.valueOf(model.getAvgSpeed().getValue());
-        binding.completeAvgSpdView.setText(truncateDecimals(avgSpeedText));
+        mainBinding.completeAvgSpdView.setText(truncateDecimals(avgSpeedText));
         LogViewModel.Duration pace = model.getPace().getValue();
         assert pace != null;
         String paceText = getResources().getString(R.string.paceData, pace.minutes, pace.seconds);
-        binding.completePaceView.setText(paceText);
+        mainBinding.completePaceView.setText(paceText);
     }
 
     // TODO: Round decimals
