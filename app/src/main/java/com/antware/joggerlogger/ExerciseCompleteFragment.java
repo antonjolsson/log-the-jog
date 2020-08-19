@@ -21,16 +21,19 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 import java.util.Objects;
 
+import static com.antware.joggerlogger.ExerciseCompleteFragment.HorizontalData.DISTANCE;
 import static com.antware.joggerlogger.ExerciseCompleteFragment.HorizontalData.DURATION;
 import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.*;
 
 public class ExerciseCompleteFragment extends Fragment {
 
     private final static int NUM_DECIMALS_IN_DISTANCES = 2;
+    public static final String VERT_DATA_KEY = "verticalData";
+    public static final String HORIZ_DATA_KEY = "horizData";
 
     enum HorizontalData {DURATION, DISTANCE}
     enum VerticalData {SPEED, ELEVATION}
-    HorizontalData horizData = DURATION;
+    HorizontalData horizData = DISTANCE;
 
     private FragmentExerciseCompleteBinding mainBinding;
 
@@ -50,8 +53,8 @@ public class ExerciseCompleteFragment extends Fragment {
 
         FragmentManager fragmentManager = getChildFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        Fragment speedFragment = getChartFragment(SPEED, DURATION);
-        Fragment elevFragment = getChartFragment(ELEVATION, DURATION);
+        Fragment speedFragment = getChartFragment(SPEED, horizData);
+        Fragment elevFragment = getChartFragment(ELEVATION, horizData);
         transaction.add(R.id.speedLayout, speedFragment).add(R.id.elevationLayout, elevFragment);
         transaction.commit();
     }
@@ -60,8 +63,8 @@ public class ExerciseCompleteFragment extends Fragment {
         ChartFragment fragment = new ChartFragment();
 
         Bundle args = new Bundle();
-        args.putSerializable("verticalData", vertData);
-        args.putSerializable("horizData", horizData);
+        args.putSerializable(VERT_DATA_KEY, vertData);
+        args.putSerializable(HORIZ_DATA_KEY, horizData);
         fragment.setArguments(args);
 
         return fragment;
