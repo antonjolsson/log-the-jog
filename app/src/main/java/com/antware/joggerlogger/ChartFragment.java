@@ -44,33 +44,22 @@ public class ChartFragment extends Fragment {
         HorizontalData horizData = (HorizontalData) bundle.get(HORIZ_DATA_KEY);
         VerticalData verticalData = (VerticalData) bundle.get(VERT_DATA_KEY);
         LogViewModel model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
-        /*double maxValue = getStatMaxValue(model, verticalData);*/
-        StatMaxMinValues maxMinValues = StatMaxMinValues.getStatMaxMinValues(model,
+        DataRange dataRange = DataRange.getDataRange(model,
                 verticalData, true, verticalData == ELEVATION);
-        setTickLabels(maxMinValues, binding.vertLabelsLayout);
+        setTickLabels(dataRange, binding.vertLabelsLayout);
         if (horizData == DURATION) {
             setDurTickLabels(binding.horizLabelsLayout, model);
             binding.horizLabel.setText(R.string.time);
         }
         else {
             double distance = Objects.requireNonNull(model.getDistance().getValue());
-            setTickLabels(new StatMaxMinValues(distance, 0), binding.horizLabelsLayout);
+            setTickLabels(new DataRange(distance, 0), binding.horizLabelsLayout);
             binding.horizLabel.setText(R.string.km);
         }
-        binding.chartView.init(model, maxMinValues, verticalData);
+        binding.chartView.init(model, dataRange, verticalData, verticalData == ELEVATION);
     }
 
-    private double getStatMaxValue(LogViewModel model, VerticalData vertData) {
-        double max = 0;
-        for (Waypoint point : model.getWaypoints()) {
-            double value = vertData == SPEED ? point.getCurrentSpeed() : point.getLocation().getAltitude();
-            if (value > max)
-                max = value;
-        }
-        return max;
-    }
-
-    private void setTickLabels(StatMaxMinValues maxMinValues, ConstraintLayout labelsLayout) {
+    private void setTickLabels(DataRange maxMinValues, ConstraintLayout labelsLayout) {
         for (int i = 0; i < labelsLayout.getChildCount(); i++) {
             double range = maxMinValues.maxValue - maxMinValues.minValue;
             double value = (double) i / (labelsLayout.getChildCount() - 1) * range + maxMinValues.minValue;
@@ -91,14 +80,14 @@ public class ChartFragment extends Fragment {
         }
     }
 
-    public static class StatMaxMinValues {
+    public static class DataRange {
 
-        public StatMaxMinValues(double maxValue, double minValue) {
+        public DataRange(double maxValue, double minValue) {
             this.maxValue = maxValue;
             this.minValue = minValue;
         }
 
-        public StatMaxMinValues() {}
+        public DataRange() {}
 
         public double getMaxValue() {
             return maxValue;
@@ -110,19 +99,19 @@ public class ChartFragment extends Fragment {
 
         private double maxValue = Double.MIN_VALUE, minValue = Double.MAX_VALUE;
 
-        public static StatMaxMinValues getStatMaxMinValues(LogViewModel model, VerticalData dataType,
-                                                           boolean getMaxValue, boolean getMinValue) {
-            StatMaxMinValues maxMinValues = new StatMaxMinValues();
-            if (!getMaxValue) maxMinValues.maxValue = 0;
-            if (!getMinValue) maxMinValues.minValue = 0;
+        public static DataRange getDataRange(LogViewModel model, VerticalData dataType,
+                                             boolean getMaxValue, boolean getMinValue) {
+            DataRange dataRange = new DataRange();
+            if (!getMaxValue) dataRange.maxValue = 0;
+            if (!getMinValue) dataRange.minValue = 0;
             for (Waypoint point : model.getWaypoints()) {
                 double value = dataType == SPEED ? point.getCurrentSpeed() : point.getLocation().getAltitude();
-                if (getMaxValue && value > maxMinValues.maxValue)
-                    maxMinValues.maxValue = value;
-                if (getMinValue && value < maxMinValues.minValue)
-                    maxMinValues.minValue = value;
+                if (getMaxValue && value > dataRange.maxValue)
+                    dataRange.maxValue = value;
+                if (getMinValue && value < dataRange.minValue)
+                    dataRange.minValue = value;
             }
-            return maxMinValues;
+            return dataRange;
         }
     }
 }
