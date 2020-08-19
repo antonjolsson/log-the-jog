@@ -28,6 +28,7 @@ import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.SPE
 public class ChartFragment extends Fragment {
 
     private FragmentChartBinding binding;
+    private final static double ELEVATION_MIN_VALUE_COEFF = 0.75;
 
     @Nullable
     @Override
@@ -46,6 +47,7 @@ public class ChartFragment extends Fragment {
         LogViewModel model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
         DataRange dataRange = DataRange.getDataRange(model,
                 verticalData, true, verticalData == ELEVATION);
+        if (verticalData == ELEVATION) dataRange.setMinValue(ELEVATION_MIN_VALUE_COEFF);
         setTickLabels(dataRange, binding.vertLabelsLayout);
         if (horizData == DURATION) {
             setDurTickLabels(binding.horizLabelsLayout, model);
@@ -112,6 +114,14 @@ public class ChartFragment extends Fragment {
                     dataRange.minValue = value;
             }
             return dataRange;
+        }
+
+        public void setMinValue(double coefficient) {
+            minValue *= coefficient;
+        }
+
+        public void setMaxValue(double coefficient) {
+            maxValue *= coefficient;
         }
     }
 }

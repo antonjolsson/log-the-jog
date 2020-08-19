@@ -86,12 +86,6 @@ public class ChartView extends View {
             Point start = getDataPoint(numWaypoints, dataRange, i - 1);
             Point end = getDataPoint(numWaypoints, dataRange, i);
             canvas.drawLine(start.x, start.y, end.x, end.y, pathPaint);
-
-            /*float startX = getPathX(numWaypoints, i - 1);
-            float startY = getPathY(dataRange, i - 1);
-            float stopX = getPathX(numWaypoints, i);
-            float stopY = getPathY(dataRange, i);
-            canvas.drawLine(startX, startY, stopX, stopY, pathPaint);*/
         }
     }
 
