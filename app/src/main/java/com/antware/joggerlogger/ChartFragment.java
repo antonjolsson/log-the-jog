@@ -28,7 +28,7 @@ import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.SPE
 public class ChartFragment extends Fragment {
 
     private FragmentChartBinding binding;
-    private final static double ELEVATION_PATH_RANGE = 0.8;
+    private final static double ELEVATION_PATH_RANGE = 0.9;
 
     @Nullable
     @Override
