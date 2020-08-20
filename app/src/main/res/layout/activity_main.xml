@@ -5,11 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include
+    <!--<include
         android:id="@+id/exerciseOngoingLayout"
-        layout="@layout/exercise_ongoing"
+        layout="@layout/fragment_exercise_ongoing"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:visibility="visible" />
+        tools:visibility="visible" />-->
 
 </FrameLayout>

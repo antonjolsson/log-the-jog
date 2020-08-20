@@ -103,18 +103,21 @@ public class LogViewModel extends ViewModel {
             statusLiveData.setValue(status);
         }
         else {
-            if (status == STOPPED || status == STOPPED_AFTER_PAUSED) {
-                totalDuration = 0;
-                durationBeforePause = 0;
-                waypoints = new WaypointList();
-                duration.setValue(new Duration(0, 0, 0));
-                distanceKm.setValue(0.0);
-                currSpeed.setValue(0.0);
-            }
+            if (status == STOPPED || status == STOPPED_AFTER_PAUSED) reset();
             startMeasuring();
         }
         Log.d("LogViewModel", "Status = " + status.toString() + ", totalDuration = " +
                 totalDuration + ", durationBeforePause = " + durationBeforePause);
+    }
+
+    void reset() {
+        totalDuration = 0;
+        durationBeforePause = 0;
+        waypoints = new WaypointList();
+        duration.setValue(new Duration(0, 0, 0));
+        distanceKm.setValue(0.0);
+        currSpeed.setValue(0.0);
+        avgSpeed.setValue(0.0);
     }
 
     private void pauseTimeTaking() {

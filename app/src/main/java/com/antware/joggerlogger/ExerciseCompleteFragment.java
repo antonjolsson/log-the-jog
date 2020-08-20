@@ -41,9 +41,8 @@ public class ExerciseCompleteFragment extends Fragment {
         super.onCreate(savedInstanceState);
         TransitionInflater inflater = TransitionInflater.from(requireContext());
         setEnterTransition(inflater.inflateTransition(R.transition.slide_right));
-        setExitTransition(inflater.inflateTransition(R.transition.slide_left));
+        setExitTransition(inflater.inflateTransition(R.transition.fade));
     }
-
 
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
@@ -63,7 +62,9 @@ public class ExerciseCompleteFragment extends Fragment {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         Fragment speedFragment = getChartFragment(SPEED, horizData);
         Fragment elevFragment = getChartFragment(ELEVATION, horizData);
-        transaction.add(R.id.speedLayout, speedFragment).add(R.id.elevationLayout, elevFragment);
+        Fragment mapFragment = new MapsFragment();
+        transaction.add(R.id.speedLayout, speedFragment).add(R.id.elevationLayout, elevFragment)
+        .add(R.id.mapFrame, mapFragment);
         transaction.commit();
     }
 
@@ -91,5 +92,7 @@ public class ExerciseCompleteFragment extends Fragment {
         String paceText = String.format(Locale.ENGLISH, "%1$d:%2$02d", pace.minutes, pace.seconds);
         mainBinding.completePaceView.setText(paceText);
     }
+
+
 
 }

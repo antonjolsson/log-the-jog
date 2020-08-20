@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.antware.joggerlogger.databinding.FragmentStatsBinding
@@ -12,6 +13,7 @@ import com.antware.joggerlogger.databinding.FragmentStatsBinding
 @SuppressLint("SetTextI18n")
 class StatsFragment : Fragment() {
 
+    var reset: Boolean = false
     private val model: LogViewModel by activityViewModels()
     private var _binding: FragmentStatsBinding? = null
     // This property is only valid between onCreateView and
@@ -28,20 +30,34 @@ class StatsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //binding.durationView.text = getDurationText(LogViewModel.Duration(0, 0, 0))
         model.duration.observe(viewLifecycleOwner, androidx.lifecycle.Observer { duration ->
-            binding.durationView.text = getDurationText(duration)
+            setDuration(duration)
         })
-        //model.getStatus().observe(viewLifecycleOwner, onStatusChanged())
         model.distance.observe(viewLifecycleOwner, androidx.lifecycle.Observer { distance ->
-            binding.distanceView.text = distance.toString().take(4)
+            setFigure(binding.distanceView, distance)
         })
         model.currSpeed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { currSpeed ->
-            binding.currSpeedView.text = (currSpeed.toString() + "0").take(4)
+            setFigure(binding.currSpeedView, currSpeed)
         })
         model.avgSpeed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { avgSpeed ->
-            binding.avgSpeedView.text = (avgSpeed.toString() + "0").take(4)
+            setFigure(binding.avgSpeedView, avgSpeed)
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (reset) {
+            model.reset()
+            reset = false
+        }
+    }
+
+    private fun setFigure(textView: TextView, value: Double) {
+        textView.text = (value.toString() + "0").take(4)
+    }
+
+    private fun setDuration(duration: LogViewModel.Duration) {
+        binding.durationView.text = getDurationText(duration)
     }
 
     companion object {

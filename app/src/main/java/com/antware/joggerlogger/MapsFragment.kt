@@ -35,6 +35,7 @@ class MapsFragment : Fragment() {
 
     private var map : GoogleMap? = null
     var currLocation : Location? = null
+    private var clearMap: Boolean = false
     private var centerCurrLocation: Boolean = true
     private val model: LogViewModel by activityViewModels()
     private val locationResult = object : MyLocation2.BestLocationResult() {
@@ -89,10 +90,14 @@ class MapsFragment : Fragment() {
         map!!.uiSettings.isMyLocationButtonEnabled = true
         map!!.mapType = DEFAULT_MAP_TYPE
 
-        if (isAdded && currLocation != null) update(currLocation)
-        if (model.waypoints.isNotEmpty()) {
-            drawCompletedRoute()
-            centerCurrLocation = false
+        if (clearMap) map!!.clear()
+        else {
+            if (isAdded && currLocation != null) update(currLocation)
+            if (model.waypoints.isNotEmpty()) {
+                drawCompletedRoute()
+                centerCurrLocation = false
+            }
+            clearMap = false
         }
     }
 
@@ -179,6 +184,11 @@ class MapsFragment : Fragment() {
             latLngBounds = if (i == 0) LatLngBounds(latLng, latLng) else latLngBounds?.including(latLng)
         }
         return latLngBounds
+    }
+
+    fun reset() {
+        centerCurrLocation = true
+        clearMap = true
     }
 
 }
