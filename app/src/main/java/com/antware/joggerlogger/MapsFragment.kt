@@ -3,6 +3,7 @@ package com.antware.joggerlogger
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,6 +39,7 @@ class MapsFragment : Fragment() {
     private var clearMap: Boolean = false
     private var centerCurrLocation: Boolean = true
     private val model: LogViewModel by activityViewModels()
+    private var locationRequested: Boolean = false
     private val locationResult = object : MyLocation2.BestLocationResult() {
 
         override fun gotLocation(location: Location?) {
@@ -90,21 +92,25 @@ class MapsFragment : Fragment() {
         map!!.uiSettings.isMyLocationButtonEnabled = true
         map!!.mapType = DEFAULT_MAP_TYPE
 
-        if (clearMap) map!!.clear()
+        if (clearMap) {
+            map!!.clear()
+            clearMap = false
+        }
         else {
             if (isAdded && currLocation != null) update(currLocation)
             if (model.waypoints.isNotEmpty()) {
                 drawCompletedRoute()
                 centerCurrLocation = false
             }
-            clearMap = false
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val myLocation = MyLocation2(requireActivity())
-        myLocation.getLocation(inflater.context, locationResult)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        if (!locationRequested) {
+            val myLocation = MyLocation2(requireActivity())
+            myLocation.getLocation(inflater.context, locationResult)
+            locationRequested = true
+        }
 
         return inflater.inflate(R.layout.fragment_maps, container, false)
     }

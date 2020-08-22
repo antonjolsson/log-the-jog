@@ -81,6 +81,7 @@ public class LogViewModel extends ViewModel {
         setCurrSpeed(waypoints.getLast());
         setAvgSpeed();
         setPace();
+        Log.d("VM", "Status: " + status.toString() + ", Waypoints: " + waypoints.size());
     }
 
     private void setPace() {
@@ -106,14 +107,15 @@ public class LogViewModel extends ViewModel {
             if (status == STOPPED || status == STOPPED_AFTER_PAUSED) reset();
             startMeasuring();
         }
-        Log.d("LogViewModel", "Status = " + status.toString() + ", totalDuration = " +
+        Log.d("VM", "Status = " + status.toString() + ", totalDuration = " +
                 totalDuration + ", durationBeforePause = " + durationBeforePause);
     }
 
     void reset() {
         totalDuration = 0;
         durationBeforePause = 0;
-        waypoints = new WaypointList();
+        //waypoints = new WaypointList();
+        waypoints.clear();
         duration.setValue(new Duration(0, 0, 0));
         distanceKm.setValue(0.0);
         currSpeed.setValue(0.0);
