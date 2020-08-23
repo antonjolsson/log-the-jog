@@ -184,6 +184,10 @@ public class LogViewModel extends ViewModel {
                 (int) (duration / 1000 % 60 % 60));
     }
 
+    public void save() {
+
+    }
+
     public MutableLiveData<Double> getCurrSpeed() {
         return currSpeed;
     }
