@@ -56,19 +56,20 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar2"
+        android:id="@+id/completeToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorBackground"
+        android:background="#C6FFF7"
         android:clipChildren="false"
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:outlineProvider="bounds"
-        android:theme="@style/AppTheme"
+        android:theme="@style/CompleteToolbarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_menu_24px"
+        app:menu="@menu/top_app_bar_complete"
+        app:navigationIcon="@drawable/ic_close_24px"
         app:title="@string/exercise_complete"
         app:titleTextAppearance="@style/appbarTitleTheme"
         app:titleTextColor="@color/colorBlack" />
@@ -169,7 +170,7 @@
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline10"
         app:layout_constraintStart_toStartOf="@+id/guideline9"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar2"
+        app:layout_constraintTop_toBottomOf="@+id/completeToolbar"
         tools:layout_conversion_absoluteHeight="50dp"
         tools:layout_conversion_absoluteWidth="94dp">
 

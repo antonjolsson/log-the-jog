@@ -34,7 +34,7 @@ public class ExerciseCompleteFragment extends Fragment {
     enum VerticalData {SPEED, ELEVATION}
     HorizontalData horizData = DISTANCE;
 
-    private FragmentExerciseCompleteBinding mainBinding;
+    private FragmentExerciseCompleteBinding binding;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,15 +47,16 @@ public class ExerciseCompleteFragment extends Fragment {
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mainBinding = FragmentExerciseCompleteBinding.inflate(inflater, container, false);
+        binding = FragmentExerciseCompleteBinding.inflate(inflater, container, false);
 
-        return mainBinding.getRoot();
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         LogViewModel model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
+        binding.completeToolbar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
         showNumericStats(model);
 
         FragmentManager fragmentManager = getChildFragmentManager();
@@ -82,15 +83,15 @@ public class ExerciseCompleteFragment extends Fragment {
     private void showNumericStats(LogViewModel model) {
         String durationText = StatsFragment.
                 Companion.getDurationText(Objects.requireNonNull(model.getDuration().getValue()));
-        mainBinding.durationLabelView.setText(durationText);
+        binding.durationLabelView.setText(durationText);
         String distanceText = String.format(Locale.ENGLISH, DISTANCE_FORMAT, model.getDistance().getValue());
-        mainBinding.distanceView.setText(distanceText);
+        binding.distanceView.setText(distanceText);
         String avgSpeedText =  String.format(Locale.ENGLISH, AVG_SPEED_FORMAT, model.getAvgSpeed().getValue());
-        mainBinding.completeAvgSpdView.setText(avgSpeedText);
+        binding.completeAvgSpdView.setText(avgSpeedText);
         LogViewModel.Duration pace = model.getPace().getValue();
         assert pace != null;
         String paceText = String.format(Locale.ENGLISH, "%1$d:%2$02d", pace.minutes, pace.seconds);
-        mainBinding.completePaceView.setText(paceText);
+        binding.completePaceView.setText(paceText);
     }
 
 

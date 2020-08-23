@@ -22,4 +22,5 @@
     <string name="elevation">Elevation</string>
     <string name="km">KM</string>
     <string name="time">time</string>
+    <string name="save">Save</string>
 </resources>
