@@ -28,8 +28,7 @@ import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.*;
 
 public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenuItemClickListener{
 
-    private final static String DISTANCE_FORMAT = "%.2f";
-    private final static String AVG_SPEED_FORMAT = "%.1f";
+    public final static String TWO_DECIMALS_FORMAT = "%.2f";
     public static final String VERT_DATA_KEY = "verticalData";
     public static final String HORIZ_DATA_KEY = "horizData";
     private LogViewModel model;
@@ -97,9 +96,9 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         String durationText = StatsFragment.
                 Companion.getDurationText(Objects.requireNonNull(model.getDuration().getValue()));
         binding.durationLabelView.setText(durationText);
-        String distanceText = String.format(Locale.ENGLISH, DISTANCE_FORMAT, model.getDistance().getValue());
+        String distanceText = String.format(Locale.ENGLISH, TWO_DECIMALS_FORMAT, model.getDistance().getValue());
         binding.distanceView.setText(distanceText);
-        String avgSpeedText =  String.format(Locale.ENGLISH, AVG_SPEED_FORMAT, model.getAvgSpeed().getValue());
+        String avgSpeedText =  String.format(Locale.ENGLISH, TWO_DECIMALS_FORMAT, model.getAvgSpeed().getValue());
         binding.completeAvgSpdView.setText(avgSpeedText);
         LogViewModel.Duration pace = model.getPace().getValue();
         assert pace != null;

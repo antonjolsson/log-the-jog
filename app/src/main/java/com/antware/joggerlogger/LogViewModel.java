@@ -27,7 +27,8 @@ public class LogViewModel extends ViewModel {
 
     private WaypointList waypoints = new WaypointList();
 
-    enum ExerciseStatus {STARTED, STOPPED, PAUSED, RESUMED, STOPPED_AFTER_PAUSED}
+    enum ExerciseStatus {STARTED, STOPPED, PAUSED, RESUMED, STOPPED_AFTER_PAUSED
+    }
     ExerciseStatus status = STOPPED;
 
     public static class Duration {

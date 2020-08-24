@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.antware.joggerlogger.ExerciseCompleteFragment.*
 import com.antware.joggerlogger.databinding.FragmentStatsBinding
+import java.util.*
 
 @SuppressLint("SetTextI18n")
 class StatsFragment : Fragment() {
@@ -16,8 +18,6 @@ class StatsFragment : Fragment() {
     var reset: Boolean = false
     private val model: LogViewModel by activityViewModels()
     private var _binding: FragmentStatsBinding? = null
-    // This property is only valid between onCreateView and
-// onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -30,17 +30,17 @@ class StatsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        model.duration.observe(viewLifecycleOwner, androidx.lifecycle.Observer { duration ->
+        model.duration.observe(viewLifecycleOwner, { duration ->
             setDuration(duration)
         })
-        model.distance.observe(viewLifecycleOwner, androidx.lifecycle.Observer { distance ->
-            setFigure(binding.distanceView, distance)
+        model.distance.observe(viewLifecycleOwner, { distance ->
+            TWO_DECIMALS_FORMAT.setFigure(binding.distanceView, distance)
         })
-        model.currSpeed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { currSpeed ->
-            setFigure(binding.currSpeedView, currSpeed)
+        model.currSpeed.observe(viewLifecycleOwner, { currSpeed ->
+            TWO_DECIMALS_FORMAT.setFigure(binding.currSpeedView, currSpeed)
         })
-        model.avgSpeed.observe(viewLifecycleOwner, androidx.lifecycle.Observer { avgSpeed ->
-            setFigure(binding.avgSpeedView, avgSpeed)
+        model.avgSpeed.observe(viewLifecycleOwner, { avgSpeed ->
+            TWO_DECIMALS_FORMAT.setFigure(binding.avgSpeedView, avgSpeed)
         })
     }
 
@@ -52,8 +52,8 @@ class StatsFragment : Fragment() {
         }
     }
 
-    private fun setFigure(textView: TextView, value: Double) {
-        textView.text = (value.toString() + "0").take(4)
+    private fun String.setFigure(textView: TextView, value: Double) {
+        textView.text = String.format(Locale.ENGLISH, this, value)
     }
 
     private fun setDuration(duration: LogViewModel.Duration) {

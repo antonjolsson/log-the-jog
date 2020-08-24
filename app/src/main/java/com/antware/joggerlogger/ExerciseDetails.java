@@ -1,9 +1,5 @@
 package com.antware.joggerlogger;
 
-import android.location.Location;
-
-import java.util.List;
-
 public class ExerciseDetails {
 
     private static ExerciseDetails exerciseDetails;
@@ -14,7 +10,6 @@ public class ExerciseDetails {
     private Double avgSpeed;
     private WaypointList waypoints;
     private Waypoint waypoint;
-    private Location location;
 
     private ExerciseDetails() {}
 
@@ -68,11 +63,4 @@ public class ExerciseDetails {
         return waypoint;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
 }

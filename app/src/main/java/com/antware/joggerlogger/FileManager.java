@@ -5,6 +5,7 @@ import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
+import com.antware.joggerlogger.LogViewModel.ExerciseStatus;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -12,8 +13,16 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+
+import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -33,23 +42,50 @@ public class FileManager {
         return fileManager;
     }
 
-    private static class WaypointSerializer implements JsonSerializer<Waypoint> {
+    public static class WaypointAdapter extends TypeAdapter<Waypoint> {
+        public Waypoint read(JsonReader reader) throws IOException {
+            if (reader.peek() == JsonToken.NULL) {
+                reader.nextNull();
+                return null;
+            }
+            JsonParser parser = new JsonParser();
+            JsonObject json = (JsonObject) parser.parse(reader.nextString());
+            double altitude = json.get("Altitude").getAsDouble();
+            double latitude = json.get("Latitude").getAsDouble();
+            double longitude = json.get("Longitude").getAsDouble();
+            long time = json.get("Time").getAsLong();
+            ExerciseStatus status = getStatus(json.get("Status").getAsString());
+            Location location = new Location("");
+            location.setAltitude(altitude);
+            location.setLatitude(latitude);
+            location.setLongitude(longitude);
+            location.setTime(time);
+            return new Waypoint(location, status);
+        }
 
-        @Override
-        public JsonElement serialize(Waypoint waypoint, Type typeOfSrc, JsonSerializationContext context) {
+        private ExerciseStatus getStatus(String status) {
+            switch (status) {
+                case "Started": return ExerciseStatus.STARTED;
+                case "Paused": return ExerciseStatus.PAUSED;
+                case "Stopped": return ExerciseStatus.STOPPED;
+                default: return ExerciseStatus.STOPPED_AFTER_PAUSED;
+            }
+        }
+
+        public void write(JsonWriter writer, Waypoint waypoint) throws IOException {
+            if (waypoint == null) {
+                writer.nullValue();
+                return;
+            }
+            //TODO: create JsonArray instead
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("Altitude", waypoint.getAltitude());
             jsonObject.addProperty("Latitude", waypoint.getLatitude());
             jsonObject.addProperty("Longitude", waypoint.getLongitude());
             jsonObject.addProperty("Time", waypoint.getTime());
-            return jsonObject;
-        }
-    }
-
-    private static class WaypointDeserializer implements JsonDeserializer<Location> {
-        public Location deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                throws JsonParseException {
-            return new Location(json.getAsJsonPrimitive().getAsString());
+            jsonObject.addProperty("Status", waypoint.getStatus().toString());
+            String string = jsonObject.toString();
+            writer.value(string);
         }
     }
 
@@ -62,31 +98,14 @@ public class FileManager {
         details.setPace(model.getPace().getValue());
         details.setAvgSpeed(model.getAvgSpeed().getValue());
         details.setWaypoints(model.getWaypoints());
-        details.setWaypoint(model.getWaypoints().getLast());
-        //details.setLocation(model.getWaypoints().getLast().getLocation());
 
-        GsonBuilder gson = new GsonBuilder().serializeNulls().setPrettyPrinting();
-        gson.registerTypeAdapter(Waypoint.class, new WaypointSerializer());
-        String jsonString = new Gson().toJson(details);
+        GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+        gsonBuilder.registerTypeAdapter(Waypoint.class, new WaypointAdapter());
+        Gson gson = gsonBuilder.create();
+        String jsonString = gson.toJson(details);
         writeContent(fileName, jsonString, activity);
-        //String statistics = getStatistics(model, gson);
-        //writeContent(fileName, statistics, activity);
         Log.d("FileManager", jsonString);
-        /*WaypointList waypoints = (WaypointList) model.getWaypoints();
-        for (Waypoint waypoint : waypoints) {
-            String data = String.format(Locale.ENGLISH, "Status: %1s CurrentSpeed: %2f\n",
-                    waypoint.getStatus().toString(), waypoint.getCurrentSpeed());
-            data += gson.toJson(waypoint.getLocation());
-            writeContent(fileName, data, activity);
-            Log.d("FileManager", data);
-        }*/
     }
-
-   /* private String getStatistics(LogViewModel model, Gson gson) {
-        String duration = gson.toJson(model.getDuration().toString());
-
-        String stats = String.format(Locale.ENGLISH, "Duration: ")
-    }*/
 
     private void writeContent(String fileName, String content, Activity activity) {
         try (FileOutputStream fos = activity.openFileOutput(fileName, Context.MODE_PRIVATE)) {
