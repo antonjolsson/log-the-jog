@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.antware.joggerlogger.ExerciseCompleteFragment.HorizontalData;
 import com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData;
+import com.antware.joggerlogger.LogViewModel.Duration;
 import com.antware.joggerlogger.databinding.FragmentChartBinding;
 
 import java.util.Locale;
@@ -73,11 +74,11 @@ public class ChartFragment extends Fragment {
     }
 
     private void setDurTickLabels(ConstraintLayout layout, LogViewModel model) {
-        LogViewModel.Duration duration = model.getDuration().getValue();
+        Duration duration = model.getDuration().getValue();
         assert duration != null;
         int seconds = duration.hours * 3600 + duration.minutes * 60 + duration.seconds;
         for (int i = 0; i < layout.getChildCount(); i++) {
-            LogViewModel.Duration interval = model.getDurationFromMs((long) (1000 * seconds *
+            Duration interval = Duration.getDurationFromMs((long) (1000 * seconds *
                     (float) i / (layout.getChildCount() + 1)));
             TextView tickLabel = (TextView) layout.getChildAt(i);
             tickLabel.setText(StatsFragment.Companion.getDurationText(interval));
@@ -109,7 +110,7 @@ public class ChartFragment extends Fragment {
             if (!getMaxValue) dataRange.maxValue = 0;
             if (!getMinValue) dataRange.minValue = 0;
             for (Waypoint point : model.getWaypoints()) {
-                double value = dataType == SPEED ? point.getCurrentSpeed() : point.getLocation().getAltitude();
+                double value = dataType == SPEED ? point.getCurrentSpeed() : point.getAltitude();
                 if (getMaxValue && value > dataRange.maxValue)
                     dataRange.maxValue = value;
                 if (getMinValue && value < dataRange.minValue)

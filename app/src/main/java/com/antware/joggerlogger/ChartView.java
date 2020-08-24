@@ -95,8 +95,7 @@ public class ChartView extends View {
 
     private float getPathY(DataRange dataRange, int i) {
         Waypoint waypoint = model.getWaypoints().get(i);
-        double currentValue = vertData == SPEED ? waypoint.getCurrentSpeed() : waypoint.getLocation()
-                .getAltitude();
+        double currentValue = vertData == SPEED ? waypoint.getCurrentSpeed() : waypoint.getAltitude();
         return getYPosition(dataRange, currentValue);
     }
 

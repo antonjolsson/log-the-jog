@@ -1,5 +1,6 @@
 package com.antware.joggerlogger;
 
+import android.location.Location;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -8,7 +9,6 @@ import androidx.lifecycle.ViewModel;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -32,10 +32,17 @@ public class LogViewModel extends ViewModel {
 
     public static class Duration {
         int hours, minutes, seconds;
+
         Duration(int hours, int minutes, int seconds) {
             this.hours = hours;
             this.minutes = minutes;
             this.seconds = seconds;
+        }
+
+        @NotNull
+        public static Duration getDurationFromMs(long duration) {
+            return new Duration((int) (duration / 1000 / 60 / 60),(int) (duration / 1000 / 60 % 60),
+                    (int) (duration / 1000 % 60 % 60));
         }
     }
 
@@ -75,7 +82,7 @@ public class LogViewModel extends ViewModel {
 
     private void update() {
         totalDuration = System.currentTimeMillis() - timerStartTime + durationBeforePause;
-        duration.postValue(getDurationFromMs(totalDuration));
+        duration.postValue(Duration.getDurationFromMs(totalDuration));
         if (waypoints.size() < 2) return;
         setDistance();
         setCurrSpeed(waypoints.getLast());
@@ -87,7 +94,7 @@ public class LogViewModel extends ViewModel {
     private void setPace() {
         if (distanceKm.getValue() == null) return;
         long msPerKm = (long) (totalDuration / distanceKm.getValue() + 0.5);
-        Duration paceDuration = getDurationFromMs(msPerKm);
+        Duration paceDuration = Duration.getDurationFromMs(msPerKm);
         pace.postValue(paceDuration);
     }
 
@@ -114,7 +121,6 @@ public class LogViewModel extends ViewModel {
     void reset() {
         totalDuration = 0;
         durationBeforePause = 0;
-        //waypoints = new WaypointList();
         waypoints.clear();
         duration.setValue(new Duration(0, 0, 0));
         distanceKm.setValue(0.0);
@@ -148,8 +154,9 @@ public class LogViewModel extends ViewModel {
             if (w1.getStatus() != STARTED && w1.getStatus() != RESUMED) continue;
             Waypoint w2 = waypoints.get(waypoints.size() - 1 - i);
             //double distanceW1W2 = getDistanceBetweenCoords(w2, w1);
-            double distanceW1W2 = w2.getLocation().distanceTo(w1.getLocation()) / 1000.0f;
-            speedCalcDuration += w2.getTimeStamp() - w1.getTimeStamp();
+            //double distanceW1W2 = w2.getLocation().distanceTo(w1.getLocation()) / 1000.0f;
+            double distanceW1W2 = Waypoint.distanceBetween(w1, w2) / 1000.0f;
+            speedCalcDuration += w2.getTime() - w1.getTime();
             speedCalcDistance += Double.isNaN(distanceW1W2) ? 0 : distanceW1W2;
         }
         double speed = speedCalcDistance / (speedCalcDuration / (LOCATION_UPDATE_FREQ * 60.0 * 60));
@@ -167,25 +174,17 @@ public class LogViewModel extends ViewModel {
     }
 
     private void setDistance() {
-        if (waypoints.getLast().getLocation() == null || waypoints.getSecondLast().getLocation() == null)
-            return;
+        /*if (waypoints.getLast().getLocation() == null || waypoints.getSecondLast().getLocation() == null)
+            return;*/
         //double newDistance = getDistanceBetweenCoords(waypoints.getLast(), waypoints.getSecondLast());
-        double newDistance = waypoints.getLast().getLocation().distanceTo(waypoints.getSecondLast().
-                getLocation()) / 1000.0;
+        /*double newDistance = waypoints.getLast().getLocation().distanceTo(waypoints.getSecondLast().
+                getLocation()) / 1000.0;*/
+        double newDistance = Waypoint.distanceBetween(waypoints.getSecondLast(), waypoints.getLast())
+                / 1000.0;
         if (Double.isNaN(newDistance)) return;
         double oldDistance = distanceKm.getValue() != null ? distanceKm.getValue() : 0;
         Log.d("VM", "Leg distance, m: " + newDistance * 1000);
         distanceKm.postValue(newDistance + oldDistance);
-    }
-
-    @NotNull
-    public Duration getDurationFromMs(long duration) {
-        return new Duration((int) (duration / 1000 / 60 / 60),(int) (duration / 1000 / 60 % 60),
-                (int) (duration / 1000 % 60 % 60));
-    }
-
-    public void save() {
-
     }
 
     public MutableLiveData<Double> getCurrSpeed() {
@@ -210,18 +209,19 @@ public class LogViewModel extends ViewModel {
         return pace;
     }
 
-    public List<Waypoint> getWaypoints() {
+    public WaypointList getWaypoints() {
         return waypoints;
     }
 
     private double getDistanceBetweenCoords(Waypoint w2, Waypoint w1) {
-        if (w1.getLocation() == null) return Double.NaN;
-        double latW1 = toRadians(w1.getLocation().getLatitude());
-        double longW1 = toRadians(w1.getLocation().getLongitude());
-        double latW2 = toRadians(w2.getLocation().getLatitude());
-        double longW2 = toRadians(w2.getLocation().getLongitude());
+        if (w1 == null) return Double.NaN;
+        double latW1 = toRadians(w1.getLatitude());
+        double longW1 = toRadians(w1.getLongitude());
+        double latW2 = toRadians(w2.getLatitude());
+        double longW2 = toRadians(w2.getLongitude());
         double centralAngle = acos(sin(latW1) * sin(latW2) + cos(latW1) * cos(latW2) * cos(abs(longW1 - longW2)));
         return EARTH_RADIUS * centralAngle;
     }
+
 
 }

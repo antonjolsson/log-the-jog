@@ -3,7 +3,6 @@ package com.antware.joggerlogger
 import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,7 +55,8 @@ class MapsFragment : Fragment() {
                 model.addWaypoint(location?.time?.let { Waypoint(location, model.exerciseStatus) })
                 if (!model.exerciseJustStarted()) {
                     val numWaypoints = model.waypoints.size
-                    val lastLocation = getLatLng(model.waypoints[numWaypoints - 2].location)
+                    //val lastLocation = getLatLng(model.waypoints[numWaypoints - 2].location)
+                    val lastLocation = LatLng(model.waypoints.secondLast.latitude, model.waypoints.secondLast.longitude)
                     addPolyline(here, lastLocation)
                 }
             }
@@ -120,40 +120,38 @@ class MapsFragment : Fragment() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
         model.getStatus().observe(viewLifecycleOwner, Observer { status ->
-            currLocation?.let { onStatusChanged(status, true, it, CIRCLE_RADIUS_METERS) }
+            currLocation?.let { onStatusChanged(status, true, Waypoint(it, status), CIRCLE_RADIUS_METERS) }
         })
     }
 
-    private fun onStatusChanged(status: ExerciseStatus?, addWaypoints: Boolean, location: Location, circleRadius: Double) {
+    private fun onStatusChanged(status: ExerciseStatus?, addWaypoints: Boolean, waypoint: Waypoint, circleRadius: Double) {
         when (status) {
             STARTED, RESUMED -> {
                 if (currLocation == null)
                 if (model.waypoints.isEmpty())
                     map?.clear()
                 val color = if (status == STARTED) SHAPE_COLOR else R.color.colorDisabled
-                addCircle(circleRadius, OUTLINE_COLOR, color, CIRCLE_Z_INDEX, location)
-                if (addWaypoints) model.addWaypoint(Waypoint(location, status))
+                waypoint.latLng?.let { addCircle(circleRadius, OUTLINE_COLOR, color, CIRCLE_Z_INDEX, it) }
+                if (addWaypoints) model.addWaypoint(waypoint)
             }
-            PAUSED -> addCircle(circleRadius, OUTLINE_COLOR, R.color.colorDisabled, CIRCLE_Z_INDEX, location)
+            PAUSED -> waypoint.latLng?.let {
+                addCircle(circleRadius, OUTLINE_COLOR, R.color.colorDisabled, CIRCLE_Z_INDEX, it)
+            }
             else -> {
                 if (model.waypoints.isEmpty()) return
-                addCircle(circleRadius, OUTLINE_COLOR, R.color.colorAccent, CIRCLE_Z_INDEX, location)
+                waypoint.latLng?.let { addCircle(circleRadius, OUTLINE_COLOR, R.color.colorAccent, CIRCLE_Z_INDEX, it)
+                }
             }
         }
     }
 
     private fun getColor(color: Int): Int { return ContextCompat.getColor(requireContext(), color) }
 
-    private fun addCircle(radius: Double, strokeColorId: Int, fillColorId: Int, zIndex: Float, location: Location?) {
-        if (location == null) return
-        map?.addCircle(getLatLng(location)?.let {
+    private fun addCircle(radius: Double, strokeColorId: Int, fillColorId: Int, zIndex: Float, latLng: LatLng) {
+        map?.addCircle(latLng.let {
             CircleOptions().center(it).radius(radius).strokeColor(getColor(strokeColorId)).fillColor(getColor(fillColorId))
                 .zIndex(zIndex).strokeWidth((POLYLINE_OUTER_STROKE_WIDTH - POLYLINE_INNER_STROKE_WIDTH) / 2)
         })
-    }
-
-    private fun getLatLng(currLocation: Location?): LatLng? {
-        return currLocation?.latitude?.let { LatLng(it, currLocation.longitude) }
     }
 
     private fun drawCompletedRoute() {
@@ -163,13 +161,14 @@ class MapsFragment : Fragment() {
         val circleRadius = CIRCLE_RADIUS_METERS * mapSizeCoefficient
         var currStatus: ExerciseStatus? = null
         for ((i, wayPoint) in model.waypoints.withIndex()) {
-            val currLatLng = getLatLng(wayPoint.location)
+            val currLatLng = wayPoint.latLng
             if (wayPoint.status != currStatus) {
                 currStatus = wayPoint.status
-                onStatusChanged(currStatus, false, wayPoint.location, circleRadius)
+                onStatusChanged(currStatus, false, wayPoint, circleRadius)
                 if (currStatus == STARTED || currStatus == RESUMED) continue
             }
-            if (i > 0) addPolyline(getLatLng(model.waypoints[i - 1].location), currLatLng)
+            //if (i > 0) addPolyline(getLatLng(model.waypoints[i - 1].location), currLatLng)
+            if (i > 0) addPolyline(model.waypoints[i - 1].latLng, currLatLng)
         }
     }
 
@@ -186,7 +185,8 @@ class MapsFragment : Fragment() {
     private fun getLatLngBounds(): LatLngBounds? {
         var latLngBounds : LatLngBounds? = null
         for ((i, wayPoint) in model.waypoints.withIndex()) {
-            val latLng = getLatLng(wayPoint.location)
+            //val latLng = getLatLng(wayPoint.location)
+            val latLng = wayPoint.latLng
             latLngBounds = if (i == 0) LatLngBounds(latLng, latLng) else latLngBounds?.including(latLng)
         }
         return latLngBounds

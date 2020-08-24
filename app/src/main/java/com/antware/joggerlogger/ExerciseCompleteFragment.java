@@ -76,7 +76,8 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        model.save();
+        FileManager fileManager = FileManager.getInstance();
+        fileManager.save(model, requireActivity());
         Log.d("CompleteFragment", "Exercise saved!");
         return true;
     }
