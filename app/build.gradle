@@ -75,6 +75,10 @@ dependencies {
 
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
+    def activity_version = "1.2.0-alpha08"
+
+    implementation "androidx.activity:activity:$activity_version"
+
 }
 
 repositories {

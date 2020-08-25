@@ -1,6 +1,5 @@
 package com.antware.joggerlogger;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.IntentSender;
@@ -21,15 +20,18 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 public class MyLocation2 {
 
     private static final int REQUEST_CHECK_SETTINGS = 1;
+    public static final int REQUEST_LOCATION = 2;
     private FusedLocationProviderClient fusedLocationClient;
     private FragmentActivity mainActivity;
     private Location currentLocation;
@@ -52,25 +54,12 @@ public class MyLocation2 {
                 }
             }
         };
-
     }
 
+    @SuppressLint("MissingPermission")
     public void getLocation(@Nullable Context context, @NotNull BestLocationResult bestLocationResult) {
         assert context != null;
         this.bestLocationResult = bestLocationResult;
-        if (ActivityCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(context,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return; // TODO
-        }
         fusedLocationClient.getLastLocation().addOnSuccessListener(mainActivity, location -> {
             // Got last known location. In some rare situations this can be null.
             if (location != null) {
@@ -78,6 +67,13 @@ public class MyLocation2 {
             }
         });
         createLocationRequest();
+    }
+
+    private boolean locationPermitted(@NotNull Context context) {
+        return ActivityCompat.checkSelfPermission(context,
+            ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(context,
+                            ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED;
     }
 
     @SuppressLint("MissingPermission")

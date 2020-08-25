@@ -1,24 +1,29 @@
 package com.antware.joggerlogger
 
+import android.Manifest.permission
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.transition.TransitionInflater
-import com.antware.joggerlogger.LogViewModel.*
+import com.antware.joggerlogger.LogViewModel.ExerciseStatus
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.JointType.ROUND
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.PolylineOptions
 
 @Suppress("PrivatePropertyName", "SameParameterValue")
 class MapsFragment : Fragment() {
@@ -55,8 +60,6 @@ class MapsFragment : Fragment() {
             if (model.exerciseStatus == STARTED || model.exerciseStatus == RESUMED) {
                 model.addWaypoint(location?.time?.let { Waypoint(location, model.exerciseStatus) })
                 if (!model.exerciseJustStarted()) {
-                    val numWaypoints = model.waypoints.size
-                    //val lastLocation = getLatLng(model.waypoints[numWaypoints - 2].location)
                     val lastLocation = LatLng(model.waypoints.secondLast.latitude, model.waypoints.secondLast.longitude)
                     addPolyline(here, lastLocation)
                 }
@@ -66,10 +69,12 @@ class MapsFragment : Fragment() {
 
     @Suppress("ConstantConditionIf")
     private fun addPolyline(startPoint: LatLng?, endPoint: LatLng?) {
-        var options: PolylineOptions? = PolylineOptions().color(getColor(OUTLINE_COLOR)).width(POLYLINE_OUTER_STROKE_WIDTH)
+        var options: PolylineOptions? = PolylineOptions().color(getColor(OUTLINE_COLOR)).width(
+            POLYLINE_OUTER_STROKE_WIDTH)
             .zIndex(POLYLINE_Z_INDEX).jointType(ROUND)
         map?.addPolyline(options?.add(startPoint, endPoint))
-        options = PolylineOptions().color(getColor(SHAPE_COLOR)).width(POLYLINE_INNER_STROKE_WIDTH).zIndex(POLYLINE_Z_INDEX)
+        options = PolylineOptions().color(getColor(SHAPE_COLOR)).width(POLYLINE_INNER_STROKE_WIDTH).zIndex(
+            POLYLINE_Z_INDEX)
             .jointType(ROUND)
         map?.addPolyline(options.add(startPoint, endPoint))
     }
@@ -77,10 +82,6 @@ class MapsFragment : Fragment() {
     @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
         /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
          * If Google Play services is not installed on the device, the user will be prompted to
          * install it inside the SupportMapFragment. This method will only be triggered once the
          * user has installed Google Play services and returned to the app.
@@ -89,7 +90,7 @@ class MapsFragment : Fragment() {
 
         currLocation?.latitude?.let { currLocation?.longitude?.let { it1 -> LatLng(it, it1) } }
 
-        map!!.isMyLocationEnabled = true // TODO Add permission check?
+        map!!.isMyLocationEnabled = true
         map!!.uiSettings.isMyLocationButtonEnabled = true
         map!!.mapType = DEFAULT_MAP_TYPE
 
@@ -125,12 +126,13 @@ class MapsFragment : Fragment() {
         })
     }
 
-    private fun onStatusChanged(status: ExerciseStatus?, addWaypoints: Boolean, waypoint: Waypoint, circleRadius: Double) {
+    private fun onStatusChanged(status: ExerciseStatus?, addWaypoints: Boolean, waypoint: Waypoint,
+        circleRadius: Double) {
         when (status) {
             STARTED, RESUMED -> {
                 if (currLocation == null)
-                if (model.waypoints.isEmpty())
-                    map?.clear()
+                    if (model.waypoints.isEmpty())
+                        map?.clear()
                 val color = if (status == STARTED) SHAPE_COLOR else R.color.colorDisabled
                 waypoint.latLng?.let { addCircle(circleRadius, OUTLINE_COLOR, color, CIRCLE_Z_INDEX, it) }
                 if (addWaypoints) model.addWaypoint(waypoint)
@@ -150,7 +152,8 @@ class MapsFragment : Fragment() {
 
     private fun addCircle(radius: Double, strokeColorId: Int, fillColorId: Int, zIndex: Float, latLng: LatLng) {
         map?.addCircle(latLng.let {
-            CircleOptions().center(it).radius(radius).strokeColor(getColor(strokeColorId)).fillColor(getColor(fillColorId))
+            CircleOptions().center(it).radius(radius).strokeColor(getColor(strokeColorId)).fillColor(getColor(
+                fillColorId))
                 .zIndex(zIndex).strokeWidth((POLYLINE_OUTER_STROKE_WIDTH - POLYLINE_INNER_STROKE_WIDTH) / 2)
         })
     }
@@ -168,7 +171,6 @@ class MapsFragment : Fragment() {
                 onStatusChanged(currStatus, false, wayPoint, circleRadius)
                 if (currStatus == STARTED || currStatus == RESUMED) continue
             }
-            //if (i > 0) addPolyline(getLatLng(model.waypoints[i - 1].location), currLatLng)
             if (i > 0) addPolyline(model.waypoints[i - 1].latLng, currLatLng)
         }
     }
@@ -178,7 +180,8 @@ class MapsFragment : Fragment() {
         val farRight = map?.projection?.visibleRegion?.farRight
         val results = FloatArray(3)
         farLeft?.latitude?.let {
-            if (farRight != null) Location.distanceBetween(it, farLeft.longitude, farRight.latitude, farRight.longitude, results)
+            if (farRight != null) Location.distanceBetween(it, farLeft.longitude, farRight.latitude, farRight.longitude,
+                results)
         }
         return results[0]
     }
@@ -186,7 +189,6 @@ class MapsFragment : Fragment() {
     private fun getLatLngBounds(): LatLngBounds? {
         var latLngBounds : LatLngBounds? = null
         for ((i, wayPoint) in model.waypoints.withIndex()) {
-            //val latLng = getLatLng(wayPoint.location)
             val latLng = wayPoint.latLng
             latLngBounds = if (i == 0) LatLngBounds(latLng, latLng) else latLngBounds?.including(latLng)
         }
