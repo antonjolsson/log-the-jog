@@ -17,18 +17,17 @@ import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.RESUMED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STARTED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STOPPED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STOPPED_AFTER_PAUSED;
-import static com.antware.joggerlogger.MyLocationKt.*;
 import static java.lang.Math.*;
 
 public class LogViewModel extends ViewModel {
 
     private static final double EARTH_RADIUS = 6371;
     private static final int SECONDS_IN_SPEED_CALC = 5;
+    private static final long LOCATION_UPDATE_FREQ = 1000;
 
     private WaypointList waypoints = new WaypointList();
 
-    enum ExerciseStatus {STARTED, STOPPED, PAUSED, RESUMED, STOPPED_AFTER_PAUSED
-    }
+    enum ExerciseStatus {STARTED, STOPPED, PAUSED, RESUMED, STOPPED_AFTER_PAUSED}
     ExerciseStatus status = STOPPED;
 
     public static class Duration {
@@ -154,8 +153,6 @@ public class LogViewModel extends ViewModel {
             Waypoint w1 = waypoints.get(waypoints.size() - 2 - i);
             if (w1.getStatus() != STARTED && w1.getStatus() != RESUMED) continue;
             Waypoint w2 = waypoints.get(waypoints.size() - 1 - i);
-            //double distanceW1W2 = getDistanceBetweenCoords(w2, w1);
-            //double distanceW1W2 = w2.getLocation().distanceTo(w1.getLocation()) / 1000.0f;
             double distanceW1W2 = Waypoint.distanceBetween(w1, w2) / 1000.0f;
             speedCalcDuration += w2.getTime() - w1.getTime();
             speedCalcDistance += Double.isNaN(distanceW1W2) ? 0 : distanceW1W2;
@@ -175,11 +172,6 @@ public class LogViewModel extends ViewModel {
     }
 
     private void setDistance() {
-        /*if (waypoints.getLast().getLocation() == null || waypoints.getSecondLast().getLocation() == null)
-            return;*/
-        //double newDistance = getDistanceBetweenCoords(waypoints.getLast(), waypoints.getSecondLast());
-        /*double newDistance = waypoints.getLast().getLocation().distanceTo(waypoints.getSecondLast().
-                getLocation()) / 1000.0;*/
         double newDistance = Waypoint.distanceBetween(waypoints.getSecondLast(), waypoints.getLast())
                 / 1000.0;
         if (Double.isNaN(newDistance)) return;

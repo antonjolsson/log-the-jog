@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static com.antware.joggerlogger.MyLocation2.REQUEST_LOCATION;
+import static com.antware.joggerlogger.LocationManager.REQUEST_LOCATION;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_LOCATION) {
             if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
                     grantResults[1] == PackageManager.PERMISSION_GRANTED) initFragments();
-            else onBackPressed();
+            else onBackPressed(); // TODO: make app usable without permission?
         }
     }
 

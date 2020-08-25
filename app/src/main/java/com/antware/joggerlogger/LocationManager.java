@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class MyLocation2 {
+public class LocationManager {
 
     private static final int REQUEST_CHECK_SETTINGS = 1;
     public static final int REQUEST_LOCATION = 2;
@@ -39,7 +39,7 @@ public class MyLocation2 {
     private BestLocationResult bestLocationResult;
     private static final int LOCATION_UPDATE_FREQ = 1000;
 
-    public MyLocation2(FragmentActivity mainActivity) {
+    public LocationManager(FragmentActivity mainActivity) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(mainActivity);
         this.mainActivity = mainActivity;
         locationCallback = new LocationCallback() {

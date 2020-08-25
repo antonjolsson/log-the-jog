@@ -1,14 +1,11 @@
 package com.antware.joggerlogger
 
-import android.Manifest.permission
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -45,7 +42,7 @@ class MapsFragment : Fragment() {
     private var centerCurrLocation: Boolean = true
     private val model: LogViewModel by activityViewModels()
     private var locationRequested: Boolean = false
-    private val locationResult = object : MyLocation2.BestLocationResult() {
+    private val locationResult = object : LocationManager.BestLocationResult() {
 
         override fun gotLocation(location: Location?) {
             currLocation = location
@@ -109,7 +106,7 @@ class MapsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (!locationRequested) {
-            val myLocation = MyLocation2(requireActivity())
+            val myLocation = LocationManager(requireActivity())
             myLocation.getLocation(inflater.context, locationResult)
             locationRequested = true
         }
