@@ -8,7 +8,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.antware.joggerlogger.ExerciseCompleteFragment.*
+import androidx.transition.TransitionInflater
+import com.antware.joggerlogger.ExerciseCompleteFragment.TWO_DECIMALS_FORMAT
 import com.antware.joggerlogger.databinding.FragmentStatsBinding
 import java.util.*
 

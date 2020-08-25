@@ -102,9 +102,9 @@ public class FileManager {
         GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
         gsonBuilder.registerTypeAdapter(Waypoint.class, new WaypointAdapter());
         Gson gson = gsonBuilder.create();
-        String jsonString = gson.toJson(details);
-        writeContent(fileName, jsonString, activity);
-        Log.d("FileManager", jsonString);
+        String detailsString = gson.toJson(details);
+        writeContent(fileName, detailsString, activity);
+        Log.d("FileManager", detailsString);
     }
 
     private void writeContent(String fileName, String content, Activity activity) {

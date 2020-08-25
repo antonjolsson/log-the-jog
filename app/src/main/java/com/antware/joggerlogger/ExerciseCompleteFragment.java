@@ -44,7 +44,7 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         super.onCreate(savedInstanceState);
         TransitionInflater inflater = TransitionInflater.from(requireContext());
         setEnterTransition(inflater.inflateTransition(R.transition.slide_right));
-        setExitTransition(inflater.inflateTransition(R.transition.fade));
+        setReturnTransition(inflater.inflateTransition(R.transition.slide_right));
     }
 
     @Override

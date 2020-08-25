@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.transition.TransitionInflater
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.antware.joggerlogger.databinding.FragmentControlBinding
 
@@ -16,8 +17,6 @@ class ControlFragment : Fragment(R.layout.fragment_control) {
     private val model: LogViewModel by activityViewModels()
 
     private var _binding: FragmentControlBinding? = null
-    // This property is only valid between onCreateView and
-// onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(

@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.transition.TransitionInflater
 import com.antware.joggerlogger.LogViewModel.*
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.google.android.gms.maps.CameraUpdateFactory
