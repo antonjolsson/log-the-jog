@@ -84,3 +84,5 @@ dependencies {
 repositories {
     google()
 }
+
+android.defaultConfig.vectorDrawables.useSupportLibrary = true

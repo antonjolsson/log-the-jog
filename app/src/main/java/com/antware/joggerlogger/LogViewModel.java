@@ -1,6 +1,5 @@
 package com.antware.joggerlogger;
 
-import android.location.Location;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -17,7 +16,11 @@ import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.RESUMED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STARTED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STOPPED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.STOPPED_AFTER_PAUSED;
-import static java.lang.Math.*;
+import static java.lang.Math.abs;
+import static java.lang.Math.acos;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.toRadians;
 
 public class LogViewModel extends ViewModel {
 

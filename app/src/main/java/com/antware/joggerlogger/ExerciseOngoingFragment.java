@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.transition.Transition;
 import androidx.transition.TransitionInflater;
 
 import com.antware.joggerlogger.databinding.FragmentExerciseOngoingBinding;
@@ -42,6 +43,7 @@ public class ExerciseOngoingFragment extends Fragment {
             resetStats();
             return;
         }
+        ((MainActivity) requireActivity()).setBarVisibility(true);
         FragmentManager fragmentManager = getChildFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         ControlFragment controlFragment = new ControlFragment();
