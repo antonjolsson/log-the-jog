@@ -68,4 +68,8 @@ public class Waypoint {
     public LatLng getLatLng() {
         return new LatLng(location.getLatitude(), location.getLongitude());
     }
+
+    public double getLocBasedSpeedMeters() {
+        return location.getSpeed();
+    }
 }
