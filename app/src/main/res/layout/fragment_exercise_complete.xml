@@ -21,12 +21,13 @@
         app:layout_constraintTop_toTopOf="@+id/guideline11" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout7"
+        android:id="@+id/caloriesLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@+id/guideline8"
         app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintTop_toTopOf="@+id/constraintLayout5">
+        app:layout_constraintTop_toTopOf="@+id/constraintLayout5"
+        tools:visibility="gone">
 
         <TextView
             android:id="@+id/textView6"
@@ -91,8 +92,8 @@
         android:id="@+id/constraintLayout5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/guideline10"
-        app:layout_constraintStart_toStartOf="@+id/guideline9"
+        app:layout_constraintEnd_toEndOf="@+id/constraintLayout3"
+        app:layout_constraintStart_toStartOf="@+id/constraintLayout3"
         app:layout_constraintTop_toTopOf="@+id/constraintLayout6">
 
         <TextView
@@ -103,6 +104,7 @@
             android:singleLine="true"
             android:text="7:38"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textView11"
@@ -155,22 +157,21 @@
             android:layout_height="wrap_content"
             android:text="@string/distanceExample"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/distanceLabel"
             tools:layout_conversion_absoluteHeight="32dp"
-            tools:layout_conversion_absoluteWidth="56dp"
-            tools:layout_editor_absoluteX="275dp"
-            tools:layout_editor_absoluteY="73dp" />
+            tools:layout_conversion_absoluteWidth="56dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline10"
-        app:layout_constraintStart_toStartOf="@+id/guideline9"
+        app:layout_constraintStart_toStartOf="@+id/guideline6"
         app:layout_constraintTop_toBottomOf="@+id/completeToolbar"
         tools:layout_conversion_absoluteHeight="50dp"
         tools:layout_conversion_absoluteWidth="94dp">
@@ -197,24 +198,23 @@
             android:layout_height="wrap_content"
             android:text="@string/durationExample"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="30sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/durationLabel"
             tools:layout_conversion_absoluteHeight="32dp"
-            tools:layout_conversion_absoluteWidth="94dp"
-            tools:layout_editor_absoluteX="165dp"
-            tools:layout_editor_absoluteY="73dp" />
+            tools:layout_conversion_absoluteWidth="94dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout4"
+        android:id="@+id/activityLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/constraintLayout2"
         tools:layout_conversion_absoluteHeight="56dp"
-        tools:layout_conversion_absoluteWidth="101dp">
+        tools:layout_conversion_absoluteWidth="101dp"
+        tools:visibility="gone">
 
         <TextView
             android:id="@+id/textView3"
@@ -228,7 +228,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_conversion_absoluteHeight="18dp"
-            tools:layout_conversion_absoluteWidth="63dp" />
+            tools:layout_conversion_absoluteWidth="63dp"
+            tools:visibility="gone" />
 
         <TextView
             android:id="@+id/textView4"
@@ -242,20 +243,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView3"
             tools:layout_conversion_absoluteHeight="32dp"
-            tools:layout_conversion_absoluteWidth="101dp"
-            tools:layout_editor_absoluteX="64dp"
-            tools:layout_editor_absoluteY="73dp" />
+            tools:layout_conversion_absoluteWidth="101dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/guideline9"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout4">
+        app:layout_constraintBottom_toTopOf="@+id/guideline5"
+        app:layout_constraintEnd_toEndOf="@+id/constraintLayout2"
+        app:layout_constraintStart_toStartOf="@+id/constraintLayout2">
 
         <TextView
             android:id="@+id/completeAvgSpdView"
@@ -265,6 +262,7 @@
             android:singleLine="true"
             android:text="@string/avgSpeedExample"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textView8"
@@ -300,18 +298,11 @@
         app:layout_constraintGuide_end="16dp" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline9"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.33" />
-
-    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.66" />
+        app:layout_constraintGuide_percent="0.5" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline7"

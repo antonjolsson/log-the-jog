@@ -36,8 +36,6 @@ class MapsFragment : Fragment() {
     private val INITIAL_ZOOM_LEVEL = 16.0f
     private val DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_HYBRID
 
-    /*private var innerPolyline: Polyline? = null
-    private var outerPolyline: Polyline? = null*/
     private var innerPolylines = arrayListOf<Polyline>()
     private var outerPolylines = arrayListOf<Polyline>()
     private var map : GoogleMap? = null
@@ -131,7 +129,6 @@ class MapsFragment : Fragment() {
             myLocation.getLocation(inflater.context, locationResult)
             locationRequested = true
         }
-
         return inflater.inflate(R.layout.fragment_maps, container, false)
     }
 

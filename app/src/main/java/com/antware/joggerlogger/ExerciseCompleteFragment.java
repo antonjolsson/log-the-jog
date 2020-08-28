@@ -104,6 +104,9 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         assert pace != null;
         String paceText = String.format(Locale.ENGLISH, "%1$d:%2$02d", pace.minutes, pace.seconds);
         binding.completePaceView.setText(paceText);
+
+        binding.caloriesLayout.setVisibility(View.GONE);
+        binding.activityLayout.setVisibility(View.GONE);
     }
 
 }
