@@ -24,6 +24,7 @@ import static com.antware.joggerlogger.LogLocationManager.REQUEST_LOCATION;
 public class MainActivity extends AppCompatActivity {
 
     private static final long SPLASH_SCREEN_DURATION = 3000;
+    private static final boolean SHOW_SPLASH_SCREEN = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
-        showSplashScreen(fragmentManager);
+        if (SHOW_SPLASH_SCREEN) showSplashScreen(fragmentManager);
 
         if (!locationPermitted()) {
             ActivityCompat.requestPermissions(this,
@@ -42,11 +43,16 @@ public class MainActivity extends AppCompatActivity {
              return;
         }
 
-        Handler handler = new Handler();
-        Runnable r = () -> {
-            initFragments(fragmentManager);
-        };
-        handler.postDelayed(r, SPLASH_SCREEN_DURATION);
+        ExerciseOngoingFragment exerciseOngoingFragment = new ExerciseOngoingFragment();
+
+        if (SHOW_SPLASH_SCREEN){
+            Handler handler = new Handler();
+            Runnable r = () -> {
+                initFragments(fragmentManager, exerciseOngoingFragment);
+            };
+            handler.postDelayed(r, SPLASH_SCREEN_DURATION);
+        }
+        else initFragments(fragmentManager, exerciseOngoingFragment);
     }
 
     private void showSplashScreen(FragmentManager fragmentManager) {
@@ -67,14 +73,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void initFragments(FragmentManager fragmentManager) {
+    private void initFragments(FragmentManager fragmentManager, ExerciseOngoingFragment exerciseOngoingFragment) {
         fragmentManager.addOnBackStackChangedListener(() -> {
             if (fragmentManager.getBackStackEntryCount() == 0)
                 onBackPressed();
         });
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-        ExerciseOngoingFragment exerciseOngoingFragment = new ExerciseOngoingFragment();
+        //ExerciseOngoingFragment exerciseOngoingFragment = new ExerciseOngoingFragment();
         transaction.replace(R.id.mainFrameLayout, exerciseOngoingFragment).addToBackStack(null).commit();
         LogViewModel model = new ViewModelProvider(this).get(LogViewModel.class);
         model.getStatus().observe(this, status -> {
@@ -95,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_LOCATION) {
             if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                    grantResults[1] == PackageManager.PERMISSION_GRANTED) initFragments(getSupportFragmentManager());
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED) initFragments(getSupportFragmentManager(), new ExerciseOngoingFragment());
             else onBackPressed(); // TODO: make app usable without permission?
         }
     }
