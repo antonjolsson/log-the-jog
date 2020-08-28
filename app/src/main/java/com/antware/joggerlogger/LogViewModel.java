@@ -153,22 +153,22 @@ public class LogViewModel extends ViewModel {
 
     private double getSpeed(int numWaypoints) {
         if (USE_OWN_SPEED_COMPUTATION) {
-            return getCalculatedSpeed(numWaypoints);
+            return getComputedSpeed(numWaypoints);
         }
-        else if (numWaypoints == SECONDS_IN_AVG_SPEED_CALC)
-            return waypoints.getLast().getLocBasedSpeedMeters() * M_PER_S_TO_KM_PER_S_COEFF;
-        else return getLocationBasedAvgSpeed(numWaypoints);
+        else return getLocationBasedSpeed(numWaypoints);
     }
 
-    private double getLocationBasedAvgSpeed(int numWaypoints) {
+    private double getLocationBasedSpeed(int numWaypoints) {
         double totalSpeed = 0;
-        for (Waypoint waypoint : waypoints) {
+        int usedWaypoints = Math.min(numWaypoints, waypoints.size() - 1);
+        for (int i = 0; i < usedWaypoints; i++) {
+            Waypoint waypoint = waypoints.get(waypoints.size() - 1 - i);
             totalSpeed += waypoint.getLocBasedSpeedMeters() * M_PER_S_TO_KM_PER_S_COEFF;
         }
-        return totalSpeed / numWaypoints;
+        return totalSpeed / Math.min(numWaypoints, waypoints.size() - 1);
     }
 
-    private double getCalculatedSpeed(int numWaypoints) {
+    private double getComputedSpeed(int numWaypoints) {
         double speedCalcDistance = 0;
         long speedCalcDuration = 0;
         for (int i = 0; i < numWaypoints && i < waypoints.size() - 1; i++) {

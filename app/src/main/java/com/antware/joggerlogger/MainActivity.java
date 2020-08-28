@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static com.antware.joggerlogger.LocationManager.REQUEST_LOCATION;
+import static com.antware.joggerlogger.LogLocationManager.REQUEST_LOCATION;
 
 public class MainActivity extends AppCompatActivity {
 

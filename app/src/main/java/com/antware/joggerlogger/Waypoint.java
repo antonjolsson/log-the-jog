@@ -6,6 +6,8 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.antware.joggerlogger.egm96.Egm96Location;
+import com.antware.joggerlogger.egm96.Geoid;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.jetbrains.annotations.Nullable;
@@ -28,10 +30,6 @@ public class Waypoint {
         return w2.location.distanceTo(w1.location);
     }
 
-    /*public Location getLocation() {
-        return location;
-    }*/
-
     public LogViewModel.ExerciseStatus getStatus() {
         return status;
     }
@@ -53,7 +51,10 @@ public class Waypoint {
     }
 
     public double getAltitude() {
-        return location.getAltitude();
+        Geoid.init();
+        double altitude = location.getAltitude() + Geoid.getOffset(new Egm96Location(getLatitude(),
+                getLongitude()));
+        return altitude;
     }
 
     public double getLatitude() {

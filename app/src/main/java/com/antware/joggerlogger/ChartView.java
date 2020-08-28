@@ -54,7 +54,7 @@ public class ChartView extends View {
         }
         else {
             pathPaint.setStrokeWidth(PATH_WIDTH);
-            pathPaint.setStrokeJoin(Paint.Join.ROUND);
+            pathPaint.setStrokeJoin(Paint.Join.MITER);
             pathPaint.setStrokeCap(Paint.Cap.ROUND);
         }
     }

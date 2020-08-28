@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -19,18 +18,16 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.JointType.ROUND
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.JointType.DEFAULT
+
 
 @Suppress("PrivatePropertyName", "SameParameterValue")
 class MapsFragment : Fragment() {
 
     private val COMPLETE_ROUTE_PADDING: Int = 50
-    private val CIRCLE_Z_INDEX = 1F
-    private val POLYLINE_Z_INDEX = 0F
+    private val CIRCLE_Z_INDEX = 2F
+    private val POLYLINE_Z_INDEX = 1F
     private val CIRCLE_RADIUS_METERS = 8.0
     private val POLYLINE_OUTER_STROKE_WIDTH = 20F
     private val POLYLINE_INNER_STROKE_WIDTH = 10F
@@ -39,13 +36,17 @@ class MapsFragment : Fragment() {
     private val INITIAL_ZOOM_LEVEL = 16.0f
     private val DEFAULT_MAP_TYPE = GoogleMap.MAP_TYPE_HYBRID
 
+    /*private var innerPolyline: Polyline? = null
+    private var outerPolyline: Polyline? = null*/
+    private var innerPolylines = arrayListOf<Polyline>()
+    private var outerPolylines = arrayListOf<Polyline>()
     private var map : GoogleMap? = null
     var currLocation : Location? = null
     private var clearMap: Boolean = false
     private var centerCurrLocation: Boolean = true
     private val model: LogViewModel by activityViewModels()
     private var locationRequested: Boolean = false
-    private val locationResult = object : LocationManager.BestLocationResult() {
+    private val locationResult = object : LogLocationManager.BestLocationResult() {
 
         override fun gotLocation(location: Location?) {
             currLocation = location
@@ -59,27 +60,41 @@ class MapsFragment : Fragment() {
             if (centerCurrLocation) map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
             if (model.exerciseStatus == STARTED || model.exerciseStatus == RESUMED) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Log.d("MapsFragment", "Altitude: " + location?.altitude + ", Accuracy: " + location?.verticalAccuracyMeters)
+                    Log.d("MapsFragment",
+                        "Altitude: " + location?.altitude + ", Accuracy: " + location?.verticalAccuracyMeters)
                 }
                 model.addWaypoint(location?.time?.let { Waypoint(location, model.exerciseStatus) })
                 if (!model.exerciseJustStarted()) {
                     val lastLocation = LatLng(model.waypoints.secondLast.latitude, model.waypoints.secondLast.longitude)
-                    addPolyline(here, lastLocation)
+                    if (model.waypoints.size == 2 || model.waypoints.secondLast.status == RESUMED)
+                        initNewPolyline(lastLocation, here);
+                    else {
+                        addPolylinePoint(here)
+                    }
                 }
             }
         }
     }
 
+    private fun addPolylinePoint(currentPosition: LatLng?) {
+        val polyLinePoints: MutableList<LatLng> = outerPolylines.last().points
+        if (currentPosition != null) polyLinePoints.add(currentPosition)
+        outerPolylines.last().points = polyLinePoints
+        innerPolylines.last().points = polyLinePoints
+    }
+
     @Suppress("ConstantConditionIf")
-    private fun addPolyline(startPoint: LatLng?, endPoint: LatLng?) {
+    private fun initNewPolyline(startPoint: LatLng?, endPoint: LatLng?){
         var options: PolylineOptions? = PolylineOptions().color(getColor(OUTLINE_COLOR)).width(
             POLYLINE_OUTER_STROKE_WIDTH)
-            .zIndex(POLYLINE_Z_INDEX).jointType(ROUND)
-        map?.addPolyline(options?.add(startPoint, endPoint))
+            .zIndex(POLYLINE_Z_INDEX).jointType(DEFAULT)
+        if (options != null) {
+            map?.addPolyline(options.add(startPoint, endPoint))?.let { outerPolylines.add(it) }
+        }
         options = PolylineOptions().color(getColor(SHAPE_COLOR)).width(POLYLINE_INNER_STROKE_WIDTH).zIndex(
             POLYLINE_Z_INDEX)
-            .jointType(ROUND)
-        map?.addPolyline(options.add(startPoint, endPoint))
+            .jointType(DEFAULT)
+        map?.addPolyline(options.add(startPoint, endPoint))?.let { innerPolylines.add(it) }
     }
 
     @SuppressLint("MissingPermission")
@@ -112,7 +127,7 @@ class MapsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (!locationRequested) {
-            val myLocation = LocationManager(requireActivity())
+            val myLocation = LogLocationManager(requireActivity() as MainActivity?, context)
             myLocation.getLocation(inflater.context, locationResult)
             locationRequested = true
         }
@@ -174,7 +189,11 @@ class MapsFragment : Fragment() {
                 onStatusChanged(currStatus, false, wayPoint, circleRadius)
                 if (currStatus == STARTED || currStatus == RESUMED) continue
             }
-            if (i > 0) addPolyline(model.waypoints[i - 1].latLng, currLatLng)
+            if (i == 1 || model.waypoints.secondLast.status == RESUMED)
+                initNewPolyline(model.waypoints[i - 1].latLng, currLatLng)
+            else if (i > 1) {
+                addPolylinePoint(currLatLng)
+            }
         }
     }
 
