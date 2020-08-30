@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final long SPLASH_SCREEN_DURATION = 3000;
     private static final boolean SHOW_SPLASH_SCREEN = false;
+    private LogViewModel model;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -33,24 +34,29 @@ public class MainActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
+        model = new ViewModelProvider(this).get(LogViewModel.class);
+
         FragmentManager fragmentManager = getSupportFragmentManager();
-
-        if (SHOW_SPLASH_SCREEN) showSplashScreen(fragmentManager);
-
-        if (!locationPermitted()) {
-            ActivityCompat.requestPermissions(this,
-                new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-             return;
-        }
-
         ExerciseOngoingFragment exerciseOngoingFragment = new ExerciseOngoingFragment();
 
-        if (SHOW_SPLASH_SCREEN){
-            Handler handler = new Handler();
-            Runnable r = () -> {
-                initFragments(fragmentManager, exerciseOngoingFragment);
-            };
-            handler.postDelayed(r, SPLASH_SCREEN_DURATION);
+        if (!model.isReloaded()) {
+
+            if (SHOW_SPLASH_SCREEN) showSplashScreen(fragmentManager);
+
+            if (!locationPermitted()) {
+                ActivityCompat.requestPermissions(this,
+                    new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+                 return;
+            }
+
+            if (SHOW_SPLASH_SCREEN){
+                Handler handler = new Handler();
+                Runnable r = () -> {
+                    initFragments(fragmentManager, exerciseOngoingFragment);
+                };
+                handler.postDelayed(r, SPLASH_SCREEN_DURATION);
+            }
+            else initFragments(fragmentManager, exerciseOngoingFragment);
         }
         else initFragments(fragmentManager, exerciseOngoingFragment);
     }
@@ -78,11 +84,11 @@ public class MainActivity extends AppCompatActivity {
             if (fragmentManager.getBackStackEntryCount() == 0)
                 onBackPressed();
         });
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-        //ExerciseOngoingFragment exerciseOngoingFragment = new ExerciseOngoingFragment();
-        transaction.replace(R.id.mainFrameLayout, exerciseOngoingFragment).addToBackStack(null).commit();
-        LogViewModel model = new ViewModelProvider(this).get(LogViewModel.class);
+        if (!model.isReloaded()) {
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.replace(R.id.mainFrameLayout, exerciseOngoingFragment, ExerciseOngoingFragment.TAG)
+                    .addToBackStack(null).commit();
+        }
         model.getStatus().observe(this, status -> {
             if (status == LogViewModel.ExerciseStatus.STOPPED_AFTER_PAUSED)
                 onExerciseStopped(fragmentManager);
@@ -101,7 +107,8 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_LOCATION) {
             if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                    grantResults[1] == PackageManager.PERMISSION_GRANTED) initFragments(getSupportFragmentManager(), new ExerciseOngoingFragment());
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED) initFragments(getSupportFragmentManager(),
+                    new ExerciseOngoingFragment());
             else onBackPressed(); // TODO: make app usable without permission?
         }
     }
@@ -109,7 +116,21 @@ public class MainActivity extends AppCompatActivity {
     private void onExerciseStopped(FragmentManager fragmentManager) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         ExerciseCompleteFragment fragment = new ExerciseCompleteFragment();
-        transaction.replace(R.id.mainFrameLayout, fragment).addToBackStack(null).commit();
+        transaction.replace(R.id.mainFrameLayout, fragment, ExerciseCompleteFragment.TAG).
+                addToBackStack(null).commit();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        model.saveState();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (getSupportFragmentManager().getBackStackEntryCount() == 1)
+            model.reset();
+
+    }
 }

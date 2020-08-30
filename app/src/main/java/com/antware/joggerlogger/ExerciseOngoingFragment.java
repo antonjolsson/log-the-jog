@@ -10,13 +10,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.transition.Transition;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.transition.TransitionInflater;
 
 import com.antware.joggerlogger.databinding.FragmentExerciseOngoingBinding;
 
 public class ExerciseOngoingFragment extends Fragment {
 
+    public final static String TAG = "exerciseOngoingFragment";
     private boolean isViewCreated;
     private MapsFragment mapsFragment;
     private StatsFragment statsFragment;
@@ -39,12 +40,15 @@ public class ExerciseOngoingFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        LogViewModel model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
+        FragmentManager fragmentManager = getChildFragmentManager();
+        ((MainActivity) requireActivity()).setBarVisibility(true);
         if (isViewCreated) {
             resetStats();
             return;
         }
-        ((MainActivity) requireActivity()).setBarVisibility(true);
-        FragmentManager fragmentManager = getChildFragmentManager();
+        if (model.isReloaded()) return;
+
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         ControlFragment controlFragment = new ControlFragment();
         statsFragment = new StatsFragment();

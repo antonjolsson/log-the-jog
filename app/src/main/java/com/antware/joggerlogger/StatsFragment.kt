@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.transition.TransitionInflater
 import com.antware.joggerlogger.ExerciseCompleteFragment.TWO_DECIMALS_FORMAT
 import com.antware.joggerlogger.databinding.FragmentStatsBinding
 import java.util.*
@@ -47,22 +46,22 @@ class StatsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (reset) {
-            model.reset()
-            reset = false
-        }
+        model.duration.value?.let { setDuration(it) }
+        model.distance.value?.let { TWO_DECIMALS_FORMAT.setFigure(binding.distanceView, it) }
+        model.currSpeed.value?.let { TWO_DECIMALS_FORMAT.setFigure(binding.currSpeedView, it) }
+        model.avgSpeed.value?.let { TWO_DECIMALS_FORMAT.setFigure(binding.avgSpeedView, it) }
     }
 
     private fun String.setFigure(textView: TextView, value: Double) {
         textView.text = String.format(Locale.ENGLISH, this, value)
     }
 
-    private fun setDuration(duration: LogViewModel.Duration) {
+    private fun setDuration(duration: Duration) {
         binding.durationView.text = getDurationText(duration)
     }
 
     companion object {
-        fun getDurationText(duration: LogViewModel.Duration): String {
+        fun getDurationText(duration: Duration): String {
             val hours = "0" + duration.hours.toString()
             val minutes = "0" + duration.minutes.toString()
             val seconds = "0" + duration.seconds.toString()

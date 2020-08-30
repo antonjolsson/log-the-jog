@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -40,7 +39,7 @@ class MapsFragment : Fragment() {
     private var outerPolylines = arrayListOf<Polyline>()
     private var map : GoogleMap? = null
     var currLocation : Location? = null
-    private var clearMap: Boolean = false
+    private var shouldClearMap: Boolean = false
     private var centerCurrLocation: Boolean = true
     private val model: LogViewModel by activityViewModels()
     private var locationRequested: Boolean = false
@@ -53,6 +52,7 @@ class MapsFragment : Fragment() {
     }
 
     private fun update(location: Location?) {
+        if (shouldClearMap) clearMap()
         val here = location?.latitude?.let { LatLng(it, location.longitude) }
         requireActivity().runOnUiThread {
             if (centerCurrLocation) map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
@@ -75,6 +75,7 @@ class MapsFragment : Fragment() {
     }
 
     private fun addPolylinePoint(currentPosition: LatLng?) {
+        if (outerPolylines.isEmpty()) return
         val polyLinePoints: MutableList<LatLng> = outerPolylines.last().points
         if (currentPosition != null) polyLinePoints.add(currentPosition)
         outerPolylines.last().points = polyLinePoints
@@ -110,17 +111,23 @@ class MapsFragment : Fragment() {
         map!!.uiSettings.isMyLocationButtonEnabled = true
         map!!.mapType = DEFAULT_MAP_TYPE
 
-        if (clearMap) {
-            map!!.clear()
-            clearMap = false
+        if (shouldClearMap) {
+            clearMap()
         }
         else {
+            if (model.isReloaded) map!!.setOnMapLoadedCallback { redrawRoute(false) }
             if (isAdded && currLocation != null) update(currLocation)
-            if (model.waypoints.isNotEmpty()) {
-                drawCompletedRoute()
-                centerCurrLocation = false
+            if (model.waypoints.isNotEmpty() && !model.isReloaded) {
+                redrawRoute(true)
+                if (model.waypoints.last.status == STOPPED_AFTER_PAUSED)
+                    centerCurrLocation = false
             }
         }
+    }
+
+    private fun clearMap() {
+        map!!.clear()
+        shouldClearMap = false
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -136,7 +143,7 @@ class MapsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
-        model.getStatus().observe(viewLifecycleOwner, Observer { status ->
+        model.getStatus().observe(viewLifecycleOwner, { status ->
             currLocation?.let { onStatusChanged(status, true, Waypoint(it, status), CIRCLE_RADIUS_METERS) }
         })
     }
@@ -173,9 +180,9 @@ class MapsFragment : Fragment() {
         })
     }
 
-    private fun drawCompletedRoute() {
+    private fun redrawRoute(moveCamera: Boolean) {
         val prevMapSize = getMapDiagonalMeters(map)
-        map?.moveCamera(CameraUpdateFactory.newLatLngBounds(getLatLngBounds(), COMPLETE_ROUTE_PADDING))
+        if (moveCamera) map?.moveCamera(CameraUpdateFactory.newLatLngBounds(getLatLngBounds(), COMPLETE_ROUTE_PADDING))
         val mapSizeCoefficient = getMapDiagonalMeters(map) / prevMapSize
         val circleRadius = CIRCLE_RADIUS_METERS * mapSizeCoefficient
         var currStatus: ExerciseStatus? = null
@@ -216,7 +223,7 @@ class MapsFragment : Fragment() {
 
     fun reset() {
         centerCurrLocation = true
-        clearMap = true
+        shouldClearMap = true
     }
 
 }

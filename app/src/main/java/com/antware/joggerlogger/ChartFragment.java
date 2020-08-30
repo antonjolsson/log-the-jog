@@ -14,7 +14,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.antware.joggerlogger.ExerciseCompleteFragment.HorizontalData;
 import com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData;
-import com.antware.joggerlogger.LogViewModel.Duration;
 import com.antware.joggerlogger.databinding.FragmentChartBinding;
 
 import java.util.Locale;

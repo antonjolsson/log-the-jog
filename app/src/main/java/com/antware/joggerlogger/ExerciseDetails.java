@@ -4,9 +4,9 @@ public class ExerciseDetails {
 
     private static ExerciseDetails exerciseDetails;
     private String fileName;
-    private LogViewModel.Duration duration;
+    private Duration duration;
     private Double distance;
-    private LogViewModel.Duration pace;
+    private Duration pace;
     private Double avgSpeed;
     private WaypointList waypoints;
     private Waypoint waypoint;
@@ -23,7 +23,7 @@ public class ExerciseDetails {
         this.fileName = fileName;
     }
 
-    public void setDuration(LogViewModel.Duration duration) {
+    public void setDuration(Duration duration) {
         this.duration = duration;
     }
 
@@ -31,11 +31,11 @@ public class ExerciseDetails {
         this.distance = distance;
     }
 
-    public void setPace(LogViewModel.Duration pace) {
+    public void setPace(Duration pace) {
         this.pace = pace;
     }
 
-    public LogViewModel.Duration getPace() {
+    public Duration getPace() {
         return pace;
     }
 

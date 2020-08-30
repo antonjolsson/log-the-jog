@@ -5,10 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import androidx.transition.TransitionInflater
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.antware.joggerlogger.databinding.FragmentControlBinding
 
@@ -32,6 +29,14 @@ class ControlFragment : Fragment(R.layout.fragment_control) {
         binding.startButton.setOnClickListener(clickListener)
         binding.stopButton.setOnClickListener(clickListener)
         binding.stopButton.visibility = View.GONE
+
+        model.isReloadedLiveData.observe(viewLifecycleOwner, { reloaded : Boolean ->
+            if (reloaded && model.exerciseStatus != STOPPED && model.exerciseStatus != STOPPED_AFTER_PAUSED) {
+                setControlState(model.exerciseStatus)
+            }
+        })
+
+        setControlState(model.exerciseStatus)
     }
 
     private val clickListener = View.OnClickListener { view ->
@@ -42,21 +47,28 @@ class ControlFragment : Fragment(R.layout.fragment_control) {
     }
 
     private fun stopButtonPressed() {
+        setControlState(STOPPED)
         model.stopButtonPressed();
-        binding.stopButton.visibility = View.GONE
-        binding.startButton.text = getText(R.string.start)
     }
 
     private fun startButtonPressed() {
-        if (model.exerciseStatus == STARTED || model.exerciseStatus == RESUMED){
-            binding.stopButton.visibility = View.VISIBLE
-            binding.startButton.text = getText(R.string.resume)
-        }
-        else {
-            binding.stopButton.visibility = View.GONE
-            binding.startButton.text = getText(R.string.pause)
+        when (model.exerciseStatus) {
+            STARTED, RESUMED -> setControlState(PAUSED)
+            PAUSED           -> setControlState(RESUMED)
+            else             -> setControlState(STARTED)
         }
         model.startButtonPressed()
+    }
+
+    private fun setControlState(status: LogViewModel.ExerciseStatus) {
+        when (status) {
+            STARTED, RESUMED -> {binding.stopButton.visibility = View.GONE
+                                 binding.startButton.text = getText(R.string.pause) }
+            PAUSED           -> {binding.stopButton.visibility = View.VISIBLE
+                                 binding.startButton.text = getText(R.string.resume) }
+            else             -> {binding.stopButton.visibility = View.GONE
+                                 binding.startButton.text = getText(R.string.start) }
+        }
     }
 
     override fun onDestroyView() {

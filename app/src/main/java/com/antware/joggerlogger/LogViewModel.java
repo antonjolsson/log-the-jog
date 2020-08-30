@@ -4,10 +4,10 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
-import org.jetbrains.annotations.NotNull;
-
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -30,31 +30,19 @@ public class LogViewModel extends ViewModel {
     private static final boolean USE_OWN_SPEED_COMPUTATION = false;
     private static final double M_PER_S_TO_KM_PER_S_COEFF = 3.6;
 
+    private SavedStateHandle savedStateHandle;
+
     private WaypointList waypoints = new WaypointList();
 
     enum ExerciseStatus {STARTED, STOPPED, PAUSED, RESUMED, STOPPED_AFTER_PAUSED}
     ExerciseStatus status = STOPPED;
 
-    public static class Duration {
-        int hours, minutes, seconds;
-
-        Duration(int hours, int minutes, int seconds) {
-            this.hours = hours;
-            this.minutes = minutes;
-            this.seconds = seconds;
-        }
-
-        @NotNull
-        public static Duration getDurationFromMs(long duration) {
-            return new Duration((int) (duration / 1000 / 60 / 60),(int) (duration / 1000 / 60 % 60),
-                    (int) (duration / 1000 % 60 % 60));
-        }
-    }
-
     private long totalDuration;
     private long durationBeforePause;
     private Timer timer;
     private long timerStartTime;
+
+    private boolean isReloaded = false;
 
     private MutableLiveData<Duration> duration = new MutableLiveData<>(new Duration(0,
             0, 0));
@@ -64,6 +52,49 @@ public class LogViewModel extends ViewModel {
     private MutableLiveData<Duration> pace = new MutableLiveData<>(new Duration(0, 0,
             0));
     private MutableLiveData<ExerciseStatus> statusLiveData = new MutableLiveData<>(status);
+    private MutableLiveData<Boolean> isReloadedLiveData = new MutableLiveData<>(false);
+
+    public LogViewModel(SavedStateHandle savedStateHandle) {
+        this.savedStateHandle = savedStateHandle;
+        if (savedStateHandle.contains("waypoints")) loadState();
+    }
+
+    public void saveState() {
+        savedStateHandle.set("totalDuration", totalDuration);
+        savedStateHandle.set("durationBeforePause", durationBeforePause);
+        savedStateHandle.set("timerStartTime", timerStartTime);
+        isReloadedLiveData.setValue(false);
+        isReloaded = false;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    void loadState() {
+        if (savedStateHandle.contains("waypoints")) {
+            waypoints = new WaypointList(savedStateHandle.get("waypoints"));
+            if (!waypoints.isEmpty()){
+                status = waypoints.getLast().getStatus();
+                statusLiveData.setValue(status);
+                if (status == STARTED || status == RESUMED)
+                    startMeasuring();
+                Log.d("LogViewModel", "Waypoints: " + waypoints.size() + ", Status: " +
+                        status);
+            }
+        }
+        if (savedStateHandle.contains("totalDuration"))
+            totalDuration = savedStateHandle.get("totalDuration");
+        if (savedStateHandle.contains("durationBeforePause"))
+            durationBeforePause = savedStateHandle.get("durationBeforePause");
+        if (savedStateHandle.contains("timerStartTime"))
+            timerStartTime = savedStateHandle.get("timerStartTime");
+        if (savedStateHandle.contains("distance"))
+            distanceKm.setValue(savedStateHandle.get("distance"));
+        if (savedStateHandle.contains("currSpeed"))
+            currSpeed.setValue(savedStateHandle.get("currSpeed"));
+        if (savedStateHandle.contains("avgSpeed"))
+            avgSpeed.setValue(savedStateHandle.get("avgSpeed"));
+        isReloadedLiveData.setValue(true);
+        isReloaded = true;
+    }
 
     public ExerciseStatus getExerciseStatus() {
         return status;
@@ -71,10 +102,11 @@ public class LogViewModel extends ViewModel {
 
     public void addWaypoint(Waypoint waypoint) {
         waypoints.add(waypoint);
+        savedStateHandle.set("waypoints", (ArrayList<Waypoint>) waypoints);
     }
 
     private void startTimeTaking() {
-        timerStartTime = System.currentTimeMillis();
+        timerStartTime = timerStartTime == 0 ? System.currentTimeMillis() : timerStartTime;
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
@@ -93,7 +125,6 @@ public class LogViewModel extends ViewModel {
         setCurrSpeed(waypoints.getLast());
         setAvgSpeed();
         setPace();
-        Log.d("VM", "Status: " + status.toString() + ", Waypoints: " + waypoints.size());
     }
 
     private void setPace() {
@@ -101,6 +132,7 @@ public class LogViewModel extends ViewModel {
         long msPerKm = (long) (totalDuration / distanceKm.getValue() + 0.5);
         Duration paceDuration = Duration.getDurationFromMs(msPerKm);
         pace.postValue(paceDuration);
+        savedStateHandle.set("pace", paceDuration);
     }
 
     public boolean exerciseJustStarted() {
@@ -119,13 +151,12 @@ public class LogViewModel extends ViewModel {
             if (status == STOPPED || status == STOPPED_AFTER_PAUSED) reset();
             startMeasuring();
         }
-        Log.d("VM", "Status = " + status.toString() + ", totalDuration = " +
-                totalDuration + ", durationBeforePause = " + durationBeforePause);
     }
 
     void reset() {
         totalDuration = 0;
         durationBeforePause = 0;
+        timerStartTime = 0;
         waypoints.clear();
         duration.setValue(new Duration(0, 0, 0));
         distanceKm.setValue(0.0);
@@ -187,22 +218,25 @@ public class LogViewModel extends ViewModel {
         double speed = getSpeed(SECONDS_IN_AVG_SPEED_CALC);
         currSpeed.postValue(speed);
         waypoint.setCurrentSpeed(speed);
+        savedStateHandle.set("currSpeed", speed);
     }
 
     private void setAvgSpeed() {
-        avgSpeed.postValue(getSpeed(waypoints.size()));
+        double speed = getSpeed(waypoints.size());
+        avgSpeed.postValue(speed);
+        savedStateHandle.set("avgSpeed", speed);
     }
 
     private void setDistance() {
         double newDistance = Waypoint.distanceBetween(waypoints.getSecondLast(), waypoints.getLast())
                 / 1000.0;
         if (Double.isNaN(newDistance)) return;
-        double oldDistance = distanceKm.getValue() != null ? distanceKm.getValue() : 0;
-        Log.d("VM", "Leg distance, m: " + newDistance * 1000);
+        double oldDistance = distanceKm.getValue() != null ? distanceKm.getValue() : 0.0;
         distanceKm.postValue(newDistance + oldDistance);
+        savedStateHandle.set("distance", newDistance + oldDistance);
     }
 
-    public MutableLiveData<Double> getCurrSpeed() {
+    public LiveData<Double> getCurrSpeed() {
         return currSpeed;
     }
 
@@ -224,8 +258,14 @@ public class LogViewModel extends ViewModel {
         return pace;
     }
 
+    public LiveData<Boolean> getIsReloadedLiveData() { return isReloadedLiveData; }
+
     public WaypointList getWaypoints() {
         return waypoints;
+    }
+
+    public boolean isReloaded() {
+        return isReloaded;
     }
 
     private double getDistanceBetweenCoords(Waypoint w2, Waypoint w1) {
