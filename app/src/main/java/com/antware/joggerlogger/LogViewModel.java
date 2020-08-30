@@ -94,6 +94,8 @@ public class LogViewModel extends ViewModel {
             currSpeed.setValue(savedStateHandle.get("currSpeed"));
         if (savedStateHandle.contains("avgSpeed"))
             avgSpeed.setValue(savedStateHandle.get("avgSpeed"));
+        if (savedStateHandle.contains("pace"))
+            pace.setValue(savedStateHandle.get("pace"));
         isReloadedLiveData.setValue(true);
         isReloaded = true;
     }

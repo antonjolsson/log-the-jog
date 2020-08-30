@@ -111,17 +111,13 @@ class MapsFragment : Fragment() {
         map!!.uiSettings.isMyLocationButtonEnabled = true
         map!!.mapType = DEFAULT_MAP_TYPE
 
-        if (shouldClearMap) {
-            clearMap()
-        }
-        else {
-            if (model.isReloaded) map!!.setOnMapLoadedCallback { redrawRoute(false) }
-            if (isAdded && currLocation != null) update(currLocation)
-            if (model.waypoints.isNotEmpty() && !model.isReloaded) {
-                redrawRoute(true)
-                if (model.waypoints.last.status == STOPPED_AFTER_PAUSED)
-                    centerCurrLocation = false
-            }
+        if (isAdded && currLocation != null) update(currLocation)
+
+        if (model.waypoints.isNotEmpty()) {
+            if (model.waypoints.last.status == STOPPED_AFTER_PAUSED)
+                centerCurrLocation = false
+            if (model.isReloaded) map!!.setOnMapLoadedCallback { redrawRoute(!centerCurrLocation) }
+            else redrawRoute(!centerCurrLocation)
         }
     }
 

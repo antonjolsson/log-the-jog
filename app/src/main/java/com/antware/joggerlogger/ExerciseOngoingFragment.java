@@ -15,6 +15,8 @@ import androidx.transition.TransitionInflater;
 
 import com.antware.joggerlogger.databinding.FragmentExerciseOngoingBinding;
 
+import static android.view.View.GONE;
+
 public class ExerciseOngoingFragment extends Fragment {
 
     public final static String TAG = "exerciseOngoingFragment";
