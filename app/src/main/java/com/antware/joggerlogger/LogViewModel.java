@@ -24,6 +24,7 @@ import static java.lang.Math.toRadians;
 
 public class LogViewModel extends ViewModel {
 
+    private static final String TAG = "LogViewModel";
     private static final double EARTH_RADIUS = 6371;
     private static final int SECONDS_IN_AVG_SPEED_CALC = 5;
     private static final long LOCATION_UPDATE_FREQ = 1000;
@@ -106,7 +107,13 @@ public class LogViewModel extends ViewModel {
 
     public void addWaypoint(Waypoint waypoint) {
         waypoints.add(waypoint);
+        setWaypointSpeed(waypoint);
         savedStateHandle.set("waypoints", (ArrayList<Waypoint>) waypoints);
+    }
+
+    private void setWaypointSpeed(Waypoint waypoint) {
+        double speed = getSpeed(SECONDS_IN_AVG_SPEED_CALC);
+        waypoint.setCurrentSpeed(speed);
     }
 
     private void startTimeTaking() {
@@ -124,11 +131,11 @@ public class LogViewModel extends ViewModel {
     private void update() {
         totalDuration = System.currentTimeMillis() - timerStartTime + durationBeforePause;
         setDuration();
-        if (waypoints.size() < 2) return;
-        setDistance();
+        if (USE_OWN_SPEED_COMPUTATION && waypoints.size() < 2) return;
         setCurrSpeed(waypoints.getLast());
         setAvgSpeed();
         setPace();
+        if (waypoints.size() > 1) setDistance();
     }
 
     private void setDuration() {
@@ -194,19 +201,19 @@ public class LogViewModel extends ViewModel {
 
     private double getSpeed(int numWaypoints) {
         if (USE_OWN_SPEED_COMPUTATION) {
-            return getComputedSpeed(numWaypoints);
+            return waypoints.size() > 1 ? getComputedSpeed(numWaypoints) : 0.0;
         }
         else return getLocationBasedSpeed(numWaypoints);
     }
 
     private double getLocationBasedSpeed(int numWaypoints) {
         double totalSpeed = 0;
-        int usedWaypoints = Math.min(numWaypoints, waypoints.size() - 1);
+        int usedWaypoints = Math.min(numWaypoints, waypoints.size());
         for (int i = 0; i < usedWaypoints; i++) {
             Waypoint waypoint = waypoints.get(waypoints.size() - 1 - i);
             totalSpeed += waypoint.getLocBasedSpeedMeters() * M_PER_S_TO_KM_PER_S_COEFF;
         }
-        return totalSpeed / Math.min(numWaypoints, waypoints.size() - 1);
+        return totalSpeed / Math.min(numWaypoints, waypoints.size());
     }
 
     private double getComputedSpeed(int numWaypoints) {
@@ -225,9 +232,8 @@ public class LogViewModel extends ViewModel {
     }
 
     private void setCurrSpeed(Waypoint waypoint) {
-        double speed = getSpeed(SECONDS_IN_AVG_SPEED_CALC);
+        double speed = waypoint.getCurrentSpeed();
         currSpeed.postValue(speed);
-        waypoint.setCurrentSpeed(speed);
         savedStateHandle.set("currSpeed", speed);
     }
 

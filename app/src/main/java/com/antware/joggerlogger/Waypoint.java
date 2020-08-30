@@ -3,6 +3,7 @@ package com.antware.joggerlogger;
 import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.antware.joggerlogger.egm96.Egm96Location;
 import com.antware.joggerlogger.egm96.Geoid;
@@ -11,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng;
 import org.jetbrains.annotations.Nullable;
 
 public class Waypoint implements Parcelable {
+    private final static String TAG = "Waypoint";
     private Location location;
     private LogViewModel.ExerciseStatus status;
     private double currentSpeed;
@@ -72,6 +74,7 @@ public class Waypoint implements Parcelable {
 
     public void setCurrentSpeed(double currentSpeed) {
         this.currentSpeed = currentSpeed;
+        Log.d(TAG, "Currentspeed: " + currentSpeed + ", location.speed: " + location.getSpeed());
     }
 
     public double getAltitude() {

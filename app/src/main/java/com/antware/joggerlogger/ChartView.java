@@ -14,6 +14,8 @@ import com.antware.joggerlogger.ChartFragment.DataRange;
 import com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData;
 
 import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.SPEED;
+import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.PAUSED;
+import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.RESUMED;
 
 
 public class ChartView extends View {
@@ -95,6 +97,13 @@ public class ChartView extends View {
 
     private float getPathY(DataRange dataRange, int i) {
         Waypoint waypoint = model.getWaypoints().get(i);
+        /*double currentValue;
+        if (vertData == SPEED) currentValue = waypoint.getCurrentSpeed();
+        else {
+            if (waypoint.getStatus() == PAUSED)
+                currentValue = model.getWaypoints().get(i - 1).getCurrentSpeed();
+            else currentValue = waypoint.getCurrentSpeed();
+        }*/
         double currentValue = vertData == SPEED ? waypoint.getCurrentSpeed() : waypoint.getAltitude();
         return getYPosition(dataRange, currentValue);
     }

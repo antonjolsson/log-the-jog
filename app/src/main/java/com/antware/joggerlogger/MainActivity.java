@@ -90,7 +90,8 @@ public class MainActivity extends AppCompatActivity {
                     .addToBackStack(null).commit();
         }
         model.getStatus().observe(this, status -> {
-            if (status == LogViewModel.ExerciseStatus.STOPPED_AFTER_PAUSED)
+            if (status == LogViewModel.ExerciseStatus.STOPPED_AFTER_PAUSED &&
+                    fragmentManager.getBackStackEntryCount() == 1)
                 onExerciseStopped(fragmentManager);
         });
     }
