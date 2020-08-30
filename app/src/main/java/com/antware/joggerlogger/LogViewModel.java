@@ -86,6 +86,8 @@ public class LogViewModel extends ViewModel {
             durationBeforePause = savedStateHandle.get("durationBeforePause");
         if (savedStateHandle.contains("timerStartTime"))
             timerStartTime = savedStateHandle.get("timerStartTime");
+        if (savedStateHandle.contains("duration"))
+            duration.setValue(savedStateHandle.get("duration"));
         if (savedStateHandle.contains("distance"))
             distanceKm.setValue(savedStateHandle.get("distance"));
         if (savedStateHandle.contains("currSpeed"))
@@ -106,7 +108,7 @@ public class LogViewModel extends ViewModel {
     }
 
     private void startTimeTaking() {
-        timerStartTime = timerStartTime == 0 ? System.currentTimeMillis() : timerStartTime;
+        timerStartTime = System.currentTimeMillis();
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
@@ -119,12 +121,18 @@ public class LogViewModel extends ViewModel {
 
     private void update() {
         totalDuration = System.currentTimeMillis() - timerStartTime + durationBeforePause;
-        duration.postValue(Duration.getDurationFromMs(totalDuration));
+        setDuration();
         if (waypoints.size() < 2) return;
         setDistance();
         setCurrSpeed(waypoints.getLast());
         setAvgSpeed();
         setPace();
+    }
+
+    private void setDuration() {
+        Duration duration = Duration.getDurationFromMs(totalDuration);
+        this.duration.postValue(duration);
+        savedStateHandle.set("duration", duration);
     }
 
     private void setPace() {
