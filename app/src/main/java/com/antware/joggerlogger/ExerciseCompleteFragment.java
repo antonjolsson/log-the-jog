@@ -58,6 +58,7 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
 
         binding.completeToolbar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
@@ -69,8 +70,8 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         Fragment speedFragment = getChartFragment(SPEED, horizData);
         Fragment elevFragment = getChartFragment(ELEVATION, horizData);
         Fragment mapFragment = new MapsFragment();
-        transaction.add(R.id.speedLayout, speedFragment).add(R.id.elevationLayout, elevFragment)
-        .add(R.id.mapFrame, mapFragment);
+        transaction.replace(R.id.speedLayout, speedFragment).replace(R.id.elevationLayout, elevFragment)
+        .replace(R.id.mapFrame, mapFragment);
         transaction.commit();
     }
 

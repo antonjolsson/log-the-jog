@@ -27,7 +27,7 @@ public class ChartView extends View {
     private static final float PATH_PADDING = PATH_WIDTH;
     private static final int CHART_AXIS_COLOR = R.color.colorBlack;
     private static final int PATH_COLOR = R.color.colorPrimaryDark;
-    private static final int PATH_FILL_ALPHA = 128;
+    private static final int PATH_FILL_ALPHA = 128; // 128
     private DataRange dataRange;
 
     VerticalData vertData;
@@ -97,13 +97,6 @@ public class ChartView extends View {
 
     private float getPathY(DataRange dataRange, int i) {
         Waypoint waypoint = model.getWaypoints().get(i);
-        /*double currentValue;
-        if (vertData == SPEED) currentValue = waypoint.getCurrentSpeed();
-        else {
-            if (waypoint.getStatus() == PAUSED)
-                currentValue = model.getWaypoints().get(i - 1).getCurrentSpeed();
-            else currentValue = waypoint.getCurrentSpeed();
-        }*/
         double currentValue = vertData == SPEED ? waypoint.getCurrentSpeed() : waypoint.getAltitude();
         return getYPosition(dataRange, currentValue);
     }

@@ -5,8 +5,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.antware.joggerlogger.egm96.Egm96Location;
-import com.antware.joggerlogger.egm96.Geoid;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.jetbrains.annotations.Nullable;
@@ -78,10 +76,7 @@ public class Waypoint implements Parcelable {
     }
 
     public double getAltitude() {
-        Geoid.init();
-        double altitude = location.getAltitude() + Geoid.getOffset(new Egm96Location(getLatitude(),
-                getLongitude()));
-        return altitude;
+        return location.getAltitude();
     }
 
     public double getLatitude() {

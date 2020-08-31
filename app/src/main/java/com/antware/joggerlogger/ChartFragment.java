@@ -46,7 +46,7 @@ public class ChartFragment extends Fragment {
         VerticalData verticalData = (VerticalData) bundle.get(VERT_DATA_KEY);
         LogViewModel model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
         DataRange dataRange = DataRange.getDataRange(model,
-                verticalData, true, /*verticalData == ELEVATION*/ true);
+                verticalData, true,true);
         if (verticalData == ELEVATION) {
             dataRange.setRangeExtent(1 / ELEVATION_PATH_RANGE);
         }
