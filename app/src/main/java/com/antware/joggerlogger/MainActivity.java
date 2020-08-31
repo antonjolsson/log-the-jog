@@ -4,6 +4,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -25,11 +26,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static final long SPLASH_SCREEN_DURATION = 3000;
     private static final boolean SHOW_SPLASH_SCREEN = false;
+    private static final String TAG = "MainActivity";
     private LogViewModel model;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        printFragmentBackStackCount(getSupportFragmentManager(), TAG);
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
@@ -133,5 +136,15 @@ public class MainActivity extends AppCompatActivity {
         if (getSupportFragmentManager().getBackStackEntryCount() == 1)
             model.reset();
 
+    }
+
+    static void printFragmentBackStackCount(FragmentManager fragmentManager,
+                                                    String tag) {
+        int backStackCount = fragmentManager.getBackStackEntryCount();
+        Log.d("Fragment backstack", tag + ". Fragment count: " + backStackCount);
+        for (int i = 0; i < backStackCount; i++) {
+            Log.d("Fragment backstack", "Fragment " + i + ": " + fragmentManager
+                    .getBackStackEntryAt(i).toString());
+        }
     }
 }

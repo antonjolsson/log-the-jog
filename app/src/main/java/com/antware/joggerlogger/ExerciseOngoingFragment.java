@@ -44,6 +44,7 @@ public class ExerciseOngoingFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         LogViewModel model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
         FragmentManager fragmentManager = getChildFragmentManager();
+        MainActivity.printFragmentBackStackCount(fragmentManager, TAG);
         ((MainActivity) requireActivity()).setBarVisibility(true);
         if (isViewCreated) {
             resetStats();

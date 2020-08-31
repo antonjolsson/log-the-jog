@@ -66,6 +66,7 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         showNumericStats(model);
 
         FragmentManager fragmentManager = getChildFragmentManager();
+        MainActivity.printFragmentBackStackCount(fragmentManager, TAG);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         Fragment speedFragment = getChartFragment(SPEED, horizData);
         Fragment elevFragment = getChartFragment(ELEVATION, horizData);
