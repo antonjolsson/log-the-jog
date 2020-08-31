@@ -66,7 +66,6 @@ public class LogLocationManager implements android.location.LocationListener {
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
-                    //TODO: Only change altitude if not too old
                     if (lastMslAltitude > -1 && recentLastMslAltitude())
                         location.setAltitude(lastMslAltitude);
                     bestLocationResult.gotLocation(location);
@@ -78,11 +77,6 @@ public class LogLocationManager implements android.location.LocationListener {
 
     private boolean recentLastMslAltitude() {
         Calendar nowGMT = Calendar.getInstance();
-        nowGMT.setTimeZone(TimeZone.getTimeZone("GMT"));
-        long diff = nowGMT.getTimeInMillis() - lastMslAltitudeCalendar.getTimeInMillis();
-        Date now = nowGMT.getTime();
-        Date then = lastMslAltitudeCalendar.getTime();
-        Log.d("TAG", "Msl altitude age ms:" + (nowGMT.getTimeInMillis() - lastMslAltitudeCalendar.getTimeInMillis()));
         return nowGMT.getTimeInMillis() - lastMslAltitudeCalendar.getTimeInMillis() < MSL_ALTITUDE_AGE_LIMIT_MS;
     }
 
@@ -167,7 +161,7 @@ public class LogLocationManager implements android.location.LocationListener {
         boolean added = locationManager.addNmeaListener(mNmeaListener, null);
     }
 
-    // Solution basically taken from https://stackoverflow.com/a/44518339/8773363
+    // Solution mostly taken from https://stackoverflow.com/a/44518339/8773363
     private void parseNmeaString(String line) {
         if (line.startsWith("$")) {
             String[] tokens = line.split(",");
@@ -181,8 +175,6 @@ public class LogLocationManager implements android.location.LocationListener {
                 lastMslAltitudeCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeString.substring(0, 2)));
                 lastMslAltitudeCalendar.set(Calendar.MINUTE, Integer.parseInt(timeString.substring(2, 4)));
                 lastMslAltitudeCalendar.set(Calendar.SECOND, Integer.parseInt(timeString.substring(4, 6)));
-                Log.d("LogLocationManager", line);
-                Log.d("LogLocationManager", "lastMslAltitude: " + lastMslAltitude);
             }
         }
     }
