@@ -52,7 +52,7 @@ class MapsFragment : Fragment() {
     }
 
     private fun update(location: Location?) {
-        if (shouldClearMap) clearMap()
+        //if (shouldClearMap) clearMap()
         val here = location?.latitude?.let { LatLng(it, location.longitude) }
         requireActivity().runOnUiThread {
             if (centerCurrLocation) map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
@@ -110,13 +110,15 @@ class MapsFragment : Fragment() {
         map!!.isMyLocationEnabled = true
         map!!.uiSettings.isMyLocationButtonEnabled = true
         map!!.mapType = DEFAULT_MAP_TYPE
+        //map!!.clear() // Test
 
         if (isAdded && currLocation != null) update(currLocation)
-
         if (model.waypoints.isNotEmpty()) {
             if (model.waypoints.last.status == STOPPED_AFTER_PAUSED)
                 centerCurrLocation = false
-            if (model.isReloaded) map!!.setOnMapLoadedCallback { redrawRoute(!centerCurrLocation) }
+            if (model.isReloaded) map!!.setOnMapLoadedCallback {
+                redrawRoute(!centerCurrLocation)
+            }
             else redrawRoute(!centerCurrLocation)
         }
     }

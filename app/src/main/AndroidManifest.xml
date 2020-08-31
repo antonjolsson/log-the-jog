@@ -41,12 +41,6 @@
             </intent-filter>
         </activity>
 
-        <!--<service
-            android:name="MyLocation2"
-            android:foregroundServiceType="location">
-        &lt;!&ndash; Any inner elements would go here. &ndash;&gt;
-        </service>-->
-
 </application>
 
 
