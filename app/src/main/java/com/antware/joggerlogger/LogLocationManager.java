@@ -4,13 +4,15 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
+import android.location.OnNmeaMessageListener;
+import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
@@ -29,6 +31,10 @@ import com.google.android.gms.tasks.Task;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -36,18 +42,23 @@ public class LogLocationManager implements android.location.LocationListener {
 
     private static final int REQUEST_CHECK_SETTINGS = 1;
     public static final int REQUEST_LOCATION = 2;
+    private static final String TAG = "LogLocationManager";
     private FusedLocationProviderClient fusedLocationClient;
     private FragmentActivity mainActivity;
-    private Location currentLocation;
     private LocationCallback locationCallback;
     private BestLocationResult bestLocationResult;
     private static final int LOCATION_UPDATE_FREQ = 1000;
-    private double lastMslAltitude;
+    private double lastMslAltitude = -1;
+    private Calendar lastMslAltitudeCalendar;
+    private static final long MSL_ALTITUDE_AGE_LIMIT_MS = 10000;
+
 
     public LogLocationManager(MainActivity mainActivity, Context context){
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(mainActivity);
         this.mainActivity = mainActivity;
-        registerLocationManager(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            registerLocationManager(context);
+        }
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -55,11 +66,24 @@ public class LogLocationManager implements android.location.LocationListener {
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
+                    //TODO: Only change altitude if not too old
+                    if (lastMslAltitude > -1 && recentLastMslAltitude())
+                        location.setAltitude(lastMslAltitude);
                     bestLocationResult.gotLocation(location);
                     return; // TODO: find most accurate location
                 }
             }
         };
+    }
+
+    private boolean recentLastMslAltitude() {
+        Calendar nowGMT = Calendar.getInstance();
+        nowGMT.setTimeZone(TimeZone.getTimeZone("GMT"));
+        long diff = nowGMT.getTimeInMillis() - lastMslAltitudeCalendar.getTimeInMillis();
+        Date now = nowGMT.getTime();
+        Date then = lastMslAltitudeCalendar.getTime();
+        Log.d("TAG", "Msl altitude age ms:" + (nowGMT.getTimeInMillis() - lastMslAltitudeCalendar.getTimeInMillis()));
+        return nowGMT.getTimeInMillis() - lastMslAltitudeCalendar.getTimeInMillis() < MSL_ALTITUDE_AGE_LIMIT_MS;
     }
 
     @SuppressLint("MissingPermission")
@@ -121,9 +145,7 @@ public class LogLocationManager implements android.location.LocationListener {
     }
 
     @Override
-    public void onLocationChanged(@NonNull Location location) {
-
-    }
+    public void onLocationChanged(@NonNull Location location) { }
 
     abstract static class BestLocationResult {
         abstract void gotLocation(Location location);
@@ -133,26 +155,34 @@ public class LogLocationManager implements android.location.LocationListener {
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
-    private GpsStatus.NmeaListener mNmeaListener = (timestamp, nmea) -> parseNmeaString(nmea);
+    private OnNmeaMessageListener mNmeaListener = (nmea, timestamp) -> parseNmeaString(nmea);
 
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
     @SuppressLint("MissingPermission")
     public void registerLocationManager(Context context) {
-        @SuppressLint("ServiceCast") LocationManager mgr =
-                (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        boolean added = mgr.addNmeaListener(mNmeaListener);
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0,
+                this);
+        boolean added = locationManager.addNmeaListener(mNmeaListener, null);
     }
 
+    // Solution basically taken from https://stackoverflow.com/a/44518339/8773363
     private void parseNmeaString(String line) {
         if (line.startsWith("$")) {
             String[] tokens = line.split(",");
             String type = tokens[0];
-
             // Parse altitude above sea level, Detailed description of NMEA string here http://aprs.gids.nl/nmea/#gga
-            if (type.startsWith("$GPGGA")) {
-                if (!tokens[9].isEmpty()) {
-                    lastMslAltitude = Double.parseDouble(tokens[9]);
-                    Log.d("LogLocationManager", "lastMslAltitude: " + lastMslAltitude);
-                }
+            if ((type.startsWith("$GPGGA") && !tokens[9].isEmpty()) || (type.startsWith("$GNGGA") && !tokens[11].isEmpty())) {
+                lastMslAltitude = Double.parseDouble(tokens[type.startsWith("$GPGGA") ? 9 : 11]);
+                String timeString = String.valueOf(tokens[type.startsWith("$GPGGA") ? 1 : 1]);
+                lastMslAltitudeCalendar = Calendar.getInstance();
+                lastMslAltitudeCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+                lastMslAltitudeCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeString.substring(0, 2)));
+                lastMslAltitudeCalendar.set(Calendar.MINUTE, Integer.parseInt(timeString.substring(2, 4)));
+                lastMslAltitudeCalendar.set(Calendar.SECOND, Integer.parseInt(timeString.substring(4, 6)));
+                Log.d("LogLocationManager", line);
+                Log.d("LogLocationManager", "lastMslAltitude: " + lastMslAltitude);
             }
         }
     }
