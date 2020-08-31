@@ -9,7 +9,6 @@ import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
 import android.os.Build;
 import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -32,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
@@ -48,7 +46,7 @@ public class LogLocationManager implements android.location.LocationListener {
     private LocationCallback locationCallback;
     private BestLocationResult bestLocationResult;
     private static final int LOCATION_UPDATE_FREQ = 1000;
-    private double lastMslAltitude = -1;
+    private double lastMslAltitude = Integer.MIN_VALUE;
     private Calendar lastMslAltitudeCalendar;
     private static final long MSL_ALTITUDE_AGE_LIMIT_MS = 10000;
 
@@ -66,7 +64,7 @@ public class LogLocationManager implements android.location.LocationListener {
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
-                    if (lastMslAltitude > -1 && recentLastMslAltitude())
+                    if (lastMslAltitude > Integer.MIN_VALUE && recentLastMslAltitude())
                         location.setAltitude(lastMslAltitude);
                     bestLocationResult.gotLocation(location);
                     return; // TODO: find most accurate location
