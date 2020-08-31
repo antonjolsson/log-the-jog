@@ -8,6 +8,8 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -34,14 +36,18 @@ public class LogViewModel extends ViewModel {
     private SavedStateHandle savedStateHandle;
 
     private WaypointList waypoints = new WaypointList();
+    private static final String WAYPOINTS_TAG = "waypoints";
 
     enum ExerciseStatus {STARTED, STOPPED, PAUSED, RESUMED, STOPPED_AFTER_PAUSED}
     ExerciseStatus status = STOPPED;
 
     private long totalDuration;
+    private static final String TOTAL_DURATION_TAG = "totalDuration";
     private long durationBeforePause;
+    private static final String DURATION_BEFORE_PAUSE_TAG = "durationBeforePause";
     private Timer timer;
     private long timerStartTime;
+    private static final String TIMER_START_TIME_TAG = "timerStartTimeTag";
 
     private boolean isReloaded = false;
 
@@ -55,23 +61,30 @@ public class LogViewModel extends ViewModel {
     private MutableLiveData<ExerciseStatus> statusLiveData = new MutableLiveData<>(status);
     private MutableLiveData<Boolean> isReloadedLiveData = new MutableLiveData<>(false);
 
+    private Map<String, MutableLiveData<Double>> doubleTags = new HashMap<String, MutableLiveData<Double>>()
+            {{ put("distance", distanceKm); put("currSpeed", currSpeed); put("avgSpeed", avgSpeed); }};
+
+    private Map<String, MutableLiveData<Duration>> durationTags = new HashMap<String, MutableLiveData<Duration>>()
+            {{ put("duration", duration); put("pace", pace); }};
+
     public LogViewModel(SavedStateHandle savedStateHandle) {
         this.savedStateHandle = savedStateHandle;
         if (savedStateHandle.contains("waypoints")) loadState();
     }
 
     public void saveState() {
-        savedStateHandle.set("totalDuration", totalDuration);
-        savedStateHandle.set("durationBeforePause", durationBeforePause);
-        savedStateHandle.set("timerStartTime", timerStartTime);
+        savedStateHandle.set(TOTAL_DURATION_TAG, totalDuration);
+        savedStateHandle.set(DURATION_BEFORE_PAUSE_TAG, durationBeforePause);
+        savedStateHandle.set(TIMER_START_TIME_TAG, timerStartTime);
         isReloadedLiveData.setValue(false);
         isReloaded = false;
     }
 
     @SuppressWarnings("ConstantConditions")
     void loadState() {
-        if (savedStateHandle.contains("waypoints")) {
-            waypoints = new WaypointList(savedStateHandle.get("waypoints"));
+
+        if (savedStateHandle.contains(WAYPOINTS_TAG)) {
+            waypoints = new WaypointList(savedStateHandle.get(WAYPOINTS_TAG));
             if (!waypoints.isEmpty()){
                 status = waypoints.getLast().getStatus();
                 statusLiveData.setValue(status);
@@ -81,22 +94,23 @@ public class LogViewModel extends ViewModel {
                         status);
             }
         }
-        if (savedStateHandle.contains("totalDuration"))
-            totalDuration = savedStateHandle.get("totalDuration");
-        if (savedStateHandle.contains("durationBeforePause"))
-            durationBeforePause = savedStateHandle.get("durationBeforePause");
-        if (savedStateHandle.contains("timerStartTime"))
-            timerStartTime = savedStateHandle.get("timerStartTime");
-        if (savedStateHandle.contains("duration"))
-            duration.setValue(savedStateHandle.get("duration"));
-        if (savedStateHandle.contains("distance"))
-            distanceKm.setValue(savedStateHandle.get("distance"));
-        if (savedStateHandle.contains("currSpeed"))
-            currSpeed.setValue(savedStateHandle.get("currSpeed"));
-        if (savedStateHandle.contains("avgSpeed"))
-            avgSpeed.setValue(savedStateHandle.get("avgSpeed"));
-        if (savedStateHandle.contains("pace"))
-            pace.setValue(savedStateHandle.get("pace"));
+
+        if (savedStateHandle.contains(TOTAL_DURATION_TAG))
+            totalDuration = savedStateHandle.get(TOTAL_DURATION_TAG);
+        if (savedStateHandle.contains(DURATION_BEFORE_PAUSE_TAG))
+            durationBeforePause = savedStateHandle.get(DURATION_BEFORE_PAUSE_TAG);
+        if (savedStateHandle.contains(TIMER_START_TIME_TAG))
+            timerStartTime = savedStateHandle.get(TIMER_START_TIME_TAG);
+
+        for (Map.Entry<String, MutableLiveData<Double>> entry : doubleTags.entrySet()) {
+            if (savedStateHandle.contains(entry.getKey()))
+                entry.getValue().setValue(savedStateHandle.get(entry.getKey()));
+        }
+        for (Map.Entry<String, MutableLiveData<Duration>> entry : durationTags.entrySet()) {
+            if (savedStateHandle.contains(entry.getKey()))
+                entry.getValue().setValue(savedStateHandle.get(entry.getKey()));
+        }
+
         isReloadedLiveData.setValue(true);
         isReloaded = true;
     }
@@ -108,7 +122,7 @@ public class LogViewModel extends ViewModel {
     public void addWaypoint(Waypoint waypoint) {
         waypoints.add(waypoint);
         setWaypointSpeed(waypoint);
-        savedStateHandle.set("waypoints", (ArrayList<Waypoint>) waypoints);
+        savedStateHandle.set(WAYPOINTS_TAG, (ArrayList<Waypoint>) waypoints);
     }
 
     private void setWaypointSpeed(Waypoint waypoint) {
@@ -171,9 +185,9 @@ public class LogViewModel extends ViewModel {
     }
 
     void reset() {
-        totalDuration = 0;
-        durationBeforePause = 0;
-        timerStartTime = 0;
+        totalDuration = 0L;
+        durationBeforePause = 0L;
+        timerStartTime = 0L;
         waypoints.clear();
         duration.setValue(new Duration(0, 0, 0));
         distanceKm.setValue(0.0);
