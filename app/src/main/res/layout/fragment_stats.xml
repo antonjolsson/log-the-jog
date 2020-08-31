@@ -43,7 +43,6 @@
         android:id="@+id/avgSpeedView"
         style="@style/statView"
         android:layout_marginEnd="16dp"
-        android:fontFamily="@font/rubik_black"
         android:text="@string/avgSpeedExample"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
@@ -51,9 +50,9 @@
 
     <TextView
         android:id="@+id/distanceView"
+        style="@style/statView"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:fontFamily="@font/ibm_plex_mono_bold_italic"
         android:gravity="top"
         android:includeFontPadding="false"
         android:text="@string/distanceExample"
@@ -83,10 +82,9 @@
     <TextView
         android:id="@+id/durationView"
         style="@style/statView"
-        android:fontFamily="@font/inconsolata_variablefont"
-        android:textFontWeight="900"
         android:text="@string/durationExample"
         android:textAlignment="viewStart"
+        android:textFontWeight="900"
         android:typeface="monospace"
         app:layout_constraintBottom_toTopOf="@+id/distanceLabel"
         app:layout_constraintEnd_toEndOf="parent"
@@ -104,7 +102,6 @@
     <TextView
         android:id="@+id/currSpeedView"
         style="@style/statView"
-        android:fontFamily="@font/rubik_black"
         android:text="@string/currSpeedExample"
         android:typeface="monospace"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"

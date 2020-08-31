@@ -31,6 +31,7 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Display2</item>
         <item name="android:textColor">@color/colorBlack</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">

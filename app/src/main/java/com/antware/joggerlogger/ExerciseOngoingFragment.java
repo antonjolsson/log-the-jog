@@ -1,6 +1,7 @@
 package com.antware.joggerlogger;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ public class ExerciseOngoingFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "Created!");
         TransitionInflater inflater = TransitionInflater.from(requireContext());
         setExitTransition(inflater.inflateTransition(R.transition.slide_left));
         setReenterTransition(inflater.inflateTransition(R.transition.slide_left));
@@ -56,8 +58,8 @@ public class ExerciseOngoingFragment extends Fragment {
         ControlFragment controlFragment = new ControlFragment();
         statsFragment = new StatsFragment();
         mapsFragment = new MapsFragment();
-        transaction.add(R.id.exerciseOngoingBottom, controlFragment).add(R.id.exerciseOngoingTop, mapsFragment)
-                .add(R.id.exerciseOngoingCenter, statsFragment);
+        transaction.replace(R.id.exerciseOngoingBottom, controlFragment).replace(R.id.exerciseOngoingTop, mapsFragment)
+                .replace(R.id.exerciseOngoingCenter, statsFragment);
         isViewCreated = true;
         transaction.commit();
     }

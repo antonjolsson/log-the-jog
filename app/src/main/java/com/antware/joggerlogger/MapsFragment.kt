@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.JointType.DEFAULT
 @Suppress("PrivatePropertyName", "SameParameterValue")
 class MapsFragment : Fragment() {
 
+    private val TAG = "MapsFragment"
     private val COMPLETE_ROUTE_PADDING: Int = 50
     private val CIRCLE_Z_INDEX = 2F
     private val POLYLINE_Z_INDEX = 1F
@@ -110,9 +111,10 @@ class MapsFragment : Fragment() {
         map!!.isMyLocationEnabled = true
         map!!.uiSettings.isMyLocationButtonEnabled = true
         map!!.mapType = DEFAULT_MAP_TYPE
-        //map!!.clear() // Test
+        map!!.clear() // Test
 
         if (isAdded && currLocation != null) update(currLocation)
+
         if (model.waypoints.isNotEmpty()) {
             if (model.waypoints.last.status == STOPPED_AFTER_PAUSED)
                 centerCurrLocation = false
@@ -129,6 +131,7 @@ class MapsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        Log.d(TAG, "Created!")
         if (!locationRequested) {
             val myLocation = LogLocationManager(requireActivity() as MainActivity?, context)
             myLocation.getLocation(inflater.context, locationResult)

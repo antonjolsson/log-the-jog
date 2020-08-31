@@ -68,6 +68,7 @@ public class LogViewModel extends ViewModel {
             {{ put("duration", duration); put("pace", pace); }};
 
     public LogViewModel(SavedStateHandle savedStateHandle) {
+        Log.d(TAG, "Created!");
         this.savedStateHandle = savedStateHandle;
         if (savedStateHandle.contains("waypoints")) loadState();
     }
