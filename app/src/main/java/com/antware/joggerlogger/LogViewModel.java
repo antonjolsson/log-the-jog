@@ -32,11 +32,23 @@ public class LogViewModel extends ViewModel {
     private static final long LOCATION_UPDATE_FREQ = 1000;
     private static final boolean USE_OWN_SPEED_COMPUTATION = false;
     private static final double M_PER_S_TO_KM_PER_S_COEFF = 3.6;
+    private static final String MAP_CIRCLE_RADIUS_TAG = "mapCircleRadius";
 
     private SavedStateHandle savedStateHandle;
 
     private WaypointList waypoints = new WaypointList();
     private static final String WAYPOINTS_TAG = "waypoints";
+
+    public double getMapCircleRadius() {
+        return mapCircleRadius;
+    }
+
+    public void setMapCircleRadius(double mapCircleRadius) {
+        this.mapCircleRadius = mapCircleRadius;
+        savedStateHandle.set(MAP_CIRCLE_RADIUS_TAG, mapCircleRadius);
+    }
+
+    private double mapCircleRadius = 0;
 
     enum ExerciseStatus {STARTED, STOPPED, PAUSED, RESUMED, STOPPED_AFTER_PAUSED}
     ExerciseStatus status = STOPPED;
@@ -102,6 +114,8 @@ public class LogViewModel extends ViewModel {
             durationBeforePause = savedStateHandle.get(DURATION_BEFORE_PAUSE_TAG);
         if (savedStateHandle.contains(TIMER_START_TIME_TAG))
             timerStartTime = savedStateHandle.get(TIMER_START_TIME_TAG);
+        if (savedStateHandle.contains(MAP_CIRCLE_RADIUS_TAG))
+            mapCircleRadius = savedStateHandle.get(MAP_CIRCLE_RADIUS_TAG);
 
         for (Map.Entry<String, MutableLiveData<Double>> entry : doubleTags.entrySet()) {
             if (savedStateHandle.contains(entry.getKey()))
@@ -193,6 +207,7 @@ public class LogViewModel extends ViewModel {
         waypoints.clear();
         savedStateHandle.set(WAYPOINTS_TAG, waypoints);
         setDuration();
+        setMapCircleRadius(0);
         setAndSaveLiveData(0, "distance");
         setAndSaveLiveData(0, "currSpeed");
         setAndSaveLiveData(0, "avgSpeed");
@@ -312,6 +327,5 @@ public class LogViewModel extends ViewModel {
         double centralAngle = acos(sin(latW1) * sin(latW2) + cos(latW1) * cos(latW2) * cos(abs(longW1 - longW2)));
         return EARTH_RADIUS * centralAngle;
     }
-
 
 }

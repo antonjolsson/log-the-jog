@@ -2,7 +2,6 @@ package com.antware.joggerlogger
 
 import android.annotation.SuppressLint
 import android.location.Location
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -129,7 +128,7 @@ class MapsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Log.d(TAG, "Created!")
+        //Log.d(TAG, "Created!")
         if (!locationRequested) {
             val myLocation = LogLocationManager(requireActivity() as MainActivity?, context)
             myLocation.getLocation(inflater.context, locationResult)
@@ -179,11 +178,8 @@ class MapsFragment : Fragment() {
         })
     }
 
-    private fun redrawRoute(moveCamera: Boolean) {
-        val prevMapSize = getMapDiagonalMeters(map)
-        if (moveCamera) map?.moveCamera(CameraUpdateFactory.newLatLngBounds(getLatLngBounds(), COMPLETE_ROUTE_PADDING))
-        val mapSizeCoefficient = getMapDiagonalMeters(map) / prevMapSize
-        val circleRadius = CIRCLE_RADIUS_METERS * mapSizeCoefficient
+    private fun redrawRoute(routeCompleted: Boolean) {
+        val circleRadius = getCircleRadius(routeCompleted)
         var currStatus: ExerciseStatus? = null
         for ((i, wayPoint) in model.waypoints.withIndex()) {
             val currLatLng = wayPoint.latLng
@@ -198,6 +194,22 @@ class MapsFragment : Fragment() {
                 addPolylinePoint(currLatLng)
             }
         }
+    }
+
+    private fun getCircleRadius(routeCompleted: Boolean): Double {
+        val ongoingRouteMapSize = getMapDiagonalMeters(map)
+        if (routeCompleted) map?.moveCamera(
+            CameraUpdateFactory.newLatLngBounds(getLatLngBounds(), COMPLETE_ROUTE_PADDING))
+        val mapSizeCoefficient = getMapDiagonalMeters(map) / ongoingRouteMapSize
+        val circleRadius = if (model.mapCircleRadius > 0) model.mapCircleRadius
+                                    else CIRCLE_RADIUS_METERS * mapSizeCoefficient
+
+        if (routeCompleted) model.mapCircleRadius = circleRadius
+
+        Log.d(TAG, "prevMapSize: $ongoingRouteMapSize")
+        Log.d(TAG, "circleRadius: $circleRadius")
+        Log.d(TAG, "mapSizeCoefficient: $circleRadius")
+        return circleRadius
     }
 
     private fun getMapDiagonalMeters(map: GoogleMap?): Float {
