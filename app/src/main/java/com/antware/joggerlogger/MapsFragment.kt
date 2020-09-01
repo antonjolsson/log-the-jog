@@ -23,9 +23,8 @@ import com.google.android.gms.maps.model.JointType.DEFAULT
 @Suppress("PrivatePropertyName", "SameParameterValue")
 class MapsFragment : Fragment() {
 
-    companion object {
-        const val TAG: String = "MapsFragment"
-    }
+    companion object { const val TAG: String = "MapsFragment" }
+
     private val COMPLETE_ROUTE_PADDING: Int = 50
     private val CIRCLE_Z_INDEX = 2F
     private val POLYLINE_Z_INDEX = 1F
@@ -41,12 +40,11 @@ class MapsFragment : Fragment() {
     private var outerPolylines = arrayListOf<Polyline>()
     private var map : GoogleMap? = null
     var currLocation : Location? = null
-    private var shouldClearMap: Boolean = false
     private var centerCurrLocation: Boolean = true
     private val model: LogViewModel by activityViewModels()
     private var locationRequested: Boolean = false
-    private val locationResult = object : LogLocationManager.BestLocationResult() {
 
+    private val locationResult = object : LogLocationManager.BestLocationResult() {
         override fun gotLocation(location: Location?) {
             currLocation = location
             if (isAdded && location != null) update(location)
@@ -54,7 +52,6 @@ class MapsFragment : Fragment() {
     }
 
     private fun update(location: Location?) {
-        //if (shouldClearMap) clearMap()
         val here = location?.latitude?.let { LatLng(it, location.longitude) }
         requireActivity().runOnUiThread {
             if (centerCurrLocation) map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
@@ -108,7 +105,7 @@ class MapsFragment : Fragment() {
         map!!.isMyLocationEnabled = true
         map!!.uiSettings.isMyLocationButtonEnabled = true
         map!!.mapType = DEFAULT_MAP_TYPE
-        map!!.clear() // Test
+        map!!.clear()
 
         if (isAdded && currLocation != null) update(currLocation)
 
@@ -122,13 +119,7 @@ class MapsFragment : Fragment() {
         }
     }
 
-    private fun clearMap() {
-        map!!.clear()
-        shouldClearMap = false
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        //Log.d(TAG, "Created!")
         if (!locationRequested) {
             val myLocation = LogLocationManager(requireActivity() as MainActivity?, context)
             myLocation.getLocation(inflater.context, locationResult)
@@ -150,12 +141,7 @@ class MapsFragment : Fragment() {
         circleRadius: Double) {
         when (status) {
             STARTED, RESUMED -> {
-                if (currLocation == null)
-                    if (model.waypoints.isEmpty())
-                        map?.clear()
-                val color = if (status == STARTED) SHAPE_COLOR else R.color.colorDisabled
-                waypoint.latLng?.let { addCircle(circleRadius, OUTLINE_COLOR, color, CIRCLE_Z_INDEX, it) }
-                if (addWaypoints) model.addWaypoint(waypoint)
+                onExerciseStarted(status, waypoint, circleRadius, addWaypoints)
             }
             PAUSED -> waypoint.latLng?.let {
                 addCircle(circleRadius, OUTLINE_COLOR, R.color.colorDisabled, CIRCLE_Z_INDEX, it)
@@ -166,6 +152,15 @@ class MapsFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun onExerciseStarted(status: ExerciseStatus?, waypoint: Waypoint, circleRadius: Double, addWaypoints: Boolean) {
+        if (currLocation == null)
+            if (model.waypoints.isEmpty())
+                map?.clear()
+        val color = if (status == STARTED) SHAPE_COLOR else R.color.colorDisabled
+        waypoint.latLng?.let { addCircle(circleRadius, OUTLINE_COLOR, color, CIRCLE_Z_INDEX, it) }
+        if (addWaypoints) model.addWaypoint(waypoint)
     }
 
     private fun getColor(color: Int): Int { return ContextCompat.getColor(requireContext(), color) }
@@ -182,7 +177,6 @@ class MapsFragment : Fragment() {
         val circleRadius = getCircleRadius(routeCompleted)
         var currStatus: ExerciseStatus? = null
         for ((i, wayPoint) in model.waypoints.withIndex()) {
-            Log.d(TAG, wayPoint.status.toString())
             val currLatLng = wayPoint.latLng
             if (wayPoint.status != currStatus) {
                 currStatus = wayPoint.status
@@ -204,7 +198,6 @@ class MapsFragment : Fragment() {
         val mapSizeCoefficient = getMapDiagonalMeters(map) / ongoingRouteMapSize
         val circleRadius = if (model.mapCircleRadius > 0) model.mapCircleRadius
                                     else CIRCLE_RADIUS_METERS * mapSizeCoefficient
-
         if (routeCompleted) model.mapCircleRadius = circleRadius
         return circleRadius
     }
@@ -227,11 +220,6 @@ class MapsFragment : Fragment() {
             latLngBounds = if (i == 0) LatLngBounds(latLng, latLng) else latLngBounds?.including(latLng)
         }
         return latLngBounds
-    }
-
-    fun reset() {
-        centerCurrLocation = true
-        shouldClearMap = true
     }
 
 }

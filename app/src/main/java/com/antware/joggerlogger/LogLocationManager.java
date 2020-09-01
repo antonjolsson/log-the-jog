@@ -9,6 +9,7 @@ import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
 import android.os.Build;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -49,6 +50,8 @@ public class LogLocationManager implements android.location.LocationListener {
     private double lastMslAltitude = Integer.MIN_VALUE;
     private Calendar lastMslAltitudeCalendar;
     private static final long MSL_ALTITUDE_AGE_LIMIT_MS = 10000;
+    private static final int MSL_ALTITUDE_NUM_IN_AVERAGE = 10000; // 60
+    AltitudesHolder altitudesHolder = new AltitudesHolder(MSL_ALTITUDE_NUM_IN_AVERAGE);
 
 
     public LogLocationManager(MainActivity mainActivity, Context context){
@@ -64,7 +67,8 @@ public class LogLocationManager implements android.location.LocationListener {
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
-                    if (lastMslAltitude > Integer.MIN_VALUE && recentLastMslAltitude())
+                    /*if (lastMslAltitude > Integer.MIN_VALUE && recentLastMslAltitude())*/
+                    Log.d(TAG, String.valueOf(lastMslAltitude));
                         location.setAltitude(lastMslAltitude);
                     bestLocationResult.gotLocation(location);
                     return; // TODO: find most accurate location
@@ -165,14 +169,17 @@ public class LogLocationManager implements android.location.LocationListener {
             String[] tokens = line.split(",");
             String type = tokens[0];
             // Parse altitude above sea level, Detailed description of NMEA string here http://aprs.gids.nl/nmea/#gga
-            if ((type.startsWith("$GPGGA") && !tokens[9].isEmpty()) || (type.startsWith("$GNGGA") && !tokens[11].isEmpty())) {
-                lastMslAltitude = Double.parseDouble(tokens[type.startsWith("$GPGGA") ? 9 : 11]);
-                String timeString = String.valueOf(tokens[type.startsWith("$GPGGA") ? 1 : 1]);
+            if ((type.matches("\\$..GGA.*") && !tokens[9].isEmpty())) {
+                Log.d(TAG, line);
+                String timeString = String.valueOf(tokens[1]);
                 lastMslAltitudeCalendar = Calendar.getInstance();
                 lastMslAltitudeCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));
                 lastMslAltitudeCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeString.substring(0, 2)));
                 lastMslAltitudeCalendar.set(Calendar.MINUTE, Integer.parseInt(timeString.substring(2, 4)));
                 lastMslAltitudeCalendar.set(Calendar.SECOND, Integer.parseInt(timeString.substring(4, 6)));
+                altitudesHolder.add(Double.parseDouble(tokens[9]));
+                lastMslAltitude = altitudesHolder.getAverage();
+                Log.d(TAG, "Average altitude: " + altitudesHolder.getAverage());
             }
         }
     }

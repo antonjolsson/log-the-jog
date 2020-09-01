@@ -20,10 +20,7 @@ import static android.view.View.GONE;
 
 public class ExerciseOngoingFragment extends Fragment {
 
-    public final static String TAG = "exerciseOngoingFragment";
-    private boolean isViewCreated;
-    private MapsFragment mapsFragment;
-    private StatsFragment statsFragment;
+    public final static String TAG = "ExerciseOngoingFragment";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,23 +41,20 @@ public class ExerciseOngoingFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        LogViewModel model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
         FragmentManager fragmentManager = getChildFragmentManager();
         ((MainActivity) requireActivity()).setBarVisibility(true);
-        /*if (model.isReloaded()) return;*/
 
         ControlFragment controlFragment = (ControlFragment) fragmentManager.findFragmentByTag(ControlFragment.TAG);
         if (controlFragment == null) controlFragment = new ControlFragment();
-        statsFragment = (StatsFragment) fragmentManager.findFragmentByTag(StatsFragment.TAG);
+        StatsFragment statsFragment = (StatsFragment) fragmentManager.findFragmentByTag(StatsFragment.TAG);
         if (statsFragment == null) statsFragment = new StatsFragment();
-        mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag(MapsFragment.TAG);
+        MapsFragment mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag(MapsFragment.TAG);
         if (mapsFragment == null) mapsFragment = new MapsFragment();
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.exerciseOngoingBottom, controlFragment, ControlFragment.TAG);
         transaction.replace(R.id.exerciseOngoingTop, mapsFragment, MapsFragment.TAG);
         transaction.replace(R.id.exerciseOngoingCenter, statsFragment, StatsFragment.TAG);
-        isViewCreated = true;
         transaction.addToBackStack(null).commit();
         MainActivity.printFragmentBackStackCount(getChildFragmentManager(), TAG);
     }

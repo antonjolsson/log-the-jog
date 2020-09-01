@@ -39,15 +39,6 @@ public class LogViewModel extends ViewModel {
     private WaypointList waypoints = new WaypointList();
     private static final String WAYPOINTS_TAG = "waypoints";
 
-    public double getMapCircleRadius() {
-        return mapCircleRadius;
-    }
-
-    public void setMapCircleRadius(double mapCircleRadius) {
-        this.mapCircleRadius = mapCircleRadius;
-        savedStateHandle.set(MAP_CIRCLE_RADIUS_TAG, mapCircleRadius);
-    }
-
     private double mapCircleRadius = 0;
 
     enum ExerciseStatus {STARTED, STOPPED, PAUSED, RESUMED, STOPPED_AFTER_PAUSED}
@@ -100,8 +91,6 @@ public class LogViewModel extends ViewModel {
                 statusLiveData.setValue(status);
                 if (status == STARTED || status == RESUMED)
                     startTimeTaking();
-                Log.d("LogViewModel", "Waypoints: " + waypoints.size() + ", Status: " +
-                        status);
             }
         }
         if (savedStateHandle.contains(TOTAL_DURATION_TAG))
@@ -311,6 +300,15 @@ public class LogViewModel extends ViewModel {
 
     public boolean isReloaded() {
         return isReloaded;
+    }
+
+    public double getMapCircleRadius() {
+        return mapCircleRadius;
+    }
+
+    public void setMapCircleRadius(double mapCircleRadius) {
+        this.mapCircleRadius = mapCircleRadius;
+        savedStateHandle.set(MAP_CIRCLE_RADIUS_TAG, mapCircleRadius);
     }
 
     private double getDistanceBetweenCoords(Waypoint w2, Waypoint w1) {
