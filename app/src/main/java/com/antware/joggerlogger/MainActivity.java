@@ -10,7 +10,6 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -122,19 +121,22 @@ public class MainActivity extends AppCompatActivity {
         ExerciseCompleteFragment fragment = (ExerciseCompleteFragment)
                 fragmentManager.findFragmentByTag(ExerciseCompleteFragment.TAG);
         if (fragment == null) fragment = new ExerciseCompleteFragment();
-        transaction.replace(R.id.mainFrameLayout, fragment, ExerciseCompleteFragment.TAG).
-                addToBackStack(null).commit();
+        transaction.replace(R.id.mainFrameLayout, fragment, ExerciseCompleteFragment.TAG);
+        if (fragmentManager.getBackStackEntryCount() == 0)
+                transaction.addToBackStack(null);
+        transaction.commit();
         printFragmentBackStackCount(getSupportFragmentManager(), TAG);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        model.saveState();
+        model.saveTimerVars();
     }
 
     @Override
     public void onBackPressed() {
+        int count = getSupportFragmentManager().getBackStackEntryCount();
         if (getSupportFragmentManager().getBackStackEntryCount() == 1)
             model.reset();
         super.onBackPressed();

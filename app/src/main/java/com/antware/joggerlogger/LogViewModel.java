@@ -7,9 +7,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -73,7 +73,7 @@ public class LogViewModel extends ViewModel {
         if (savedStateHandle.contains("waypoints")) loadState();
     }
 
-    public void saveState() {
+    public void saveTimerVars() {
         savedStateHandle.set(TOTAL_DURATION_TAG, totalDuration);
         savedStateHandle.set(DURATION_BEFORE_PAUSE_TAG, durationBeforePause);
         savedStateHandle.set(TIMER_START_TIME_TAG, timerStartTime);
@@ -189,11 +189,13 @@ public class LogViewModel extends ViewModel {
         totalDuration = 0L;
         durationBeforePause = 0L;
         timerStartTime = 0L;
+        saveTimerVars();
         waypoints.clear();
-        duration.setValue(new Duration(0, 0, 0));
-        distanceKm.setValue(0.0);
-        currSpeed.setValue(0.0);
-        avgSpeed.setValue(0.0);
+        savedStateHandle.set(WAYPOINTS_TAG, waypoints);
+        setDuration();
+        setAndSaveLiveData(0, "distance");
+        setAndSaveLiveData(0, "currSpeed");
+        setAndSaveLiveData(0, "avgSpeed");
     }
 
     private void pauseTimeTaking() {
@@ -248,16 +250,17 @@ public class LogViewModel extends ViewModel {
 
     private void setCurrSpeed(Waypoint waypoint) {
         double speed = waypoint.getCurrentSpeed();
-        currSpeed.postValue(speed);
-        savedStateHandle.set("currSpeed", speed);
+        setAndSaveLiveData(speed, "currSpeed");
+    }
 
-        /*setDouble(speed, "currSpeed");*/
+    private void setAndSaveLiveData(double speed, String key) {
+        savedStateHandle.set(key, speed);
+        Objects.requireNonNull(doubleTags.get(key)).postValue(speed);
     }
 
     private void setAvgSpeed() {
         double speed = getSpeed(waypoints.size());
-        avgSpeed.postValue(speed);
-        savedStateHandle.set("avgSpeed", speed);
+        setAndSaveLiveData(speed, "avgSpeed");
     }
 
     private void setDistance() {
@@ -265,8 +268,7 @@ public class LogViewModel extends ViewModel {
                 / 1000.0;
         if (Double.isNaN(newDistance)) return;
         double oldDistance = distanceKm.getValue() != null ? distanceKm.getValue() : 0.0;
-        distanceKm.postValue(newDistance + oldDistance);
-        savedStateHandle.set("distance", newDistance + oldDistance);
+        setAndSaveLiveData(newDistance + oldDistance, "distance");
     }
 
     public LiveData<Double> getCurrSpeed() {
