@@ -182,6 +182,7 @@ class MapsFragment : Fragment() {
         val circleRadius = getCircleRadius(routeCompleted)
         var currStatus: ExerciseStatus? = null
         for ((i, wayPoint) in model.waypoints.withIndex()) {
+            Log.d(TAG, wayPoint.status.toString())
             val currLatLng = wayPoint.latLng
             if (wayPoint.status != currStatus) {
                 currStatus = wayPoint.status
@@ -205,10 +206,6 @@ class MapsFragment : Fragment() {
                                     else CIRCLE_RADIUS_METERS * mapSizeCoefficient
 
         if (routeCompleted) model.mapCircleRadius = circleRadius
-
-        Log.d(TAG, "prevMapSize: $ongoingRouteMapSize")
-        Log.d(TAG, "circleRadius: $circleRadius")
-        Log.d(TAG, "mapSizeCoefficient: $circleRadius")
         return circleRadius
     }
 

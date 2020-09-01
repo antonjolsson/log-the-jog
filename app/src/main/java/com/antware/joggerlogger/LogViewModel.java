@@ -89,25 +89,21 @@ public class LogViewModel extends ViewModel {
         savedStateHandle.set(TOTAL_DURATION_TAG, totalDuration);
         savedStateHandle.set(DURATION_BEFORE_PAUSE_TAG, durationBeforePause);
         savedStateHandle.set(TIMER_START_TIME_TAG, timerStartTime);
-        /*isReloadedLiveData.setValue(false);
-        isReloaded = false;*/
     }
 
     @SuppressWarnings("ConstantConditions")
     void loadState() {
-
         if (savedStateHandle.contains(WAYPOINTS_TAG)) {
             waypoints = new WaypointList(savedStateHandle.get(WAYPOINTS_TAG));
             if (!waypoints.isEmpty()){
                 status = waypoints.getLast().getStatus();
                 statusLiveData.setValue(status);
                 if (status == STARTED || status == RESUMED)
-                    startMeasuring();
+                    startTimeTaking();
                 Log.d("LogViewModel", "Waypoints: " + waypoints.size() + ", Status: " +
                         status);
             }
         }
-
         if (savedStateHandle.contains(TOTAL_DURATION_TAG))
             totalDuration = savedStateHandle.get(TOTAL_DURATION_TAG);
         if (savedStateHandle.contains(DURATION_BEFORE_PAUSE_TAG))
@@ -126,7 +122,6 @@ public class LogViewModel extends ViewModel {
                 entry.getValue().setValue(savedStateHandle.get(entry.getKey()));
         }
 
-        //isReloadedLiveData.setValue(true);
         isReloaded = true;
     }
 
