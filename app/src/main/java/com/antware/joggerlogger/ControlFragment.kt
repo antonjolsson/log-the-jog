@@ -12,7 +12,10 @@ import com.antware.joggerlogger.databinding.FragmentControlBinding
 
 class ControlFragment : Fragment(R.layout.fragment_control) {
 
-    private val TAG = "ControlFragment"
+    companion object {
+        const val TAG: String = "ControlFragment"
+    }
+
     private val model: LogViewModel by activityViewModels()
 
     private var _binding: FragmentControlBinding? = null

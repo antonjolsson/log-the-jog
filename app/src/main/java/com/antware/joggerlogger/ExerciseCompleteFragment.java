@@ -28,7 +28,7 @@ import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.*;
 
 public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenuItemClickListener{
 
-    public final static String TAG = "exerciseCompleteFragment";
+    public final static String TAG = "exerciseCompleteFrag";
     public final static String TWO_DECIMALS_FORMAT = "%.2f";
     public static final String VERT_DATA_KEY = "verticalData";
     public static final String HORIZ_DATA_KEY = "horizData";
@@ -43,6 +43,7 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "Created!");
         TransitionInflater inflater = TransitionInflater.from(requireContext());
         setEnterTransition(inflater.inflateTransition(R.transition.slide_right));
         setReturnTransition(inflater.inflateTransition(R.transition.slide_right));
@@ -70,9 +71,10 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         Fragment speedFragment = getChartFragment(SPEED, horizData);
         Fragment elevFragment = getChartFragment(ELEVATION, horizData);
-        Fragment mapFragment = new MapsFragment();
+        Fragment mapFragment = fragmentManager.findFragmentByTag(MapsFragment.TAG);
+        if (mapFragment == null) mapFragment = new MapsFragment();
         transaction.replace(R.id.speedLayout, speedFragment).replace(R.id.elevationLayout, elevFragment)
-        .replace(R.id.mapFrame, mapFragment);
+        .replace(R.id.mapFrame, mapFragment, MapsFragment.TAG);
         transaction.commit();
     }
 

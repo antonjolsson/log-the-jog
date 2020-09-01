@@ -54,14 +54,19 @@ public class ExerciseOngoingFragment extends Fragment {
         }
         if (model.isReloaded()) return;
 
+        ControlFragment controlFragment = (ControlFragment) fragmentManager.findFragmentByTag(ControlFragment.TAG);
+        if (controlFragment == null) controlFragment = new ControlFragment();
+        statsFragment = (StatsFragment) fragmentManager.findFragmentByTag(StatsFragment.TAG);
+        if (statsFragment == null) statsFragment = new StatsFragment();
+        mapsFragment = (MapsFragment) fragmentManager.findFragmentByTag(MapsFragment.TAG);
+        if (mapsFragment == null) mapsFragment = new MapsFragment();
+
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        ControlFragment controlFragment = new ControlFragment();
-        statsFragment = new StatsFragment();
-        mapsFragment = new MapsFragment();
-        transaction.replace(R.id.exerciseOngoingBottom, controlFragment).replace(R.id.exerciseOngoingTop, mapsFragment)
-                .replace(R.id.exerciseOngoingCenter, statsFragment);
+        transaction.replace(R.id.exerciseOngoingBottom, controlFragment, ControlFragment.TAG);
+        transaction.replace(R.id.exerciseOngoingTop, mapsFragment, MapsFragment.TAG);
+        transaction.replace(R.id.exerciseOngoingCenter, statsFragment, StatsFragment.TAG);
         isViewCreated = true;
-        transaction.commit();
+        transaction.addToBackStack(null).commit();
     }
 
     private void resetStats() {

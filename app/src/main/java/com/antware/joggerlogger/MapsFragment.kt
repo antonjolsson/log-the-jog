@@ -24,7 +24,9 @@ import com.google.android.gms.maps.model.JointType.DEFAULT
 @Suppress("PrivatePropertyName", "SameParameterValue")
 class MapsFragment : Fragment() {
 
-    private val TAG = "MapsFragment"
+    companion object {
+        const val TAG: String = "MapsFragment"
+    }
     private val COMPLETE_ROUTE_PADDING: Int = 50
     private val CIRCLE_Z_INDEX = 2F
     private val POLYLINE_Z_INDEX = 1F

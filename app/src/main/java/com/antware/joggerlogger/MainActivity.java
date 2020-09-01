@@ -10,6 +10,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -41,7 +42,9 @@ public class MainActivity extends AppCompatActivity {
         model = new ViewModelProvider(this).get(LogViewModel.class);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        ExerciseOngoingFragment exerciseOngoingFragment = new ExerciseOngoingFragment();
+        ExerciseOngoingFragment ongoingFragment = (ExerciseOngoingFragment)
+                fragmentManager.findFragmentByTag(ExerciseOngoingFragment.TAG);
+        if (ongoingFragment == null) ongoingFragment = new ExerciseOngoingFragment();
 
         if (!model.isReloaded()) {
 
@@ -55,14 +58,15 @@ public class MainActivity extends AppCompatActivity {
 
             if (SHOW_SPLASH_SCREEN){
                 Handler handler = new Handler();
+                ExerciseOngoingFragment finalOngoingFragment = ongoingFragment;
                 Runnable r = () -> {
-                    initFragments(fragmentManager, exerciseOngoingFragment);
+                    initFragments(fragmentManager, finalOngoingFragment);
                 };
                 handler.postDelayed(r, SPLASH_SCREEN_DURATION);
             }
-            else initFragments(fragmentManager, exerciseOngoingFragment);
+            else initFragments(fragmentManager, ongoingFragment);
         }
-        else initFragments(fragmentManager, exerciseOngoingFragment);
+        else initFragments(fragmentManager, ongoingFragment);
     }
 
     private void showSplashScreen(FragmentManager fragmentManager) {
