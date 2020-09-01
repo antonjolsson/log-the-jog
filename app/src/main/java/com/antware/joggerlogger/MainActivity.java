@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "Created!");
-        printFragmentBackStackCount(getSupportFragmentManager(), TAG);
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
@@ -88,18 +87,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initFragments(FragmentManager fragmentManager, ExerciseOngoingFragment exerciseOngoingFragment) {
-        fragmentManager.addOnBackStackChangedListener(() -> {
-            if (fragmentManager.getBackStackEntryCount() == 0)
-                onBackPressed();
-        });
         if (!model.isReloaded()) {
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             transaction.replace(R.id.mainFrameLayout, exerciseOngoingFragment, ExerciseOngoingFragment.TAG)
-                    .addToBackStack(null).commit();
+                    .commit();
+            printFragmentBackStackCount(getSupportFragmentManager(), TAG);
         }
         model.getStatus().observe(this, status -> {
-            if (status == LogViewModel.ExerciseStatus.STOPPED_AFTER_PAUSED &&
-                    fragmentManager.getBackStackEntryCount() == 1)
+            if (status == LogViewModel.ExerciseStatus.STOPPED_AFTER_PAUSED)
                 onExerciseStopped(fragmentManager);
         });
     }
@@ -124,9 +119,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void onExerciseStopped(FragmentManager fragmentManager) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        ExerciseCompleteFragment fragment = new ExerciseCompleteFragment();
+        ExerciseCompleteFragment fragment = (ExerciseCompleteFragment)
+                fragmentManager.findFragmentByTag(ExerciseCompleteFragment.TAG);
+        if (fragment == null) fragment = new ExerciseCompleteFragment();
         transaction.replace(R.id.mainFrameLayout, fragment, ExerciseCompleteFragment.TAG).
                 addToBackStack(null).commit();
+        printFragmentBackStackCount(getSupportFragmentManager(), TAG);
     }
 
     @Override
@@ -137,10 +135,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         if (getSupportFragmentManager().getBackStackEntryCount() == 1)
             model.reset();
-
+        super.onBackPressed();
+        printFragmentBackStackCount(getSupportFragmentManager(), TAG);
     }
 
     static void printFragmentBackStackCount(FragmentManager fragmentManager,

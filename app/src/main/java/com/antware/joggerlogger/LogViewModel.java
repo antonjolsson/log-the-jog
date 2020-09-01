@@ -77,8 +77,8 @@ public class LogViewModel extends ViewModel {
         savedStateHandle.set(TOTAL_DURATION_TAG, totalDuration);
         savedStateHandle.set(DURATION_BEFORE_PAUSE_TAG, durationBeforePause);
         savedStateHandle.set(TIMER_START_TIME_TAG, timerStartTime);
-        isReloadedLiveData.setValue(false);
-        isReloaded = false;
+        /*isReloadedLiveData.setValue(false);
+        isReloaded = false;*/
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -112,7 +112,7 @@ public class LogViewModel extends ViewModel {
                 entry.getValue().setValue(savedStateHandle.get(entry.getKey()));
         }
 
-        isReloadedLiveData.setValue(true);
+        //isReloadedLiveData.setValue(true);
         isReloaded = true;
     }
 
@@ -123,7 +123,7 @@ public class LogViewModel extends ViewModel {
     public void addWaypoint(Waypoint waypoint) {
         waypoints.add(waypoint);
         setWaypointSpeed(waypoint);
-        savedStateHandle.set(WAYPOINTS_TAG, (ArrayList<Waypoint>) waypoints);
+        savedStateHandle.set(WAYPOINTS_TAG, waypoints);
     }
 
     private void setWaypointSpeed(Waypoint waypoint) {
@@ -250,6 +250,8 @@ public class LogViewModel extends ViewModel {
         double speed = waypoint.getCurrentSpeed();
         currSpeed.postValue(speed);
         savedStateHandle.set("currSpeed", speed);
+
+        /*setDouble(speed, "currSpeed");*/
     }
 
     private void setAvgSpeed() {

@@ -46,13 +46,8 @@ public class ExerciseOngoingFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         LogViewModel model = new ViewModelProvider(requireActivity()).get(LogViewModel.class);
         FragmentManager fragmentManager = getChildFragmentManager();
-        MainActivity.printFragmentBackStackCount(fragmentManager, TAG);
         ((MainActivity) requireActivity()).setBarVisibility(true);
-        if (isViewCreated) {
-            resetStats();
-            return;
-        }
-        if (model.isReloaded()) return;
+        /*if (model.isReloaded()) return;*/
 
         ControlFragment controlFragment = (ControlFragment) fragmentManager.findFragmentByTag(ControlFragment.TAG);
         if (controlFragment == null) controlFragment = new ControlFragment();
@@ -67,11 +62,7 @@ public class ExerciseOngoingFragment extends Fragment {
         transaction.replace(R.id.exerciseOngoingCenter, statsFragment, StatsFragment.TAG);
         isViewCreated = true;
         transaction.addToBackStack(null).commit();
-    }
-
-    private void resetStats() {
-        mapsFragment.reset();
-        statsFragment.setReset(true);
+        MainActivity.printFragmentBackStackCount(getChildFragmentManager(), TAG);
     }
 
 }

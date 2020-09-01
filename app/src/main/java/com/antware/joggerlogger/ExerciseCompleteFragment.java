@@ -67,7 +67,6 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         showNumericStats(model);
 
         FragmentManager fragmentManager = getChildFragmentManager();
-        MainActivity.printFragmentBackStackCount(fragmentManager, TAG);
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         Fragment speedFragment = getChartFragment(SPEED, horizData);
         Fragment elevFragment = getChartFragment(ELEVATION, horizData);
@@ -76,6 +75,7 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         transaction.replace(R.id.speedLayout, speedFragment).replace(R.id.elevationLayout, elevFragment)
         .replace(R.id.mapFrame, mapFragment, MapsFragment.TAG);
         transaction.commit();
+        MainActivity.printFragmentBackStackCount(fragmentManager, TAG);
     }
 
     @Override

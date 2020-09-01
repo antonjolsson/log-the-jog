@@ -60,10 +60,6 @@ class MapsFragment : Fragment() {
         requireActivity().runOnUiThread {
             if (centerCurrLocation) map?.moveCamera(CameraUpdateFactory.newLatLngZoom(here, INITIAL_ZOOM_LEVEL))
             if (model.exerciseStatus == STARTED || model.exerciseStatus == RESUMED) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Log.d("MapsFragment",
-                        "Altitude: " + location?.altitude + ", Accuracy: " + location?.verticalAccuracyMeters)
-                }
                 model.addWaypoint(location?.time?.let { Waypoint(location, model.exerciseStatus) })
                 if (!model.exerciseJustStarted()) {
                     val lastLocation = LatLng(model.waypoints.secondLast.latitude, model.waypoints.secondLast.longitude)
