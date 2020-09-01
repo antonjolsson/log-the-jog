@@ -50,8 +50,8 @@ public class LogLocationManager implements android.location.LocationListener {
     private double lastMslAltitude = Integer.MIN_VALUE;
     private Calendar lastMslAltitudeCalendar;
     private static final long MSL_ALTITUDE_AGE_LIMIT_MS = 10000;
-    private static final int MSL_ALTITUDE_NUM_IN_AVERAGE = 10000; // 60
-    AltitudesHolder altitudesHolder = new AltitudesHolder(MSL_ALTITUDE_NUM_IN_AVERAGE);
+    private static final int MSL_AVG_ALTITUDE_NUM_ELEMENTS = 60;
+    AltitudesHolder altitudesHolder = new AltitudesHolder(MSL_AVG_ALTITUDE_NUM_ELEMENTS);
 
 
     public LogLocationManager(MainActivity mainActivity, Context context){
@@ -69,7 +69,7 @@ public class LogLocationManager implements android.location.LocationListener {
                 for (Location location : locationResult.getLocations()) {
                     /*if (lastMslAltitude > Integer.MIN_VALUE && recentLastMslAltitude())*/
                     Log.d(TAG, String.valueOf(lastMslAltitude));
-                        location.setAltitude(lastMslAltitude);
+                    location.setAltitude(lastMslAltitude);
                     bestLocationResult.gotLocation(location);
                     return; // TODO: find most accurate location
                 }
