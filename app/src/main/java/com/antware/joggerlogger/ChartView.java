@@ -34,6 +34,7 @@ public class ChartView extends View {
 
     Paint gridPaint = new Paint();
     Paint pathPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    Paint linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     LogViewModel model = null;
     private boolean filledPath;
 
@@ -50,15 +51,13 @@ public class ChartView extends View {
         gridPaint.setStrokeWidth(CHART_AXIS_WIDTH);
 
         pathPaint.setColor(ContextCompat.getColor(getContext(), PATH_COLOR));
-        if (filledPath) {
-            pathPaint.setStyle(Paint.Style.FILL);
-            pathPaint.setAlpha(PATH_FILL_ALPHA);
-        }
-        else {
-            pathPaint.setStrokeWidth(PATH_WIDTH);
-            pathPaint.setStrokeJoin(Paint.Join.MITER);
-            pathPaint.setStrokeCap(Paint.Cap.ROUND);
-        }
+        pathPaint.setStyle(Paint.Style.FILL);
+        pathPaint.setAlpha(PATH_FILL_ALPHA);
+
+        linePaint.setColor(ContextCompat.getColor(getContext(), PATH_COLOR));
+        linePaint.setStrokeWidth(PATH_WIDTH);
+        linePaint.setStrokeJoin(Paint.Join.MITER);
+        linePaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
     @Override
@@ -66,7 +65,7 @@ public class ChartView extends View {
         if (model == null) return;
         int numWaypoints = model.getWaypoints().size();
         if (filledPath) drawPath(canvas, dataRange, numWaypoints);
-        else drawLine(canvas, dataRange, numWaypoints);
+        drawLine(canvas, dataRange, numWaypoints);
         drawGrid(canvas);
     }
 
@@ -87,7 +86,7 @@ public class ChartView extends View {
         for (int i = 1; i < numWaypoints; i++) {
             Point start = getDataPoint(numWaypoints, dataRange, i - 1);
             Point end = getDataPoint(numWaypoints, dataRange, i);
-            canvas.drawLine(start.x, start.y, end.x, end.y, pathPaint);
+            canvas.drawLine(start.x, start.y, end.x, end.y, linePaint);
         }
     }
 

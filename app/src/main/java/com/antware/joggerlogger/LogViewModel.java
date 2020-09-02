@@ -248,6 +248,7 @@ public class LogViewModel extends ViewModel {
     }
 
     private void setCurrSpeed(Waypoint waypoint) {
+        if (waypoint == null) return;
         double speed = waypoint.getCurrentSpeed();
         setAndSaveLiveData(speed, "currSpeed");
     }
@@ -263,6 +264,7 @@ public class LogViewModel extends ViewModel {
     }
 
     private void setDistance() {
+        if (waypoints.getLast() == null || waypoints.getSecondLast() == null) return;
         double newDistance = Waypoint.distanceBetween(waypoints.getSecondLast(), waypoints.getLast())
                 / 1000.0;
         if (Double.isNaN(newDistance)) return;
