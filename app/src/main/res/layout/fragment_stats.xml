@@ -42,8 +42,10 @@
     <TextView
         android:id="@+id/avgSpeedView"
         style="@style/statView"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
+        android:ems="3"
         android:text="@string/avgSpeedExample"
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
         app:layout_constraintTop_toBottomOf="@+id/avgSpeedLabel" />
@@ -60,7 +62,6 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Display4"
         android:textColor="@color/colorBlack"
         android:textSize="70sp"
-        android:textStyle="bold"
         android:typeface="monospace"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -104,7 +105,10 @@
     <TextView
         android:id="@+id/currSpeedView"
         style="@style/statView"
+        android:layout_marginStart="8dp"
+        android:ems="3"
         android:text="@string/currSpeedExample"
+        android:textAlignment="center"
         android:typeface="monospace"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintStart_toStartOf="parent"
