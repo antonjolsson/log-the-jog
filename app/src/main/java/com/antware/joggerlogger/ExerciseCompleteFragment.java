@@ -20,6 +20,8 @@ import com.antware.joggerlogger.databinding.FragmentExerciseCompleteBinding;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -32,7 +34,25 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
     public final static String TWO_DECIMALS_FORMAT = "%.2f";
     public static final String VERT_DATA_KEY = "verticalData";
     public static final String HORIZ_DATA_KEY = "horizData";
+    private static final int NUM_OF_CHART_FRAGMENTS = 2;
     private LogViewModel model;
+    private ChartFragment speedFragment;
+    private List<Integer> vertLayoutWidths = new ArrayList<>();
+    private ChartFragment elevFragment;
+
+    public void addVertLayoutWidth(int vertLayoutWidth) {
+        vertLayoutWidths.add(vertLayoutWidth);
+        if (vertLayoutWidths.size() == NUM_OF_CHART_FRAGMENTS) {
+            int maxWidth = 0;
+            for (int width : vertLayoutWidths) {
+                if (width > maxWidth) maxWidth = width;
+            }
+            if (maxWidth > 0) {
+                speedFragment.setVertLayoutWidth(maxWidth);
+                elevFragment.setVertLayoutWidth(maxWidth);
+            }
+        }
+    }
 
     enum HorizontalData {DURATION, DISTANCE}
     enum VerticalData {SPEED, ELEVATION}
@@ -68,14 +88,15 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
 
         FragmentManager fragmentManager = getChildFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        Fragment speedFragment = getChartFragment(SPEED, horizData);
-        Fragment elevFragment = getChartFragment(ELEVATION, horizData);
+        speedFragment = getChartFragment(SPEED, horizData);
+        elevFragment = getChartFragment(ELEVATION, horizData);
         Fragment mapFragment = fragmentManager.findFragmentByTag(MapsFragment.TAG);
         if (mapFragment == null) mapFragment = new MapsFragment();
         transaction.replace(R.id.speedLayout, speedFragment).replace(R.id.elevationLayout, elevFragment)
         .replace(R.id.mapFrame, mapFragment, MapsFragment.TAG);
         transaction.commit();
         MainActivity.printFragmentBackStackCount(fragmentManager, TAG);
+
     }
 
     @Override

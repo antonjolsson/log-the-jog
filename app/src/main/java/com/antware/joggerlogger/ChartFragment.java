@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,8 +28,10 @@ import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.SPE
 
 public class ChartFragment extends Fragment {
 
+    public final static String TAG = ChartFragment.class.getSimpleName();
     private FragmentChartBinding binding;
     private final static double ELEVATION_PATH_RANGE = 0.9;
+    private int vertLayoutWidth;
 
     @Nullable
     @Override
@@ -61,6 +64,21 @@ public class ChartFragment extends Fragment {
             binding.horizLabel.setText(R.string.km);
         }
         binding.chartView.init(model, dataRange, verticalData, verticalData == ELEVATION);
+
+        addVertLayoutObserver();
+    }
+
+    private void addVertLayoutObserver() {
+        ViewTreeObserver vto = binding.vertLabelsLayout.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                binding.vertLabelsLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                vertLayoutWidth  = binding.vertLabelsLayout.getMeasuredWidth();
+                assert getParentFragment() != null;
+                ((ExerciseCompleteFragment) getParentFragment()).addVertLayoutWidth(vertLayoutWidth);
+            }
+        });
     }
 
     private void setTickLabels(DataRange maxMinValues, ConstraintLayout labelsLayout) {
@@ -82,6 +100,12 @@ public class ChartFragment extends Fragment {
             TextView tickLabel = (TextView) layout.getChildAt(i);
             tickLabel.setText(StatsFragment.Companion.getDurationText(interval));
         }
+    }
+
+    public void setVertLayoutWidth(int width) {
+        ViewGroup.LayoutParams params = binding.vertLabelsLayout.getLayoutParams();
+        params.width = width;
+        binding.vertLabelsLayout.setLayoutParams(params);
     }
 
     public static class DataRange {
