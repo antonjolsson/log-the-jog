@@ -64,7 +64,7 @@ class StatsFragment : Fragment() {
 
     companion object {
         fun getDurationText(duration: Duration): String {
-            val hours = "0" + duration.hours.toString()
+            val hours = duration.hours.toString()
             val minutes = "0" + duration.minutes.toString()
             val seconds = "0" + duration.seconds.toString()
             return """${hours.takeLast(2)}:${minutes.takeLast(2)}:${seconds.takeLast(2)}"""
