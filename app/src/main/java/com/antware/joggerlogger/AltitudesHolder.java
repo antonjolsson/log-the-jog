@@ -1,6 +1,7 @@
 package com.antware.joggerlogger;
 
 import java.util.ArrayDeque;
+import java.util.Iterator;
 import java.util.Queue;
 
 public class AltitudesHolder {
@@ -11,8 +12,8 @@ public class AltitudesHolder {
 
     private int capacity = 5;
     private Queue<Double> queue = new ArrayDeque<>();
-    int size = 0;
-    double average = 0;
+    private int size = 0;
+    private double average = 0;
 
     public void add(double d) {
         queue.add(d);
@@ -31,4 +32,9 @@ public class AltitudesHolder {
     public double getAverage() {
         return average;
     }
+
+    public int getSize() {
+        return size;
+    }
+
 }

@@ -68,8 +68,9 @@ public class LogLocationManager implements android.location.LocationListener {
                 }
                 for (Location location : locationResult.getLocations()) {
                     /*if (lastMslAltitude > Integer.MIN_VALUE && recentLastMslAltitude())*/
-                    Log.d(TAG, String.valueOf(lastMslAltitude));
-                    location.setAltitude(lastMslAltitude);
+                    Log.d(TAG, String.valueOf(altitudesHolder.getAverage()));
+                    if (altitudesHolder.getSize() > 0)
+                        location.setAltitude(altitudesHolder.getAverage());
                     bestLocationResult.gotLocation(location);
                     return; // TODO: find most accurate location
                 }
@@ -160,7 +161,7 @@ public class LogLocationManager implements android.location.LocationListener {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0,
                 this);
-        boolean added = locationManager.addNmeaListener(mNmeaListener, null);
+        locationManager.addNmeaListener(mNmeaListener, null);
     }
 
     // Solution mostly taken from https://stackoverflow.com/a/44518339/8773363
@@ -168,9 +169,9 @@ public class LogLocationManager implements android.location.LocationListener {
         if (line.startsWith("$")) {
             String[] tokens = line.split(",");
             String type = tokens[0];
+            Log.d(TAG, line);
             // Parse altitude above sea level, Detailed description of NMEA string here http://aprs.gids.nl/nmea/#gga
-            if ((type.matches("\\$..GGA.*") && !tokens[9].isEmpty())) {
-                Log.d(TAG, line);
+            if ((type.matches("\\$..GGA.*") && !tokens[9].isEmpty() && !tokens[11].equals("0."))) {
                 String timeString = String.valueOf(tokens[1]);
                 lastMslAltitudeCalendar = Calendar.getInstance();
                 lastMslAltitudeCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -179,6 +180,7 @@ public class LogLocationManager implements android.location.LocationListener {
                 lastMslAltitudeCalendar.set(Calendar.SECOND, Integer.parseInt(timeString.substring(4, 6)));
                 altitudesHolder.add(Double.parseDouble(tokens[9]));
                 lastMslAltitude = altitudesHolder.getAverage();
+                Log.d(TAG, line);
                 Log.d(TAG, "Average altitude: " + altitudesHolder.getAverage());
             }
         }

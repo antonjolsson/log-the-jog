@@ -47,6 +47,7 @@ class MapsFragment : Fragment() {
     private val locationResult = object : LogLocationManager.BestLocationResult() {
         override fun gotLocation(location: Location?) {
             currLocation = location
+            Log.d(TAG, "currlocation: ${currLocation.toString()}")
             if (isAdded && location != null) update(location)
         }
     }
@@ -108,6 +109,7 @@ class MapsFragment : Fragment() {
         map!!.clear()
 
         if (isAdded && currLocation != null) update(currLocation)
+        Log.d(TAG, "mapReady")
 
         if (model.waypoints.isNotEmpty()) {
             if (model.waypoints.last.status == STOPPED_AFTER_PAUSED)
@@ -121,6 +123,7 @@ class MapsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         if (!locationRequested) {
+            Log.d(TAG, "locationRequested")
             val myLocation = LogLocationManager(requireActivity() as MainActivity?, context)
             myLocation.getLocation(inflater.context, locationResult)
             locationRequested = true
@@ -130,6 +133,7 @@ class MapsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "viewCreated")
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
         model.getStatus().observe(viewLifecycleOwner, { status ->
