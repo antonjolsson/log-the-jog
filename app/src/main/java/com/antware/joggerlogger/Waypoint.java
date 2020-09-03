@@ -72,7 +72,6 @@ public class Waypoint implements Parcelable {
 
     public void setCurrentSpeed(double currentSpeed) {
         this.currentSpeed = currentSpeed;
-        Log.d(TAG, "Currentspeed: " + currentSpeed + ", location.speed: " + location.getSpeed());
     }
 
     public double getAltitude() {

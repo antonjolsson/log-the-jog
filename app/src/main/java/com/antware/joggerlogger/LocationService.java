@@ -1,7 +1,6 @@
 package com.antware.joggerlogger;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
@@ -19,9 +17,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -46,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -66,19 +61,17 @@ public class LocationService extends Service implements android.location.Locatio
     private static final int LOCATION_UPDATE_FREQ = 1000;
     private double lastMslAltitude = Integer.MIN_VALUE;
     private Calendar lastMslAltitudeCalendar;
-    private static final long MSL_ALTITUDE_AGE_LIMIT_MS = 10000;
     private static final int MSL_AVG_ALTITUDE_NUM_ELEMENTS = 60;
     AltitudesHolder altitudesHolder = new AltitudesHolder(MSL_AVG_ALTITUDE_NUM_ELEMENTS);
     private final IBinder serviceBinder = new ServiceBinder();
     private List<Location> locations = new ArrayList<>();
     private boolean saveLocations;
+    private LocationManager locationManager;
 
     public void setSaveLocations(boolean save) {
         if (save)
             locations.clear();
         saveLocations = save;
-        Toast toast = Toast.makeText(getBaseContext(), "Save locations: " + save, Toast.LENGTH_SHORT);
-        //toast.show();
     }
 
     public class ServiceBinder extends Binder {
@@ -104,22 +97,10 @@ public class LocationService extends Service implements android.location.Locatio
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
-                    /*if (lastMslAltitude > Integer.MIN_VALUE && recentLastMslAltitude())*/
                     Log.d(TAG, String.valueOf(altitudesHolder.getAverage()));
                     if (altitudesHolder.getSize() > 0)
                         location.setAltitude(altitudesHolder.getAverage());
                     bestLocationResult.gotLocation(location);
-
-                    Toast toast = Toast.makeText(getBaseContext(), "Save locations: " + saveLocations, Toast.LENGTH_SHORT);
-                    //toast.show();
-                    if (true){
-
-                        toast = Toast.makeText(getBaseContext(), "location received! Location: " + location.toString(), Toast.LENGTH_SHORT);
-                        toast.show();
-                        //locations.add(location);
-                        toast = Toast.makeText(getBaseContext(), "Location saved: " + locations.size(), Toast.LENGTH_SHORT);
-                        //toast.show();
-                    }
                     return; // TODO: find most accurate location
                 }
             }
@@ -129,7 +110,7 @@ public class LocationService extends Service implements android.location.Locatio
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String channelId = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ?
-            createNotificationChannel("locationService", "My Foreground Service")
+            createNotificationChannel()
          : "";
 
         Intent notificationIntent = new Intent(this, LocationService.class);
@@ -139,7 +120,6 @@ public class LocationService extends Service implements android.location.Locatio
         Notification notification =
                 new Notification.Builder(this, channelId)
                         .setContentTitle(getText(R.string.notification_title))
-                        /*.setContentText(getText(R.string.notification_message))*/
                         .setSmallIcon(R.drawable.icon)
                         .setContentIntent(pendingIntent)
                         .setTicker(getText(R.string.ticker_text))
@@ -150,25 +130,20 @@ public class LocationService extends Service implements android.location.Locatio
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private String createNotificationChannel(String channelId, String channelName){
-        NotificationChannel chan = new NotificationChannel(channelId,
-                channelName, NotificationManager.IMPORTANCE_NONE);
+    private String createNotificationChannel(){
+        NotificationChannel chan = new NotificationChannel("locationService",
+                "My Location Service", NotificationManager.IMPORTANCE_NONE);
         chan.setLightColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
         chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
         NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         service.createNotificationChannel(chan);
-        return channelId;
+        return "locationService";
     }
 
     @androidx.annotation.Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return serviceBinder;
-    }
-
-    private boolean recentLastMslAltitude() {
-        Calendar nowGMT = Calendar.getInstance();
-        return nowGMT.getTimeInMillis() - lastMslAltitudeCalendar.getTimeInMillis() < MSL_ALTITUDE_AGE_LIMIT_MS;
     }
 
     @SuppressLint("MissingPermission")
@@ -246,7 +221,7 @@ public class LocationService extends Service implements android.location.Locatio
     @RequiresApi(api = Build.VERSION_CODES.P)
     @SuppressLint("MissingPermission")
     public void registerLocationManager(Context context) {
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0,
                 this);
         locationManager.addNmeaListener(mNmeaListener, null);
@@ -257,7 +232,6 @@ public class LocationService extends Service implements android.location.Locatio
         if (line.startsWith("$")) {
             String[] tokens = line.split(",");
             String type = tokens[0];
-            //Log.d(TAG, line);
             // Parse altitude above sea level, Detailed description of NMEA string here http://aprs.gids.nl/nmea/#gga
             if ((type.matches("\\$..GGA.*") && !tokens[9].isEmpty() && !tokens[11].equals("0."))) {
                 String timeString = String.valueOf(tokens[1]);
@@ -268,8 +242,6 @@ public class LocationService extends Service implements android.location.Locatio
                 lastMslAltitudeCalendar.set(Calendar.SECOND, Integer.parseInt(timeString.substring(4, 6)));
                 altitudesHolder.add(Double.parseDouble(tokens[9]));
                 lastMslAltitude = altitudesHolder.getAverage();
-                /*Log.d(TAG, line);
-                Log.d(TAG, "Average altitude: " + altitudesHolder.getAverage());*/
             }
         }
     }

@@ -16,7 +16,6 @@ import java.util.*
 @SuppressLint("SetTextI18n")
 class StatsFragment : Fragment() {
 
-    var reset: Boolean = false
     private val model: LogViewModel by activityViewModels()
     private var _binding: FragmentStatsBinding? = null
     private val binding get() = _binding!!
@@ -31,7 +30,6 @@ class StatsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "Created!")
         model.duration.observe(viewLifecycleOwner, { duration ->
             setDuration(duration)
         })

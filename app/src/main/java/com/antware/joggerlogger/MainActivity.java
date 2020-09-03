@@ -1,8 +1,6 @@
 package com.antware.joggerlogger;
 
 import android.app.ActivityManager;
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,9 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -35,17 +31,13 @@ import static com.antware.joggerlogger.LocationService.REQUEST_LOCATION;
 public class MainActivity extends AppCompatActivity {
 
     private static final long SPLASH_SCREEN_DURATION = 3000;
-    private static final boolean SHOW_SPLASH_SCREEN = false;
-    private static final String TAG = "MainActivity";
+    private static final boolean SHOW_SPLASH_SCREEN = true;
+    private static final String TAG = MainActivity.class.getSimpleName();
     private LogViewModel model;
     private Context locationContext;
     private LocationService.BestLocationResult locationResult;
     private MainActivity mainActivity = this;
     private Intent locationIntent;
-
-    public LocationService getLocationService() {
-        return locationService;
-    }
 
     private LocationService locationService;
 
@@ -66,13 +58,12 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceDisconnected(ComponentName componentName) {
             locationService = null;
         }
-    };
 
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "Created!");
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
@@ -84,18 +75,13 @@ public class MainActivity extends AppCompatActivity {
                 fragmentManager.findFragmentByTag(ExerciseOngoingFragment.TAG);
         if (ongoingFragment == null) ongoingFragment = new ExerciseOngoingFragment();
 
-        /*initLocationService();*/
-
         if (!model.isReloaded()) {
-
             if (SHOW_SPLASH_SCREEN) showSplashScreen(fragmentManager);
-
             if (!locationPermitted()) {
                 ActivityCompat.requestPermissions(this,
                     new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
                  return;
             }
-
             if (SHOW_SPLASH_SCREEN){
                 Handler handler = new Handler();
                 ExerciseOngoingFragment finalOngoingFragment = ongoingFragment;
@@ -109,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         else initFragments(fragmentManager, ongoingFragment);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onResume() {
         super.onResume();
@@ -130,10 +117,6 @@ public class MainActivity extends AppCompatActivity {
         if (!isLocationServiceRunning()) {
             locationIntent = new Intent(this, LocationService.class);
             startForegroundService(locationIntent);
-
-
-            /*Toast toast = Toast.makeText(getApplicationContext(), "LocationService started", Toast.LENGTH_SHORT);
-            toast.show();*/
         }
         bindService(new Intent(this, LocationService.class), serviceConnection,
                 Context.BIND_ABOVE_CLIENT);
@@ -162,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             transaction.replace(R.id.mainFrameLayout, exerciseOngoingFragment, ExerciseOngoingFragment.TAG)
                     .commit();
-            printFragmentBackStackCount(getSupportFragmentManager(), TAG);
         }
         model.getStatus().observe(this, status -> {
             if (status == LogViewModel.ExerciseStatus.STOPPED_AFTER_PAUSED)
@@ -184,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
                     grantResults[1] == PackageManager.PERMISSION_GRANTED) initFragments(getSupportFragmentManager(),
                     new ExerciseOngoingFragment());
-            else onBackPressed(); // TODO: make app usable without permission?
+            else onBackPressed();
         }
     }
 
@@ -197,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
         if (fragmentManager.getBackStackEntryCount() == 0)
                 transaction.addToBackStack(null);
         transaction.commit();
-        printFragmentBackStackCount(getSupportFragmentManager(), TAG);
     }
 
     @Override
@@ -209,26 +190,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() == 1){
-            model.reset();
-        }
-        else {
-            stopService(locationIntent);
-            Toast toast = Toast.makeText(getApplicationContext(), "LocationService stopped", Toast.LENGTH_SHORT);
-            toast.show();
-        }
+        if (getSupportFragmentManager().getBackStackEntryCount() == 1) model.reset();
+        else stopService(locationIntent);
         super.onBackPressed();
-        printFragmentBackStackCount(getSupportFragmentManager(), TAG);
-    }
-
-    static void printFragmentBackStackCount(FragmentManager fragmentManager,
-                                                    String tag) {
-        int backStackCount = fragmentManager.getBackStackEntryCount();
-        Log.d("Fragment backstack", tag + ". Fragment count: " + backStackCount);
-        for (int i = 0; i < backStackCount; i++) {
-            Log.d("Fragment backstack", "Fragment " + i + ": " + fragmentManager
-                    .getBackStackEntryAt(i).toString());
-        }
     }
 
     public void addLocationResultListener(Context context, LocationService.BestLocationResult locationResult) {

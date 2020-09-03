@@ -10,7 +10,7 @@ public class AltitudesHolder {
         this.capacity = capacity;
     }
 
-    private int capacity = 5;
+    private int capacity;
     private Queue<Double> queue = new ArrayDeque<>();
     private int size = 0;
     private double average = 0;

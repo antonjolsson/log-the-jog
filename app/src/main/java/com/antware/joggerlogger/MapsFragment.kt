@@ -132,7 +132,6 @@ class MapsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "viewCreated")
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
         model.getStatus().observe(viewLifecycleOwner, { status ->
@@ -143,9 +142,7 @@ class MapsFragment : Fragment() {
     private fun onStatusChanged(status: ExerciseStatus?, addWaypoints: Boolean, waypoint: Waypoint,
         circleRadius: Double) {
         when (status) {
-            STARTED, RESUMED -> {
-                onExerciseStarted(status, waypoint, circleRadius, addWaypoints)
-            }
+            STARTED, RESUMED -> onExerciseStarted(status, waypoint, circleRadius, addWaypoints)
             PAUSED -> waypoint.latLng?.let {
                 addCircle(circleRadius, OUTLINE_COLOR, R.color.colorDisabled, CIRCLE_Z_INDEX, it)
             }

@@ -56,7 +56,6 @@ public class ExerciseOngoingFragment extends Fragment {
         transaction.replace(R.id.exerciseOngoingTop, mapsFragment, MapsFragment.TAG);
         transaction.replace(R.id.exerciseOngoingCenter, statsFragment, StatsFragment.TAG);
         transaction.addToBackStack(null).commit();
-        MainActivity.printFragmentBackStackCount(getChildFragmentManager(), TAG);
     }
 
 }

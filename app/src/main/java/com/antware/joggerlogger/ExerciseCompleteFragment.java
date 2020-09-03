@@ -95,8 +95,6 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         transaction.replace(R.id.speedLayout, speedFragment).replace(R.id.elevationLayout, elevFragment)
         .replace(R.id.mapFrame, mapFragment, MapsFragment.TAG);
         transaction.commit();
-        MainActivity.printFragmentBackStackCount(fragmentManager, TAG);
-
     }
 
     @Override
