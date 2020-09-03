@@ -113,11 +113,12 @@ public class LocationService extends Service implements android.location.Locatio
                     Toast toast = Toast.makeText(getBaseContext(), "Save locations: " + saveLocations, Toast.LENGTH_SHORT);
                     //toast.show();
                     if (true){
-                        /*toast = Toast.makeText(getBaseContext(), "Location added!", Toast.LENGTH_SHORT);
-                        toast.show();*/
+
                         toast = Toast.makeText(getBaseContext(), "location received! Location: " + location.toString(), Toast.LENGTH_SHORT);
-                    //toast.show();
+                        toast.show();
                         //locations.add(location);
+                        toast = Toast.makeText(getBaseContext(), "Location saved: " + locations.size(), Toast.LENGTH_SHORT);
+                        //toast.show();
                     }
                     return; // TODO: find most accurate location
                 }
@@ -138,7 +139,7 @@ public class LocationService extends Service implements android.location.Locatio
         Notification notification =
                 new Notification.Builder(this, channelId)
                         .setContentTitle(getText(R.string.notification_title))
-                        .setContentText(getText(R.string.notification_message))
+                        /*.setContentText(getText(R.string.notification_message))*/
                         .setSmallIcon(R.drawable.icon)
                         .setContentIntent(pendingIntent)
                         .setTicker(getText(R.string.ticker_text))
@@ -147,7 +148,6 @@ public class LocationService extends Service implements android.location.Locatio
         startForeground(ONGOING_NOTIFICATION_ID, notification);
         return START_STICKY;
     }
-
 
     @RequiresApi(Build.VERSION_CODES.O)
     private String createNotificationChannel(String channelId, String channelName){

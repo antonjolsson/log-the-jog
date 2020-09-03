@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
     private void initLocationService() {
         if (!isLocationServiceRunning()) {
             locationIntent = new Intent(this, LocationService.class);
-            startService(locationIntent);
+            startForegroundService(locationIntent);
 
 
             /*Toast toast = Toast.makeText(getApplicationContext(), "LocationService started", Toast.LENGTH_SHORT);
@@ -212,9 +212,11 @@ public class MainActivity extends AppCompatActivity {
         if (getSupportFragmentManager().getBackStackEntryCount() == 1){
             model.reset();
         }
-        stopService(locationIntent);
-        Toast toast = Toast.makeText(getApplicationContext(), "LocationService stopped", Toast.LENGTH_SHORT);
-        toast.show();
+        else {
+            stopService(locationIntent);
+            Toast toast = Toast.makeText(getApplicationContext(), "LocationService stopped", Toast.LENGTH_SHORT);
+            toast.show();
+        }
         super.onBackPressed();
         printFragmentBackStackCount(getSupportFragmentManager(), TAG);
     }
