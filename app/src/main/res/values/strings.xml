@@ -27,4 +27,7 @@
     <string name="walking">Walking</string>
     <string name="activity">Activity</string>
     <string name="m">m</string>
+    <string name="notification_title">Notification</string>
+    <string name="notification_message">Take note!</string>
+    <string name="ticker_text">tick! tock!</string>
 </resources>

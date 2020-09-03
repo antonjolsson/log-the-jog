@@ -1,6 +1,8 @@
 package com.antware.joggerlogger;
 
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,8 +14,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
@@ -37,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private Context locationContext;
     private LocationService.BestLocationResult locationResult;
     private MainActivity mainActivity = this;
+    private Intent locationIntent;
 
     public LocationService getLocationService() {
         return locationService;
@@ -49,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             locationService = ((LocationService.ServiceBinder) iBinder).getService();
             locationService.initService(mainActivity, getApplicationContext());
+            locationService.setSaveLocations(false);
             if (locationContext != null && locationResult != null) {
                 locationService.getLocation(locationContext, locationResult);
                 locationContext = null;
@@ -78,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 fragmentManager.findFragmentByTag(ExerciseOngoingFragment.TAG);
         if (ongoingFragment == null) ongoingFragment = new ExerciseOngoingFragment();
 
-        initLocationService();
+        /*initLocationService();*/
 
         if (!model.isReloaded()) {
 
@@ -103,6 +109,12 @@ public class MainActivity extends AppCompatActivity {
         else initFragments(fragmentManager, ongoingFragment);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initLocationService();
+    }
+
     private boolean isLocationServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -113,10 +125,15 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void initLocationService() {
         if (!isLocationServiceRunning()) {
-            Intent intent = new Intent(this, LocationService.class);
-            startService(intent);
+            locationIntent = new Intent(this, LocationService.class);
+            startService(locationIntent);
+
+
+            /*Toast toast = Toast.makeText(getApplicationContext(), "LocationService started", Toast.LENGTH_SHORT);
+            toast.show();*/
         }
         bindService(new Intent(this, LocationService.class), serviceConnection,
                 Context.BIND_ABOVE_CLIENT);
@@ -186,13 +203,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        if (locationService != null) locationService.setSaveLocations(true);
         model.saveTimerVars();
     }
 
     @Override
     public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() == 1)
+        if (getSupportFragmentManager().getBackStackEntryCount() == 1){
             model.reset();
+        }
+        stopService(locationIntent);
+        Toast toast = Toast.makeText(getApplicationContext(), "LocationService stopped", Toast.LENGTH_SHORT);
+        toast.show();
         super.onBackPressed();
         printFragmentBackStackCount(getSupportFragmentManager(), TAG);
     }
