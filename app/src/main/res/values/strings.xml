@@ -23,4 +23,8 @@
     <string name="km">KM</string>
     <string name="time">time</string>
     <string name="save">Save</string>
+    <string name="km_s">km/s</string>
+    <string name="walking">Walking</string>
+    <string name="activity">Activity</string>
+    <string name="m">m</string>
 </resources>

@@ -1,13 +1,17 @@
 package com.antware.joggerlogger;
 
 import android.annotation.SuppressLint;
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
+import android.os.Binder;
 import android.os.Build;
+import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
@@ -37,7 +41,7 @@ import java.util.TimeZone;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class LogLocationManager implements android.location.LocationListener {
+public class LocationService extends Service implements android.location.LocationListener {
 
     private static final int REQUEST_CHECK_SETTINGS = 1;
     public static final int REQUEST_LOCATION = 2;
@@ -52,9 +56,19 @@ public class LogLocationManager implements android.location.LocationListener {
     private static final long MSL_ALTITUDE_AGE_LIMIT_MS = 10000;
     private static final int MSL_AVG_ALTITUDE_NUM_ELEMENTS = 60;
     AltitudesHolder altitudesHolder = new AltitudesHolder(MSL_AVG_ALTITUDE_NUM_ELEMENTS);
+    private final IBinder serviceBinder = new ServiceBinder();
 
+    public class ServiceBinder extends Binder {
+        /**
+         * Returns this instance.
+         * @return this instance
+         */
+        LocationService getService() {
+            return LocationService.this;
+        }
+    }
 
-    public LogLocationManager(MainActivity mainActivity, Context context){
+    public void initService(MainActivity mainActivity, Context context){
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(mainActivity);
         this.mainActivity = mainActivity;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -76,6 +90,17 @@ public class LogLocationManager implements android.location.LocationListener {
                 }
             }
         };
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
+    }
+
+    @androidx.annotation.Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return serviceBinder;
     }
 
     private boolean recentLastMslAltitude() {
@@ -169,7 +194,7 @@ public class LogLocationManager implements android.location.LocationListener {
         if (line.startsWith("$")) {
             String[] tokens = line.split(",");
             String type = tokens[0];
-            Log.d(TAG, line);
+            //Log.d(TAG, line);
             // Parse altitude above sea level, Detailed description of NMEA string here http://aprs.gids.nl/nmea/#gga
             if ((type.matches("\\$..GGA.*") && !tokens[9].isEmpty() && !tokens[11].equals("0."))) {
                 String timeString = String.valueOf(tokens[1]);

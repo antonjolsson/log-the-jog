@@ -1,9 +1,15 @@
 package com.antware.joggerlogger;
 
+import android.app.ActivityManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 
@@ -20,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static com.antware.joggerlogger.LogLocationManager.REQUEST_LOCATION;
+import static com.antware.joggerlogger.LocationService.REQUEST_LOCATION;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,6 +34,34 @@ public class MainActivity extends AppCompatActivity {
     private static final boolean SHOW_SPLASH_SCREEN = false;
     private static final String TAG = "MainActivity";
     private LogViewModel model;
+    private Context locationContext;
+    private LocationService.BestLocationResult locationResult;
+    private MainActivity mainActivity = this;
+
+    public LocationService getLocationService() {
+        return locationService;
+    }
+
+    private LocationService locationService;
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            locationService = ((LocationService.ServiceBinder) iBinder).getService();
+            locationService.initService(mainActivity, getApplicationContext());
+            if (locationContext != null && locationResult != null) {
+                locationService.getLocation(locationContext, locationResult);
+                locationContext = null;
+                locationResult = null;
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            locationService = null;
+        }
+    };
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
         ExerciseOngoingFragment ongoingFragment = (ExerciseOngoingFragment)
                 fragmentManager.findFragmentByTag(ExerciseOngoingFragment.TAG);
         if (ongoingFragment == null) ongoingFragment = new ExerciseOngoingFragment();
+
+        initLocationService();
 
         if (!model.isReloaded()) {
 
@@ -65,6 +101,25 @@ public class MainActivity extends AppCompatActivity {
             else initFragments(fragmentManager, ongoingFragment);
         }
         else initFragments(fragmentManager, ongoingFragment);
+    }
+
+    private boolean isLocationServiceRunning() {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (LocationService.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void initLocationService() {
+        if (!isLocationServiceRunning()) {
+            Intent intent = new Intent(this, LocationService.class);
+            startService(intent);
+        }
+        bindService(new Intent(this, LocationService.class), serviceConnection,
+                Context.BIND_ABOVE_CLIENT);
     }
 
     private void showSplashScreen(FragmentManager fragmentManager) {
@@ -136,7 +191,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        int count = getSupportFragmentManager().getBackStackEntryCount();
         if (getSupportFragmentManager().getBackStackEntryCount() == 1)
             model.reset();
         super.onBackPressed();
@@ -150,6 +204,15 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < backStackCount; i++) {
             Log.d("Fragment backstack", "Fragment " + i + ": " + fragmentManager
                     .getBackStackEntryAt(i).toString());
+        }
+    }
+
+    public void addLocationResultListener(Context context, LocationService.BestLocationResult locationResult) {
+        if (locationService != null)
+            locationService.getLocation(context, locationResult);
+        else {
+            locationContext = context;
+            this.locationResult = locationResult;
         }
     }
 }

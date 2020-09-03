@@ -1,8 +1,13 @@
 package com.antware.joggerlogger
 
 import android.annotation.SuppressLint
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.location.Location
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +15,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.antware.joggerlogger.LocationService.ServiceBinder
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -42,12 +48,10 @@ class MapsFragment : Fragment() {
     var currLocation : Location? = null
     private var centerCurrLocation: Boolean = true
     private val model: LogViewModel by activityViewModels()
-    private var locationRequested: Boolean = false
 
-    private val locationResult = object : LogLocationManager.BestLocationResult() {
+    private val locationResult = object : LocationService.BestLocationResult() {
         override fun gotLocation(location: Location?) {
             currLocation = location
-            Log.d(TAG, "currlocation: ${currLocation.toString()}")
             if (isAdded && location != null) update(location)
         }
     }
@@ -122,12 +126,7 @@ class MapsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (!locationRequested) {
-            Log.d(TAG, "locationRequested")
-            val myLocation = LogLocationManager(requireActivity() as MainActivity?, context)
-            myLocation.getLocation(inflater.context, locationResult)
-            locationRequested = true
-        }
+        (requireActivity() as MainActivity).addLocationResultListener(inflater.context, locationResult)
         return inflater.inflate(R.layout.fragment_maps, container, false)
     }
 
@@ -158,7 +157,8 @@ class MapsFragment : Fragment() {
         }
     }
 
-    private fun onExerciseStarted(status: ExerciseStatus?, waypoint: Waypoint, circleRadius: Double, addWaypoints: Boolean) {
+    private fun onExerciseStarted(status: ExerciseStatus?, waypoint: Waypoint, circleRadius: Double,
+        addWaypoints: Boolean) {
         if (currLocation == null)
             if (model.waypoints.isEmpty())
                 map?.clear()
