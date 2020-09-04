@@ -109,21 +109,21 @@ public class LocationService extends Service implements android.location.Locatio
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String channelId = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ?
-            createNotificationChannel()
-         : "";
 
         Intent notificationIntent = new Intent(this, LocationService.class);
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-        Notification notification =
-                new Notification.Builder(this, channelId)
-                        .setContentTitle(getText(R.string.notification_title))
-                        .setSmallIcon(R.drawable.icon)
-                        .setContentIntent(pendingIntent)
-                        .setTicker(getText(R.string.ticker_text))
-                        .build();
+        Notification.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            builder = new Notification.Builder(this, createNotificationChannel());
+        else builder = new Notification.Builder(this);
+
+        Notification notification = builder
+                .setContentTitle(getText(R.string.notification_title))
+                .setSmallIcon(R.drawable.icon)
+                .setContentIntent(pendingIntent)
+                .build();
 
         startForeground(ONGOING_NOTIFICATION_ID, notification);
         return START_STICKY;

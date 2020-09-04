@@ -33,6 +33,7 @@ public class LogViewModel extends ViewModel {
     private static final boolean USE_OWN_SPEED_COMPUTATION = false;
     private static final double M_PER_S_TO_KM_PER_S_COEFF = 3.6;
     private static final String MAP_CIRCLE_RADIUS_TAG = "mapCircleRadius";
+    private static final String TIMER_START_TIME_TAG = "timerStartTimeTag";
 
     private SavedStateHandle savedStateHandle;
 
@@ -50,7 +51,6 @@ public class LogViewModel extends ViewModel {
     private static final String DURATION_BEFORE_PAUSE_TAG = "durationBeforePause";
     private Timer timer;
     private long timerStartTime;
-    private static final String TIMER_START_TIME_TAG = "timerStartTimeTag";
 
     private boolean isReloaded = false;
 
@@ -71,7 +71,6 @@ public class LogViewModel extends ViewModel {
             {{ put("duration", duration); put("pace", pace); }};
 
     public LogViewModel(SavedStateHandle savedStateHandle) {
-        Log.d(TAG, "Created!");
         this.savedStateHandle = savedStateHandle;
         if (savedStateHandle.contains("waypoints")) loadState();
     }
