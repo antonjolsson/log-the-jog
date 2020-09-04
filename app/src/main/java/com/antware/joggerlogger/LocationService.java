@@ -10,11 +10,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
@@ -87,9 +89,7 @@ public class LocationService extends Service implements android.location.Locatio
     public void initService(MainActivity mainActivity, Context context){
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(mainActivity);
         this.mainActivity = mainActivity;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            registerLocationManager(context);
-        }
+        registerLocationManager(context);
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -109,7 +109,6 @@ public class LocationService extends Service implements android.location.Locatio
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         Intent notificationIntent = new Intent(this, LocationService.class);
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(this, 0, notificationIntent, 0);
@@ -159,13 +158,6 @@ public class LocationService extends Service implements android.location.Locatio
         createLocationRequest();
     }
 
-    private boolean locationPermitted(@NotNull Context context) {
-        return ActivityCompat.checkSelfPermission(context,
-            ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(context,
-                            ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED;
-    }
-
     @SuppressLint("MissingPermission")
     protected void createLocationRequest() {
         LocationRequest locationRequest = LocationRequest.create();
@@ -205,6 +197,9 @@ public class LocationService extends Service implements android.location.Locatio
     }
 
     @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) { }
+
+    @Override
     public void onLocationChanged(@NonNull Location location) { }
 
     abstract static class BestLocationResult {
@@ -215,16 +210,19 @@ public class LocationService extends Service implements android.location.Locatio
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
-    private OnNmeaMessageListener mNmeaListener = (nmea, timestamp) -> parseNmeaString(nmea);
-
-
-    @RequiresApi(api = Build.VERSION_CODES.P)
     @SuppressLint("MissingPermission")
     public void registerLocationManager(Context context) {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0,
                 this);
-        locationManager.addNmeaListener(mNmeaListener, null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            OnNmeaMessageListener onNmeaMessageListener = (nmea, timestamp) -> parseNmeaString(nmea);
+            locationManager.addNmeaListener(onNmeaMessageListener, null);
+        }
+        else {
+            GpsStatus.NmeaListener nmeaListener = (timestamp, nmea) -> parseNmeaString(nmea);
+            locationManager.addNmeaListener(nmeaListener);
+        }
     }
 
     // Solution mostly taken from https://stackoverflow.com/a/44518339/8773363

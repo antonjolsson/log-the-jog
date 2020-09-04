@@ -1,6 +1,7 @@
 package com.antware.joggerlogger;
 
 import android.app.ActivityManager;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +14,6 @@ import android.os.IBinder;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
@@ -21,6 +21,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.antware.joggerlogger.databinding.ActivityMainBinding;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -58,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceDisconnected(ComponentName componentName) {
             locationService = null;
         }
-
     };
 
     @Override
@@ -95,9 +96,16 @@ public class MainActivity extends AppCompatActivity {
         else initFragments(fragmentManager, ongoingFragment);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onResume() {
+        GoogleApiAvailability availability = GoogleApiAvailability.getInstance();
+        int availabilityCode = availability.isGooglePlayServicesAvailable(this);
+        if (availabilityCode != ConnectionResult.SUCCESS){
+            Dialog dialog = availability.getErrorDialog(this, availabilityCode, 0, cancelListener -> {
+                onBackPressed();
+            });
+            dialog.show();
+        }
         super.onResume();
         initLocationService();
     }
@@ -112,11 +120,13 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void initLocationService() {
         if (!isLocationServiceRunning()) {
             locationIntent = new Intent(this, LocationService.class);
-            startForegroundService(locationIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(locationIntent);
+            }
+            else startService(locationIntent);
         }
         bindService(new Intent(this, LocationService.class), serviceConnection,
                 Context.BIND_ABOVE_CLIENT);

@@ -184,7 +184,7 @@ class MapsFragment : Fragment() {
                 onStatusChanged(currStatus, false, wayPoint, circleRadius)
                 if (currStatus == STARTED || currStatus == RESUMED) continue
             }
-            if (i == 1 || model.waypoints.secondLast.status == RESUMED)
+            if (i == 1 || model.waypoints.size > 1 && model.waypoints.secondLast.status == RESUMED)
                 initNewPolyline(model.waypoints[i - 1].latLng, currLatLng)
             else if (i > 1) {
                 addPolylinePoint(currLatLng)
@@ -194,7 +194,8 @@ class MapsFragment : Fragment() {
 
     private fun getCircleRadius(routeCompleted: Boolean): Double {
         val ongoingRouteMapSize = getMapDiagonalMeters(map)
-        if (routeCompleted) map?.moveCamera(
+        val latLngBounds = getLatLngBounds()
+        if (routeCompleted && latLngBounds?.southwest != latLngBounds?.northeast) map?.moveCamera(
             CameraUpdateFactory.newLatLngBounds(getLatLngBounds(), COMPLETE_ROUTE_PADDING))
         val mapSizeCoefficient = getMapDiagonalMeters(map) / ongoingRouteMapSize
         val circleRadius = if (model.mapCircleRadius > 0) model.mapCircleRadius
