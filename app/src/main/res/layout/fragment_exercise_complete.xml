@@ -11,7 +11,7 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:text="@string/elevation"
         android:textAllCaps="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
@@ -63,7 +63,9 @@
         android:layout_height="wrap_content"
         android:background="#C6FFF7"
         android:clipChildren="false"
+        android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
+        android:outlineProvider="bounds"
         android:theme="@style/CompleteToolbarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -82,13 +84,14 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintGuide_begin="191dp"
+        app:layout_constraintGuide_percent="0.28"
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/constraintLayout6"
         app:layout_constraintEnd_toEndOf="@+id/constraintLayout3"
         app:layout_constraintStart_toStartOf="@+id/constraintLayout3"
         app:layout_constraintTop_toTopOf="@+id/constraintLayout6">
@@ -117,7 +120,6 @@
             android:layout_height="wrap_content"
             android:text="@string/pace"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.578"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_conversion_absoluteHeight="18dp"
@@ -145,9 +147,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_conversion_absoluteHeight="18dp"
-            tools:layout_conversion_absoluteWidth="87dp"
-            tools:layout_editor_absoluteX="260dp"
-            tools:layout_editor_absoluteY="56dp" />
+            tools:layout_conversion_absoluteWidth="87dp" />
 
         <TextView
             android:id="@+id/distanceView"
@@ -171,6 +171,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="2dp"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout6"
         app:layout_constraintEnd_toStartOf="@+id/guideline10"
         app:layout_constraintStart_toStartOf="@+id/guideline6"
         app:layout_constraintTop_toBottomOf="@+id/completeToolbar"
@@ -255,7 +257,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/guideline5"
         app:layout_constraintEnd_toEndOf="@+id/constraintLayout2"
-        app:layout_constraintStart_toStartOf="@+id/constraintLayout2">
+        app:layout_constraintStart_toStartOf="@+id/constraintLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
 
         <TextView
             android:id="@+id/completeAvgSpdView"
@@ -318,7 +321,7 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintGuide_end="344dp"
+        app:layout_constraintGuide_percent="0.53061223"
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline
@@ -326,13 +329,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_end="172dp" />
+        app:layout_constraintGuide_percent="0.76462585" />
 
     <FrameLayout
         android:id="@+id/mapFrame"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline7"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -344,7 +347,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="4dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline11"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -370,7 +373,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -6,6 +6,19 @@
     android:layout_height="match_parent"
     android:background="@color/colorBackground">
 
+    <ImageView
+        android:id="@+id/shadowView"
+        android:layout_width="match_parent"
+        android:layout_height="7dp"
+        android:alpha="0.4"
+        android:elevation="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:srcCompat="@drawable/shadow_gradient">
+
+    </ImageView>
+
     <FrameLayout
         android:id="@+id/exerciseOngoingTop"
         android:layout_width="match_parent"
@@ -42,7 +55,9 @@
         android:layout_height="wrap_content"
         android:background="@color/colorBackground"
         android:clipChildren="false"
+        android:elevation="8dp"
         android:minHeight="?attr/actionBarSize"
+        android:outlineProvider="bounds"
         android:theme="@style/AppTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

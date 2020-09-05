@@ -84,6 +84,7 @@
         android:id="@+id/durationView"
         style="@style/statView"
         android:ems="4"
+        android:gravity="center_horizontal"
         android:text="@string/durationExample"
         android:textAlignment="center"
         android:typeface="normal"
