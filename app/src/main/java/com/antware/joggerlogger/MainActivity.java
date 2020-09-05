@@ -16,6 +16,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -71,29 +72,15 @@ public class MainActivity extends AppCompatActivity {
 
         model = new ViewModelProvider(this).get(LogViewModel.class);
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        ExerciseOngoingFragment ongoingFragment = (ExerciseOngoingFragment)
-                fragmentManager.findFragmentByTag(ExerciseOngoingFragment.TAG);
-        if (ongoingFragment == null) ongoingFragment = new ExerciseOngoingFragment();
-
         if (!model.isReloaded()) {
-            if (SHOW_SPLASH_SCREEN) showSplashScreen(fragmentManager);
+            if (SHOW_SPLASH_SCREEN) showSplashScreen(getSupportFragmentManager());
             if (!locationPermitted()) {
                 ActivityCompat.requestPermissions(this,
                     new String[]{ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-                 return;
             }
-            if (SHOW_SPLASH_SCREEN){
-                Handler handler = new Handler();
-                ExerciseOngoingFragment finalOngoingFragment = ongoingFragment;
-                Runnable r = () -> {
-                    initFragments(fragmentManager, finalOngoingFragment);
-                };
-                handler.postDelayed(r, SPLASH_SCREEN_DURATION);
-            }
-            else initFragments(fragmentManager, ongoingFragment);
+            else initFragments();
         }
-        else initFragments(fragmentManager, ongoingFragment);
+        else initFragments();
     }
 
     @Override
@@ -107,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             dialog.show();
         }
         super.onResume();
-        initLocationService();
+        if (locationPermitted()) initLocationService();
     }
 
     private boolean isLocationServiceRunning() {
@@ -139,27 +126,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setBarVisibility(boolean showBars) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            int visibility = showBars ? View.SYSTEM_UI_FLAG_VISIBLE : View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-            getWindow().getDecorView().setSystemUiVisibility(visibility);
-        }
-        else {
-            View v = this.getWindow().getDecorView();
-            v.setSystemUiVisibility(showBars ? View.VISIBLE : View.GONE);
-        }
+        int visibility = showBars ? View.SYSTEM_UI_FLAG_VISIBLE : View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        getWindow().getDecorView().setSystemUiVisibility(visibility);
     }
 
-    private void initFragments(FragmentManager fragmentManager, ExerciseOngoingFragment exerciseOngoingFragment) {
-        if (!model.isReloaded()) {
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.replace(R.id.mainFrameLayout, exerciseOngoingFragment, ExerciseOngoingFragment.TAG)
-                    .commit();
-        }
+    private void initFragments() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        ExerciseOngoingFragment ongoingFragment = (ExerciseOngoingFragment)
+                fragmentManager.findFragmentByTag(ExerciseOngoingFragment.TAG);
+        if (ongoingFragment == null) ongoingFragment = new ExerciseOngoingFragment();
+
+        if (!model.isReloaded()) onModelNotReloaded(fragmentManager, ongoingFragment);
         model.getStatus().observe(this, status -> {
             if (status == LogViewModel.ExerciseStatus.STOPPED_AFTER_PAUSED)
                 onExerciseStopped(fragmentManager);
         });
+    }
+
+    private void onModelNotReloaded(FragmentManager fragmentManager, ExerciseOngoingFragment ongoingFragment) {
+        if (SHOW_SPLASH_SCREEN){
+            Handler handler = new Handler();
+            Runnable runnable = () -> {
+                replaceFragment(fragmentManager, ongoingFragment, ExerciseOngoingFragment.TAG);
+            };
+            handler.postDelayed(runnable, SPLASH_SCREEN_DURATION);
+        }
+        else replaceFragment(fragmentManager, ongoingFragment, ExerciseOngoingFragment.TAG);
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void replaceFragment(FragmentManager fragmentManager, Fragment fragment, String tag) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.mainFrameLayout, fragment, tag).commit();
     }
 
     public boolean locationPermitted() {
@@ -174,8 +173,10 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_LOCATION) {
             if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                    grantResults[1] == PackageManager.PERMISSION_GRANTED) initFragments(getSupportFragmentManager(),
-                    new ExerciseOngoingFragment());
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                initFragments();
+                initLocationService();
+            }
             else onBackPressed();
         }
     }
