@@ -77,10 +77,6 @@ public class LocationService extends Service implements android.location.Locatio
     }
 
     public class ServiceBinder extends Binder {
-        /**
-         * Returns this instance.
-         * @return this instance
-         */
         LocationService getService() {
             return LocationService.this;
         }
@@ -97,7 +93,6 @@ public class LocationService extends Service implements android.location.Locatio
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
-                    Log.d(TAG, String.valueOf(altitudesHolder.getAverage()));
                     if (altitudesHolder.getSize() > 0)
                         location.setAltitude(altitudesHolder.getAverage());
                     bestLocationResult.gotLocation(location);
@@ -204,10 +199,6 @@ public class LocationService extends Service implements android.location.Locatio
 
     abstract static class BestLocationResult {
         abstract void gotLocation(Location location);
-    }
-
-    private void stopLocationUpdates() {
-        fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
     @SuppressLint("MissingPermission")

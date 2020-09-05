@@ -38,10 +38,6 @@ public class Duration implements Parcelable {
                 (int) (duration / 1000 % 60 % 60));
     }
 
-    public static long getMsFromDuration(Duration duration) {
-        return (duration.hours * 3600 + duration.minutes * 60 + duration.seconds) * 1000;
-    }
-
     @Override
     public int describeContents() {
         return 0;

@@ -104,14 +104,11 @@ public class FileManager {
         Gson gson = gsonBuilder.create();
         String detailsString = gson.toJson(details);
         writeContent(fileName, detailsString, activity);
-        Log.d("FileManager", detailsString);
     }
 
     private void writeContent(String fileName, String content, Activity activity) {
         try (FileOutputStream fos = activity.openFileOutput(fileName, Context.MODE_PRIVATE)) {
             fos.write(content.getBytes());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

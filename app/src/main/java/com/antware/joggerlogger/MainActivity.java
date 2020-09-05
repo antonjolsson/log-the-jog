@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (locationService != null) locationService.setSaveLocations(true);
+        if (locationService != null) locationService.setSaveLocations(false);
         model.saveTimerVars();
     }
 

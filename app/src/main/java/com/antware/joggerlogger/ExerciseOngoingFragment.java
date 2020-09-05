@@ -25,7 +25,6 @@ public class ExerciseOngoingFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "Created!");
         TransitionInflater inflater = TransitionInflater.from(requireContext());
         setExitTransition(inflater.inflateTransition(R.transition.slide_left));
         setReenterTransition(inflater.inflateTransition(R.transition.slide_left));

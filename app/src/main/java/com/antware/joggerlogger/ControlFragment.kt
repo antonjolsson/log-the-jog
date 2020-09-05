@@ -1,11 +1,10 @@
 package com.antware.joggerlogger
 
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.antware.joggerlogger.databinding.FragmentControlBinding
@@ -22,11 +21,8 @@ class ControlFragment : Fragment(R.layout.fragment_control) {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentControlBinding.inflate(inflater, container, false)
-        Log.d(TAG, "Created!")
         return binding.root
     }
 

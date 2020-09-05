@@ -113,7 +113,6 @@ class MapsFragment : Fragment() {
         map!!.clear()
 
         if (isAdded && currLocation != null) update(currLocation)
-        Log.d(TAG, "mapReady")
 
         if (model.waypoints.isNotEmpty()) {
             if (model.waypoints.last.status == STOPPED_AFTER_PAUSED)

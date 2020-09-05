@@ -20,14 +20,13 @@ import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.RESUMED;
 
 public class ChartView extends View {
 
-    private static final int VERT_GRID_LINES = 9;
     private static final float CHART_AXIS_WIDTH = 10;
     private static final float PATH_WIDTH = CHART_AXIS_WIDTH;
     private static final float AXIS_PADDING = PATH_WIDTH / 2;
     private static final float PATH_PADDING = PATH_WIDTH;
     private static final int CHART_AXIS_COLOR = R.color.colorBlack;
     private static final int PATH_COLOR = R.color.colorPrimaryDark;
-    private static final int PATH_FILL_ALPHA = 128; // 128
+    private static final int PATH_FILL_ALPHA = 128;
     private DataRange dataRange;
 
     VerticalData vertData;
@@ -119,11 +118,6 @@ public class ChartView extends View {
     }
 
     private void drawGrid(Canvas canvas) {
-
-        /*for (int i = 0; i < VERT_GRID_LINES; i++) {
-            float startX = (float) i / VERT_GRID_LINES * getWidth();
-            canvas.drawLine(startX, 0, startX, getHeight(), gridPaint);
-        }*/
         canvas.drawLine(AXIS_PADDING, 0, AXIS_PADDING, getHeight(), gridPaint);
         canvas.drawLine(0, getGridHeight(), getWidth(), getGridHeight(), gridPaint);
     }

@@ -63,7 +63,6 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "Created!");
         TransitionInflater inflater = TransitionInflater.from(requireContext());
         setEnterTransition(inflater.inflateTransition(R.transition.slide_right));
         setReturnTransition(inflater.inflateTransition(R.transition.slide_right));
@@ -101,7 +100,6 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
     public boolean onMenuItemClick(MenuItem item) {
         FileManager fileManager = FileManager.getInstance();
         fileManager.save(model, requireActivity());
-        Log.d("CompleteFragment", "Exercise saved!");
         return true;
     }
 
