@@ -3,6 +3,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\Anton\\upload-keystore.jks')
+            storePassword 'Y8rgfn7o'
+            keyAlias 'upload'
+            keyPassword 'Y8rgfn7o'
+        }
+    }
     compileSdkVersion 30
     buildToolsVersion "30.0.0"
 
