@@ -17,7 +17,10 @@ import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.SPE
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.PAUSED;
 import static com.antware.joggerlogger.LogViewModel.ExerciseStatus.RESUMED;
 
-
+/**
+ * Class for drawing a line chart in a ChartFragment.
+ * @author Anton J Olsson
+ */
 public class ChartView extends View {
 
     private static final float CHART_AXIS_WIDTH = 10;
@@ -45,6 +48,9 @@ public class ChartView extends View {
         super(context, attrs);
     }
 
+    /**
+     * Initializes the different paints used in the chart.
+     */
     private void initPaints() {
         gridPaint.setColor(ContextCompat.getColor(getContext(), CHART_AXIS_COLOR));
         gridPaint.setStrokeWidth(CHART_AXIS_WIDTH);
@@ -59,6 +65,9 @@ public class ChartView extends View {
         linePaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
+    /**
+     * The callback draw method.
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         if (model == null) return;
@@ -68,6 +77,12 @@ public class ChartView extends View {
         drawGrid(canvas);
     }
 
+    /**
+     * Draws a (filled) path.
+     * @param canvas the canvas to draw on
+     * @param dataRange the DataRange to use
+     * @param numWaypoints the number of points in the graph
+     */
     private void drawPath(Canvas canvas, DataRange dataRange, int numWaypoints) {
         Path path = new Path();
         for (int i = 0; i < numWaypoints; i++) {
@@ -81,6 +96,12 @@ public class ChartView extends View {
         canvas.drawPath(path, pathPaint);
     }
 
+    /**
+     * Draws a line.
+     * @param canvas the canvas to draw on
+     * @param dataRange the DataRange to use
+     * @param numWaypoints the number of points in the graph
+     */
     private void drawLine(Canvas canvas, DataRange dataRange, int numWaypoints) {
         for (int i = 1; i < numWaypoints; i++) {
             Point start = getDataPoint(numWaypoints, dataRange, i - 1);
@@ -89,39 +110,72 @@ public class ChartView extends View {
         }
     }
 
+    /**
+     * Returns a (2D) Point given the index of a waypoint.
+     */
     private Point getDataPoint(int numWaypoints, DataRange dataRange, int index) {
         return new Point((int) getPathX(numWaypoints, index), (int) getPathY(dataRange, index));
     }
 
+    /**
+     * Gets the y-coordinate of a Point given index of a Waypoint.
+     * @param i the index of the Waypoint
+     * @return a new Point
+     */
     private float getPathY(DataRange dataRange, int i) {
         Waypoint waypoint = model.getWaypoints().get(i);
         double currentValue = vertData == SPEED ? waypoint.getCurrentSpeed() : waypoint.getAltitude();
         return getYPosition(dataRange, currentValue);
     }
 
+    /**
+     * Gets the y-coordinate of a Point given a data value.
+     * @param currentValue the data value
+     * @return a new Point
+     */
     private float getYPosition(DataRange dataRange, double currentValue) {
         double range = dataRange.getMaxValue() - dataRange.getMinValue();
         return (float) ((dataRange.getMaxValue() - currentValue) / range) * getPathMaxVertExtent()
                 + AXIS_PADDING;
     }
 
+    /**
+     * Returns the max drawable vertical extent.
+     * @return the max drawable vertical extent
+     */
     private float getPathMaxVertExtent() {
         return getGridHeight() - PATH_PADDING;
     }
 
+    /**
+     * Returns the grid's height.
+     * @return the grid's height
+     */
     private float getGridHeight() {
         return getHeight() - AXIS_PADDING;
     }
 
+    /**
+     * Gets the x-coordinate of a Point given the index of a Waypoint.
+     * @param waypoints
+     * @param i the index
+     */
     private float getPathX(int waypoints, float i) {
         return i / --waypoints * (getWidth() - PATH_PADDING) + PATH_PADDING;
     }
 
+    /**
+     * Draws the chart's grid (i.e. the axes). Could be extended with e.g. more horizontal lines.
+     */
     private void drawGrid(Canvas canvas) {
         canvas.drawLine(AXIS_PADDING, 0, AXIS_PADDING, getHeight(), gridPaint);
         canvas.drawLine(0, getGridHeight(), getWidth(), getGridHeight(), gridPaint);
     }
 
+    /**
+     * Initializes the ChartView.
+     * @param filledPath draw a filled path or not?
+     */
     public void init(LogViewModel model, DataRange dataRange, VerticalData verticalData,
                      boolean filledPath) {
         this.dataRange = dataRange;

@@ -9,6 +9,11 @@ import com.google.android.gms.maps.model.LatLng;
 
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Class representing a waypoint, which is basically a Location with some added attributes,
+ * in an exercise route.
+ * @author Anton J Olsson
+ */
 public class Waypoint implements Parcelable {
     private final static String TAG = "Waypoint";
     private Location location;
@@ -58,6 +63,9 @@ public class Waypoint implements Parcelable {
         return status;
     }
 
+    /**
+     * Returns the time the location was "recorded".
+     */
     public long getTime() {
         return location.getTime();
     }
@@ -66,6 +74,9 @@ public class Waypoint implements Parcelable {
         this.status = status;
     }
 
+    /**
+     * Returns the current speed when the Location was "recorded".
+     */
     public double getCurrentSpeed() {
         return currentSpeed;
     }
@@ -91,6 +102,9 @@ public class Waypoint implements Parcelable {
         return new LatLng(location.getLatitude(), location.getLongitude());
     }
 
+    /**
+     * Returns automatically computed current speed in meters/second.
+     */
     public double getLocBasedSpeedMeters() {
         return location.getSpeed();
     }

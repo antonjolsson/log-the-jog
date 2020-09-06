@@ -25,7 +25,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.JointType.DEFAULT
 
-
+/**
+ * Class for map logic.
+ * @author Anton J Olsson
+ */
 @Suppress("PrivatePropertyName", "SameParameterValue")
 class MapsFragment : Fragment() {
 
@@ -49,6 +52,9 @@ class MapsFragment : Fragment() {
     private var centerCurrLocation: Boolean = true
     private val model: LogViewModel by activityViewModels()
 
+    /**
+     * Location callback.
+     */
     private val locationResult = object : LocationService.BestLocationResult() {
         override fun gotLocation(location: Location?) {
             currLocation = location
@@ -56,6 +62,9 @@ class MapsFragment : Fragment() {
         }
     }
 
+    /**
+     * If location isn't null, wraps it in a Waypoint and adds it to the viewmodel.
+     */
     private fun update(location: Location?) {
         val here = location?.latitude?.let { LatLng(it, location.longitude) }
         requireActivity().runOnUiThread {
@@ -82,6 +91,9 @@ class MapsFragment : Fragment() {
         innerPolylines.last().points = polyLinePoints
     }
 
+    /**
+     * Initializes two polylines, one white outer and one cyan inner.
+     */
     @Suppress("ConstantConditionIf")
     private fun initNewPolyline(startPoint: LatLng?, endPoint: LatLng?){
         var options: PolylineOptions? = PolylineOptions().color(getColor(OUTLINE_COLOR)).width(
@@ -96,6 +108,9 @@ class MapsFragment : Fragment() {
         map?.addPolyline(options.add(startPoint, endPoint))?.let { innerPolylines.add(it) }
     }
 
+    /**
+     * If viewmodel is reloaded, redraws the route.
+     */
     @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
         /**
@@ -129,6 +144,9 @@ class MapsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_maps, container, false)
     }
 
+    /**
+     * Adds observer for exercise status change.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
@@ -138,6 +156,9 @@ class MapsFragment : Fragment() {
         })
     }
 
+    /**
+     * Logic for viewodel status change.
+     */
     private fun onStatusChanged(status: ExerciseStatus?, addWaypoints: Boolean, waypoint: Waypoint,
         circleRadius: Double) {
         when (status) {
@@ -153,6 +174,9 @@ class MapsFragment : Fragment() {
         }
     }
 
+    /**
+     * Initializes the map.
+     */
     private fun onExerciseStarted(status: ExerciseStatus?, waypoint: Waypoint, circleRadius: Double,
         addWaypoints: Boolean) {
         if (currLocation == null)
@@ -165,6 +189,9 @@ class MapsFragment : Fragment() {
 
     private fun getColor(color: Int): Int { return ContextCompat.getColor(requireContext(), color) }
 
+    /**
+     * Adds a circle to the map.
+     */
     private fun addCircle(radius: Double, strokeColorId: Int, fillColorId: Int, zIndex: Float, latLng: LatLng) {
         map?.addCircle(latLng.let {
             CircleOptions().center(it).radius(radius).strokeColor(getColor(strokeColorId)).fillColor(getColor(
@@ -173,6 +200,9 @@ class MapsFragment : Fragment() {
         })
     }
 
+    /**
+     * Redraws the route upon recreation of the activity or when exercise is complete.
+     */
     private fun redrawRoute(routeCompleted: Boolean) {
         val circleRadius = getCircleRadius(routeCompleted)
         var currStatus: ExerciseStatus? = null
@@ -191,9 +221,13 @@ class MapsFragment : Fragment() {
         }
     }
 
+    /**
+     * Gets circle radius base on map scale - assuring circles always are of the same size.
+     */
     private fun getCircleRadius(routeCompleted: Boolean): Double {
         val ongoingRouteMapSize = getMapDiagonalMeters(map)
         val latLngBounds = getLatLngBounds()
+
         if (routeCompleted && latLngBounds?.southwest != latLngBounds?.northeast) map?.moveCamera(
             CameraUpdateFactory.newLatLngBounds(getLatLngBounds(), COMPLETE_ROUTE_PADDING))
         val mapSizeCoefficient = getMapDiagonalMeters(map) / ongoingRouteMapSize
@@ -203,6 +237,9 @@ class MapsFragment : Fragment() {
         return circleRadius
     }
 
+    /**
+     * Computes the displayed map diagonal in meters.
+     */
     private fun getMapDiagonalMeters(map: GoogleMap?): Float {
         val farLeft = map?.projection?.visibleRegion?.farLeft
         val farRight = map?.projection?.visibleRegion?.farRight
@@ -214,6 +251,9 @@ class MapsFragment : Fragment() {
         return results[0]
     }
 
+    /**
+     * Get the bounds of the map to display when exercise is completed.
+     */
     private fun getLatLngBounds(): LatLngBounds? {
         var latLngBounds : LatLngBounds? = null
         for ((i, wayPoint) in model.waypoints.withIndex()) {

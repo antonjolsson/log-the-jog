@@ -13,6 +13,10 @@ import com.antware.joggerlogger.ExerciseCompleteFragment.TWO_DECIMALS_FORMAT
 import com.antware.joggerlogger.databinding.FragmentStatsBinding
 import java.util.*
 
+/**
+ * Fragment for displaying stats during the exercise.
+ * @author Anton J Olsson
+ */
 @SuppressLint("SetTextI18n")
 class StatsFragment : Fragment() {
 
@@ -28,6 +32,9 @@ class StatsFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Observes stats in viewmodel and updates corresponding views if the first is changed.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         model.duration.observe(viewLifecycleOwner, { duration ->
@@ -44,6 +51,9 @@ class StatsFragment : Fragment() {
         })
     }
 
+    /**
+     * Initializes the views with data from the viewmodel.
+     */
     override fun onResume() {
         super.onResume()
         model.duration.value?.let { setDuration(it) }
@@ -60,6 +70,9 @@ class StatsFragment : Fragment() {
         binding.durationView.text = getDurationText(duration)
     }
 
+    /**
+     * Converts a duration to a string. // TODO: override toString() in class instead.
+     */
     companion object {
         fun getDurationText(duration: Duration): String {
             val hours = duration.hours.toString()

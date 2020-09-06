@@ -16,6 +16,10 @@ import androidx.transition.TransitionListenerAdapter;
 
 import com.antware.joggerlogger.databinding.FragmentSplashBinding;
 
+/**
+ * Fragment responsible for displaying the splash screen.
+ * @author Anton J Olsson
+ */
 public class SplashFragment extends Fragment {
 
     private static final long ANIM_DURATION = 2000;
@@ -28,6 +32,9 @@ public class SplashFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Fades in the logo.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -37,6 +44,9 @@ public class SplashFragment extends Fragment {
         fadeAnim.start();
     }
 
+    /**
+     * Sets transitions and hides system bars.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

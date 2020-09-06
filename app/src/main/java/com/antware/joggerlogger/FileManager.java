@@ -31,6 +31,11 @@ import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.Calendar;
 
+/**
+ * Class for writing and reading finished exercises to disk, using Json. Meant to be be used in conjunction with
+ * e.g. a RecyclerView. Feature not yet implemented.
+ * @author Anton J Olsson
+ */
 public class FileManager {
 
     private static FileManager fileManager;
@@ -42,7 +47,14 @@ public class FileManager {
         return fileManager;
     }
 
+    /**
+     * Converts Waypoints to and from Json.
+     */
     public static class WaypointAdapter extends TypeAdapter<Waypoint> {
+
+        /**
+         * Returns a Waypoint from a JsonReader.
+         */
         public Waypoint read(JsonReader reader) throws IOException {
             if (reader.peek() == JsonToken.NULL) {
                 reader.nextNull();
@@ -89,6 +101,9 @@ public class FileManager {
         }
     }
 
+    /**
+     * Creates a Json string from current LogViewModel state.
+     */
     public void save(LogViewModel model, Activity activity) {
         ExerciseDetails details = ExerciseDetails.getInstance();
         String fileName = getDate(model.getWaypoints().get(0).getTime());
@@ -106,6 +121,10 @@ public class FileManager {
         writeContent(fileName, detailsString, activity);
     }
 
+    /**
+     * Creates a new file and Writes a Json string into it.
+     * @param content the Json string
+     */
     private void writeContent(String fileName, String content, Activity activity) {
         try (FileOutputStream fos = activity.openFileOutput(fileName, Context.MODE_PRIVATE)) {
             fos.write(content.getBytes());
@@ -114,6 +133,9 @@ public class FileManager {
         }
     }
 
+    /**
+     * Returns a Date in String format from a timestamp in milliseconds.
+     */
     private String getDate(long timeStamp) {
         DateFormat df = DateFormat.getDateTimeInstance();
         Calendar calendar = Calendar.getInstance();

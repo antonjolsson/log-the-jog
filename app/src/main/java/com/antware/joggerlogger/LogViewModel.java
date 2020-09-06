@@ -24,6 +24,10 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.toRadians;
 
+/**
+ * ViewModel for the entire application, performing the domain logic.
+ * @author Anton J Olsson
+ */
 public class LogViewModel extends ViewModel {
 
     private static final String TAG = "LogViewModel";
@@ -75,12 +79,18 @@ public class LogViewModel extends ViewModel {
         if (savedStateHandle.contains("waypoints")) loadState();
     }
 
+    /**
+     * Saves all variables related to the exercise duration timer.
+     */
     public void saveTimerVars() {
         savedStateHandle.set(TOTAL_DURATION_TAG, totalDuration);
         savedStateHandle.set(DURATION_BEFORE_PAUSE_TAG, durationBeforePause);
         savedStateHandle.set(TIMER_START_TIME_TAG, timerStartTime);
     }
 
+    /**
+     * Reloads the state, if it's being re-created.
+     */
     @SuppressWarnings("ConstantConditions")
     void loadState() {
         if (savedStateHandle.contains(WAYPOINTS_TAG)) {
@@ -123,11 +133,18 @@ public class LogViewModel extends ViewModel {
         savedStateHandle.set(WAYPOINTS_TAG, waypoints);
     }
 
+    /**
+     * Sets the current speed of a Waypoint by taking the average speed during last SECONDS_IN_AVG_SPEED_CALC
+     * seconds.
+     */
     private void setWaypointSpeed(Waypoint waypoint) {
         double speed = getSpeed(SECONDS_IN_AVG_SPEED_CALC);
         waypoint.setCurrentSpeed(speed);
     }
 
+    /**
+     * Starts time-taking of an exercise, by using a Timer.
+     */
     private void startTimeTaking() {
         timerStartTime = System.currentTimeMillis();
         TimerTask timerTask = new TimerTask() {
@@ -137,9 +154,13 @@ public class LogViewModel extends ViewModel {
             }
         };
         timer = new Timer();
-        timer.scheduleAtFixedRate(timerTask, durationBeforePause % 1000, 1000);
+        timer.scheduleAtFixedRate(timerTask, durationBeforePause % LOCATION_UPDATE_FREQ,
+                LOCATION_UPDATE_FREQ);
     }
 
+    /**
+     * Updates the state of the ViewModel. Sets speed and distance, given enough received waypoints.
+     */
     private void update() {
         totalDuration = System.currentTimeMillis() - timerStartTime + durationBeforePause;
         setDuration();
@@ -156,6 +177,9 @@ public class LogViewModel extends ViewModel {
         savedStateHandle.set("duration", duration);
     }
 
+    /**
+     * Sets the pace (time to traverse a km).
+     */
     private void setPace() {
         if (distanceKm.getValue() == null) return;
         long msPerKm = (long) (totalDuration / distanceKm.getValue() + 0.5);
@@ -164,11 +188,17 @@ public class LogViewModel extends ViewModel {
         savedStateHandle.set("pace", paceDuration);
     }
 
+    /**
+     * Are there enough waypoints to compute e.g. speed by own implementation?
+     */
     public boolean exerciseJustStarted() {
         return waypoints.size() == 1 || (waypoints.getSecondLast().getStatus() != STARTED &&
                 waypoints.getSecondLast().getStatus() != RESUMED);
     }
 
+    /**
+     * Sets viewmodel state when start button is pressed - given current state.
+     */
     public void startButtonPressed() {
         if (status == STARTED || status == RESUMED) {
             status = PAUSED;
@@ -182,6 +212,9 @@ public class LogViewModel extends ViewModel {
         }
     }
 
+    /**
+     * Resets all variables to initial state and saves them to savedStateHandle.
+     */
     void reset() {
         totalDuration = 0L;
         durationBeforePause = 0L;
@@ -201,6 +234,9 @@ public class LogViewModel extends ViewModel {
         timer.cancel();
     }
 
+    /**
+     * If there is at least one received Waypoint, changes its state to STOPPED_AFTER_PAUSED.
+     */
     public void stopButtonPressed() {
         status = STOPPED_AFTER_PAUSED;
         if (!waypoints.isEmpty())
@@ -214,6 +250,10 @@ public class LogViewModel extends ViewModel {
         startTimeTaking();
     }
 
+    /**
+     * Returns speed based on the average of the last waypoints.
+     * @param numWaypoints the number of waypoints to account for.
+     */
     private double getSpeed(int numWaypoints) {
         if (USE_OWN_SPEED_COMPUTATION) {
             return waypoints.size() > 1 ? getComputedSpeed(numWaypoints) : 0.0;
@@ -221,6 +261,10 @@ public class LogViewModel extends ViewModel {
         else return getLocationBasedSpeed(numWaypoints);
     }
 
+    /**
+     * Returns speed based on an average of the speeds provided in the received locations.
+     * @param numWaypoints the number of waypoints to get the speed from
+     */
     private double getLocationBasedSpeed(int numWaypoints) {
         double totalSpeed = 0;
         int usedWaypoints = Math.min(numWaypoints, waypoints.size());
@@ -231,6 +275,10 @@ public class LogViewModel extends ViewModel {
         return totalSpeed / Math.min(numWaypoints, waypoints.size());
     }
 
+    /**
+     * Returns speed based on the distance between a number of waypoints and their timestamps.
+     * @param numWaypoints the number of waypoints to get data from
+     */
     private double getComputedSpeed(int numWaypoints) {
         double speedCalcDistance = 0;
         long speedCalcDuration = 0;
@@ -262,6 +310,9 @@ public class LogViewModel extends ViewModel {
         setAndSaveLiveData(speed, "avgSpeed");
     }
 
+    /**
+     * Sets distance traversed.
+     */
     private void setDistance() {
         if (waypoints.getLast() == null || waypoints.getSecondLast() == null) return;
         double newDistance = Waypoint.distanceBetween(waypoints.getSecondLast(), waypoints.getLast())
@@ -293,7 +344,12 @@ public class LogViewModel extends ViewModel {
         return pace;
     }
 
-    public LiveData<Boolean> getIsReloadedLiveData() { return isReloadedLiveData; }
+    /**
+     * Is the viewmodel reloaded?
+     */
+    public LiveData<Boolean> getIsReloadedLiveData() {
+        return isReloadedLiveData;
+    }
 
     public WaypointList getWaypoints() {
         return waypoints;
@@ -303,15 +359,25 @@ public class LogViewModel extends ViewModel {
         return isReloaded;
     }
 
+    /**
+     * Gets the pixel radius for drawing circles on the map.
+     */
     public double getMapCircleRadius() {
         return mapCircleRadius;
     }
 
+    /**
+     * Sets the pixel radius for drawing circles on the map.
+     */
     public void setMapCircleRadius(double mapCircleRadius) {
         this.mapCircleRadius = mapCircleRadius;
         savedStateHandle.set(MAP_CIRCLE_RADIUS_TAG, mapCircleRadius);
     }
 
+    /**
+     * Own implementation for computing distance in meters between to Waypoints/Locations. Currently
+     * not used as a method for this is provided in the Location class.
+     */
     private double getDistanceBetweenCoords(Waypoint w2, Waypoint w1) {
         if (w1 == null) return Double.NaN;
         double latW1 = toRadians(w1.getLatitude());

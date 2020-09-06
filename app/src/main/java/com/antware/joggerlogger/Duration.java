@@ -5,6 +5,10 @@ import android.os.Parcelable;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Class representing a duration, in hours, minutes and seconds.
+ * @author Anton J Olsson
+ */
 public class Duration implements Parcelable {
     int hours, minutes, seconds;
 
@@ -32,6 +36,11 @@ public class Duration implements Parcelable {
         }
     };
 
+    /**
+     * Converts a duration in milliseconds to a Duration and returns it.
+     * @param duration duration in ms
+     * @return new Duration
+     */
     @NotNull
     public static Duration getDurationFromMs(long duration) {
         return new Duration((int) (duration / 1000 / 60 / 60),(int) (duration / 1000 / 60 % 60),

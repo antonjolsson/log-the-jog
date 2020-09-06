@@ -31,6 +31,10 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static com.antware.joggerlogger.LocationService.REQUEST_LOCATION;
 
+/**
+ * Only Activity in the application. Handles fragment transactions and initiates location services.
+ * @author Anton J Olsson
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final long SPLASH_SCREEN_DURATION = 3000;
@@ -45,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
     private LocationService locationService;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
+        /**
+         * Creates an instance of locationService and initializes it.
+         */
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             locationService = ((LocationService.ServiceBinder) iBinder).getService();
@@ -63,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * Shows splash screen if app is not resumed and checks location permissions.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +93,9 @@ public class MainActivity extends AppCompatActivity {
         else initFragments();
     }
 
+    /**
+     * Checks availability of Google Play Services.
+     */
     @Override
     protected void onResume() {
         GoogleApiAvailability availability = GoogleApiAvailability.getInstance();
@@ -107,6 +120,9 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * Initializes location service, if it's not running, and binds to it.
+     */
     private void initLocationService() {
         if (!isLocationServiceRunning()) {
             locationIntent = new Intent(this, LocationService.class);
@@ -125,12 +141,18 @@ public class MainActivity extends AppCompatActivity {
         transaction.add(R.id.mainFrameLayout, splashFragment).commit();
     }
 
+    /**
+     * Shows or hides system bars, depending on whether the splash screen is visible.
+     */
     public void setBarVisibility(boolean showBars) {
         int visibility = showBars ? View.SYSTEM_UI_FLAG_VISIBLE : View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         getWindow().getDecorView().setSystemUiVisibility(visibility);
     }
 
+    /**
+     * Initializes fragments and listens to stopped exercise.
+     */
     private void initFragments() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         ExerciseOngoingFragment ongoingFragment = (ExerciseOngoingFragment)
@@ -144,6 +166,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Logic for app start-up.
+     */
     private void onModelNotReloaded(FragmentManager fragmentManager, ExerciseOngoingFragment ongoingFragment) {
         if (SHOW_SPLASH_SCREEN){
             Handler handler = new Handler();
@@ -155,6 +180,9 @@ public class MainActivity extends AppCompatActivity {
         else replaceFragment(fragmentManager, ongoingFragment, ExerciseOngoingFragment.TAG);
     }
 
+    /**
+     * Generic method for replacing a fragment.
+     */
     @SuppressWarnings("SameParameterValue")
     private void replaceFragment(FragmentManager fragmentManager, Fragment fragment, String tag) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -168,6 +196,9 @@ public class MainActivity extends AppCompatActivity {
                        PackageManager.PERMISSION_GRANTED;
     }
 
+    /**
+     * Callback for a location permission. If permissions are not granted, exits the app.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -181,6 +212,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Switches fragment when exercise is stopped.
+     */
     private void onExerciseStopped(FragmentManager fragmentManager) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         ExerciseCompleteFragment fragment = (ExerciseCompleteFragment)
@@ -199,6 +233,10 @@ public class MainActivity extends AppCompatActivity {
         model.saveTimerVars();
     }
 
+    /**
+     * If active fragment is ExerciseStoppedFragment, resets all stats and returns to
+     * ExerciseOngoingFragment. Else, stops location service and quits the app.
+     */
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() == 1) model.reset();

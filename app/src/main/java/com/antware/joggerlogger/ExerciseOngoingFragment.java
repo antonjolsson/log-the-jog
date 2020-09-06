@@ -18,6 +18,10 @@ import com.antware.joggerlogger.databinding.FragmentExerciseOngoingBinding;
 
 import static android.view.View.GONE;
 
+/**
+ * Fragment for UI logic of ongoing exercise.
+ * @author Anton J Olsson
+ */
 public class ExerciseOngoingFragment extends Fragment {
 
     public final static String TAG = "ExerciseOngoingFragment";
@@ -37,6 +41,9 @@ public class ExerciseOngoingFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Creates child fragments and adds them to containers.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

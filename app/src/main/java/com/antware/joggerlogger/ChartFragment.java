@@ -26,6 +26,10 @@ import static com.antware.joggerlogger.ExerciseCompleteFragment.VERT_DATA_KEY;
 import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.ELEVATION;
 import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.SPEED;
 
+/**
+ * Class responsible for displaying a chart.
+ * @author Anton J Olsson
+ */
 public class ChartFragment extends Fragment {
 
     public final static String TAG = ChartFragment.class.getSimpleName();
@@ -40,6 +44,10 @@ public class ChartFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Determines the type of data to display and the vertical axis range. Sets the tick and
+     * axis labels.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -68,6 +76,10 @@ public class ChartFragment extends Fragment {
         addVertLayoutObserver();
     }
 
+    /**
+     * Computes the width of the vertical axis (including tick marks), so that both charts on the results
+     * screen will have the same axis width.
+     */
     private void addVertLayoutObserver() {
         ViewTreeObserver vto = binding.vertLabelsLayout.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -81,6 +93,11 @@ public class ChartFragment extends Fragment {
         });
     }
 
+    /**
+     * Sets the tick labels on an axis, depending on the max and min values and the index.
+     * @param maxMinValues the max and min values of the data
+     * @param labelsLayout the axis' layout
+     */
     private void setTickLabels(DataRange maxMinValues, ConstraintLayout labelsLayout) {
         for (int i = 0; i < labelsLayout.getChildCount(); i++) {
             double range = maxMinValues.maxValue - maxMinValues.minValue;
@@ -90,6 +107,11 @@ public class ChartFragment extends Fragment {
         }
     }
 
+    /**
+     * Sets the tick labels on an axis representing data.
+     * @param layout the axis' layout
+     * @param model the viewmodel containing the data
+     */
     private void setDurTickLabels(ConstraintLayout layout, LogViewModel model) {
         Duration duration = model.getDuration().getValue();
         assert duration != null;
@@ -102,12 +124,19 @@ public class ChartFragment extends Fragment {
         }
     }
 
+    /**
+     * Sets the width of the vertical axis to align it with other charts.
+     * @param width the new width of the axis
+     */
     public void setVertLayoutWidth(int width) {
         ViewGroup.LayoutParams params = binding.vertLabelsLayout.getLayoutParams();
         params.width = width;
         binding.vertLabelsLayout.setLayoutParams(params);
     }
 
+    /**
+     * Class representing a data range an axis will display.
+     */
     public static class DataRange {
 
         public DataRange(double maxValue, double minValue) {
@@ -117,16 +146,32 @@ public class ChartFragment extends Fragment {
 
         public DataRange() {}
 
+        /**
+         * Gets the max value of the range.
+         * @return the max value
+         */
         public double getMaxValue() {
             return maxValue;
         }
 
+        /**
+         * Gets the min value of the range.
+         * @return the min value
+         */
         public double getMinValue() {
             return minValue;
         }
 
         private double maxValue = Double.MIN_VALUE, minValue = Double.MAX_VALUE;
 
+        /**
+         * Returns a new DataRange.
+         * @param model the viewmodel
+         * @param dataType the type of data
+         * @param getMaxValue should the set's max value or 0 be used as the range's max value?
+         * @param getMinValue should the set's min value or 0 be used as the range's min value?
+         * @return a new DataRange
+         */
         public static DataRange getDataRange(LogViewModel model, VerticalData dataType,
                                              boolean getMaxValue, boolean getMinValue) {
             DataRange dataRange = new DataRange();
@@ -142,14 +187,27 @@ public class ChartFragment extends Fragment {
             return dataRange;
         }
 
+        /**
+         * Multiplies the min value with some coefficient. Might be useful later/in other contexts.
+         * @param coefficient the coefficient
+         */
         public void setMinValue(double coefficient) {
             minValue *= coefficient;
         }
 
+        /**
+         * Multiplies the max value with some coefficient. Might be useful later/in other contexts.
+         * @param coefficient the coefficient
+         */
         public void setMaxValue(double coefficient) {
             maxValue *= coefficient;
         }
 
+        /**
+         * Increases or decreases the extent of the range by multiplying the extreme values with some
+         * coefficient.
+         * @param coefficient the coefficient.
+         */
         public void setRangeExtent(double coefficient) {
             double average = (maxValue + minValue) / 2;
             maxValue = average + (maxValue - average) * coefficient;

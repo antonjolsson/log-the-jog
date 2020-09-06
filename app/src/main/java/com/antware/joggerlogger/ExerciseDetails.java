@@ -1,5 +1,9 @@
 package com.antware.joggerlogger;
 
+/**
+ * Class for serializing an exercise session into Json format.
+ * @author Anton J Olsson
+ */
 public class ExerciseDetails {
 
     private static ExerciseDetails exerciseDetails;

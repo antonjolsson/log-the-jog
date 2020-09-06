@@ -28,6 +28,10 @@ import java.util.Objects;
 import static com.antware.joggerlogger.ExerciseCompleteFragment.HorizontalData.DISTANCE;
 import static com.antware.joggerlogger.ExerciseCompleteFragment.VerticalData.*;
 
+/**
+ * Fragment for UI logic of completed exercise screen.
+ * @author Anton J Olsson
+ */
 public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenuItemClickListener{
 
     public final static String TAG = "exerciseCompleteFrag";
@@ -40,6 +44,11 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
     private List<Integer> vertLayoutWidths = new ArrayList<>();
     private ChartFragment elevFragment;
 
+    /**
+     * Adds the (dynamic) width of a chart's vertical axis. If both charts' width has been added,
+     * sets the width of both to the max value, to align both axes.
+     * @param vertLayoutWidth the width of the vertical axis
+     */
     public void addVertLayoutWidth(int vertLayoutWidth) {
         vertLayoutWidths.add(vertLayoutWidth);
         if (vertLayoutWidths.size() == NUM_OF_CHART_FRAGMENTS) {
@@ -75,6 +84,9 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         return binding.getRoot();
     }
 
+    /**
+     * Sets listeners and adds child fragments.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -96,6 +108,9 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         transaction.commit();
     }
 
+    /**
+     * Method for saving the exercise (MenuItem missing as feature not implemented).
+     */
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         FileManager fileManager = FileManager.getInstance();
@@ -103,6 +118,12 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         return true;
     }
 
+    /**
+     * Creates a new ChartFragment given types of data.
+     * @param vertData
+     * @param horizData
+     * @return
+     */
     private ChartFragment getChartFragment(VerticalData vertData, HorizontalData horizData) {
         ChartFragment fragment = new ChartFragment();
 
@@ -114,6 +135,10 @@ public class ExerciseCompleteFragment extends Fragment implements Toolbar.OnMenu
         return fragment;
     }
 
+    /**
+     * Displays numeric stats about the finished exercise. As features calories burned and activity type
+     * are not yet implemented, their views are set as Gone.
+     */
     private void showNumericStats(LogViewModel model) {
         String durationText = StatsFragment.
                 Companion.getDurationText(Objects.requireNonNull(model.getDuration().getValue()));

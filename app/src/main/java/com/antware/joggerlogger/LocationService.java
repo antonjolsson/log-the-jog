@@ -50,6 +50,10 @@ import java.util.TimeZone;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
+/**
+ * Class for receiving current location.
+ * @author Anton J Olsson
+ */
 public class LocationService extends Service implements android.location.LocationListener {
 
     private static final int REQUEST_CHECK_SETTINGS = 1;
@@ -70,6 +74,10 @@ public class LocationService extends Service implements android.location.Locatio
     private boolean saveLocations;
     private LocationManager locationManager;
 
+    /**
+     * Save locations to disk or remote database in case the activity is killed and only the service
+     * is running. Feature not yet implemented.
+     */
     public void setSaveLocations(boolean save) {
         if (save)
             locations.clear();
@@ -82,11 +90,19 @@ public class LocationService extends Service implements android.location.Locatio
         }
     }
 
+    /**
+     * Initializes various location providers and locationCallback.
+     */
     public void initService(MainActivity mainActivity, Context context){
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(mainActivity);
         this.mainActivity = mainActivity;
         registerLocationManager(context);
         locationCallback = new LocationCallback() {
+            /**
+             * Callback for location result from fusedLocationClient. If there are altitudes in
+             * altitudesHolder (which are more accurate), sets the location's altitude to their average.
+             * More sophisticated method for finding most accurate altitude could be implemented.
+             */
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 if (locationResult == null) {
@@ -102,6 +118,9 @@ public class LocationService extends Service implements android.location.Locatio
         };
     }
 
+    /**
+     * Creates notification about application using user's location.
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Intent notificationIntent = new Intent(this, LocationService.class);
@@ -123,6 +142,9 @@ public class LocationService extends Service implements android.location.Locatio
         return START_STICKY;
     }
 
+    /**
+     * Required for Android Oreo.
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     private String createNotificationChannel(){
         NotificationChannel chan = new NotificationChannel("locationService",
@@ -140,6 +162,9 @@ public class LocationService extends Service implements android.location.Locatio
         return serviceBinder;
     }
 
+    /**
+     * Tries to get last location.
+     */
     @SuppressLint("MissingPermission")
     public void getLocation(@Nullable Context context, @NotNull BestLocationResult bestLocationResult) {
         assert context != null;
@@ -191,16 +216,24 @@ public class LocationService extends Service implements android.location.Locatio
         };
     }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) { }
 
+    /**
+     * Necessary for implementing a LocationListener
+     */
     @Override
     public void onLocationChanged(@NonNull Location location) { }
 
+    /**
+     * Callback location class.
+     */
     abstract static class BestLocationResult {
         abstract void gotLocation(Location location);
     }
 
+    /**
+     * Request updates from a LocationManager and add an NmeaListener. This is because Nmea data contains
+     * MSL altitude, while FusedLocationProvider returns the ellipsoid height.
+     */
     @SuppressLint("MissingPermission")
     public void registerLocationManager(Context context) {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -216,7 +249,11 @@ public class LocationService extends Service implements android.location.Locatio
         }
     }
 
-    // Solution mostly taken from https://stackoverflow.com/a/44518339/8773363
+    /**
+     * Parses an Nmea string, if locationManager receives one. Sets the time of the received string,
+     * adds the altitude to altitudesHolder and sets lastMslAltitude.
+     * Solution mostly taken from https://stackoverflow.com/a/44518339/8773363
+     */
     private void parseNmeaString(String line) {
         if (line.startsWith("$")) {
             String[] tokens = line.split(",");

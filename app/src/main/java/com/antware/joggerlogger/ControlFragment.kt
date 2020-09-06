@@ -9,6 +9,10 @@ import androidx.fragment.app.activityViewModels
 import com.antware.joggerlogger.LogViewModel.ExerciseStatus.*
 import com.antware.joggerlogger.databinding.FragmentControlBinding
 
+/**
+ * Fragment for controls (buttons) during ongoing exercise.
+ * @author Anton J Olsson
+ */
 class ControlFragment : Fragment(R.layout.fragment_control) {
 
     companion object {
@@ -37,7 +41,6 @@ class ControlFragment : Fragment(R.layout.fragment_control) {
                 setControlState(model.exerciseStatus)
             }
         })
-
         setControlState(model.exerciseStatus)
     }
 
@@ -62,6 +65,9 @@ class ControlFragment : Fragment(R.layout.fragment_control) {
         model.startButtonPressed()
     }
 
+    /**
+     * Sets visibility and text on buttons given exercise state.
+     */
     private fun setControlState(status: LogViewModel.ExerciseStatus) {
         when (status) {
             STARTED, RESUMED -> {binding.stopButton.visibility = View.GONE
