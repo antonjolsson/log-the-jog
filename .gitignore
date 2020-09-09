@@ -1,3 +1,5 @@
+# Ignored by git
+
 *.iml
 .gradle
 /local.properties
