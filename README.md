@@ -5,3 +5,6 @@ A basic run-tracker for Android.
 
 ## Installation
 Download the release .apk and install directly or download the repo and build with Android Studio.
+
+### Credits
+Logo icon (altered) made by [Freepik](https://www.flaticon.com/authors/freepik) from www.flaticon.com <br>
